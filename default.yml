@@ -1,0 +1,17 @@
+---
+  server:
+    applicationConnectors:
+    - type: http
+      port: 80
+    adminConnectors:
+    - type: http
+      port: 8091
+
+  jedis:
+    host:
+    port:
+    password:
+
+  lastFm:
+    apiKey:
+    secret:
