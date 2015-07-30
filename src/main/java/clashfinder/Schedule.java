@@ -11,12 +11,20 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Schedule {
     private Map<String,List<Event>> sched;
+    private Map<String,List<Event>> clash;
+
     private List<Event> schedule;
     private List<Event> clashes;
 
-    public Schedule(List<Event> schedule, List<Event> clashes) {
-        this.schedule = schedule;
-        this.clashes = clashes;
+//    public Schedule(List<Event> schedule, List<Event> clashes) {
+//        this.schedule = schedule;
+//        this.clashes = clashes;
+//    }
+
+
+    public Schedule(Map<String, List<Event>> sched, Map<String, List<Event>> clash) {
+        this.sched = sched;
+        this.clash = clash;
     }
 
     public List<Event> getSchedule() {
@@ -41,5 +49,13 @@ public class Schedule {
 
     public void setSched(Map<String, List<Event>> sched) {
         this.sched = sched;
+    }
+
+    public Map<String, List<Event>> getClash() {
+        return clash;
+    }
+
+    public void setClash(Map<String, List<Event>> clash) {
+        this.clash = clash;
     }
 }
