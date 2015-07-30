@@ -1,6 +1,7 @@
 package clashfinder;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import service.DateTimeDeserialiser;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonDeserialize;
@@ -12,6 +13,7 @@ import org.joda.time.DateTime;
  */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Event {
     private String name;
     private String stage;
@@ -23,6 +25,9 @@ public class Event {
 
     private DateTime end;
     private int scrobs;
+
+    private String ttStart;
+    private String ttDuration;
 
     public Event() {
     }
@@ -105,6 +110,22 @@ public class Event {
 
     public void setEndTime(String endTime) {
         this.endTime = endTime;
+    }
+
+    public String getTtStart() {
+        return ttStart;
+    }
+
+    public void setTtStart(String ttStart) {
+        this.ttStart = ttStart;
+    }
+
+    public String getTtDuration() {
+        return ttDuration;
+    }
+
+    public void setTtDuration(String ttDuration) {
+        this.ttDuration = ttDuration;
     }
 
     @Override

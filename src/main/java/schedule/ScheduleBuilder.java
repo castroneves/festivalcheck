@@ -6,6 +6,7 @@ import org.joda.time.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.format.TextStyle;
 import java.util.*;
@@ -19,6 +20,11 @@ import static java.util.stream.Collectors.toList;
 public class ScheduleBuilder {
 
     public Schedule createSchedule(List<Event> events) {
+        events.stream().forEach(
+                e -> {
+                    setUpTimeTableData(e);
+                }
+        );
         List<Event> schedule = new ArrayList<>();
         List<Event> clashes = new ArrayList<>();
 
@@ -32,21 +38,44 @@ public class ScheduleBuilder {
             }
         }
 
-        List<Event> sorted = schedule.stream().sorted((x, y) -> x.getStart().compareTo(y.getStart())).collect(toList());
-        Schedule sched = new Schedule(
-                sorted,
-                clashes.stream().sorted((x, y) -> x.getStart().compareTo(y.getStart())).collect(toList())
-        );
-        Map<String,List<Event>> grouped = sorted.stream().collect(groupingBy(
-                    e -> e.getDay(), LinkedHashMap::new,
-                    toList()
+//        List<Event> sorted = schedule.stream().sorted((x, y) -> x.getStart().compareTo(y.getStart())).collect(toList());
+//        Schedule sched = new Schedule(
+//                sorted,
+//                clashes.stream().sorted((x, y) -> x.getStart().compareTo(y.getStart())).collect(toList())
+//        );
+//        Map<String,List<Event>> grouped = sorted.stream().collect(groupingBy(
+//                    e -> e.getDay(), LinkedHashMap::new,
+//                    toList()
+//                )
+//
+//        );
+//
+//        sched.setSched(grouped);
+//        sched.setSchedule(null);
+        return new Schedule(sortAndGroupData(schedule), sortAndGroupData(clashes));
+    }
+
+    private void setUpTimeTableData(Event e) {
+        Duration d = new Duration(e.getStart(),e.getEnd());
+        Minutes minutes = d.toStandardMinutes();
+        BigDecimal hours = BigDecimal.valueOf(minutes.getMinutes()).divide(BigDecimal.valueOf(60),4,BigDecimal.ROUND_HALF_UP);
+        e.setTtDuration(hours.toString());
+
+        DateTime offsetAdjusted = e.getStart().minusHours(11);
+        int hourOfDay = offsetAdjusted.getHourOfDay();
+        int minuteOfHour = offsetAdjusted.getMinuteOfHour();
+        BigDecimal ttStart = BigDecimal.valueOf(hourOfDay).add(BigDecimal.valueOf(minuteOfHour).divide(BigDecimal.valueOf(60), 4, BigDecimal.ROUND_HALF_UP));
+        e.setTtStart(ttStart.toString());
+    }
+
+    private Map<String,List<Event>> sortAndGroupData(List<Event> events) {
+        List<Event> sorted = events.stream().sorted((x, y) -> x.getStart().compareTo(y.getStart())).collect(toList());
+        return sorted.stream().collect(groupingBy(
+                        e -> e.getDay(), LinkedHashMap::new,
+                        toList()
                 )
 
         );
-
-        sched.setSched(grouped);
-        sched.setSchedule(null);
-        return sched;
     }
 
     private void cleanData(List<Event> events) {

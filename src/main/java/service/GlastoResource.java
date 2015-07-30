@@ -40,7 +40,7 @@ public class GlastoResource {
         try {
             return finder.findIntersection(username, festival, year);
         } catch (FestivalConnectionException e) {
-            throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Unable to retrieve festival data").type("text/plain").build());
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("Unable to retrieve festival data").type("text/plain").build());
         } catch (LastFmException e) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).type("text/plain").build());
         }
