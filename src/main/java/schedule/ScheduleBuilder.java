@@ -69,7 +69,14 @@ public class ScheduleBuilder {
     }
 
     private Map<String,List<Event>> sortAndGroupData(List<Event> events) {
-        List<Event> sorted = events.stream().sorted((x, y) -> x.getStart().compareTo(y.getStart())).collect(toList());
+        List<Event> sorted = events.stream().sorted((x, y) -> {
+            int day = Integer.valueOf(DayOfWeek.valueOf(x.getDay().toUpperCase()).getValue()).compareTo(DayOfWeek.valueOf(y.getDay().toUpperCase()).getValue());
+            if (day != 0 ) {
+                return day;
+            }
+            return Double.valueOf(x.getTtStart()).compareTo(Double.valueOf(y.getTtStart()));
+
+        }).collect(toList());
         return sorted.stream().collect(groupingBy(
                         e -> e.getDay(), LinkedHashMap::new,
                         toList()

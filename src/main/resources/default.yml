@@ -1,0 +1,17 @@
+---
+  server:
+    applicationConnectors:
+    - type: http
+      port: 80
+    adminConnectors:
+    - type: http
+      port: 8091
+
+  jedis:
+    host: glasto.redis.cache.windows.net
+    port: 6379
+    password: 68v5ZsW+S6+YUE1A+S/k6plja2oS/PU4JJGLvtlXEJE=
+
+  lastFm:
+    apiKey: 0ba3650498bb88d7328c97b461fc3636
+    secret: 15d49ba610f2c6ec4e884dacec4e4021

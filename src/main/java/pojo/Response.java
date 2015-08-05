@@ -10,9 +10,17 @@ public class Response {
 
     private TopArtists topartists;
     private Recommendations recommendations;
+    private Session session;
     private String error;
     private String message;
 
+    public Session getSession() {
+        return session;
+    }
+
+    public void setSession(Session session) {
+        this.session = session;
+    }
 
     public String getError() {
         return error;
