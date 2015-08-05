@@ -54,7 +54,15 @@ public class LastFmSender {
 
         Response response = resource.accept(MediaType.APPLICATION_JSON_TYPE).
                 type(MediaType.APPLICATION_JSON_TYPE).get(Response.class);
+        response.setSession(session);
+        enrichReccoRank(response.getRecommendations().getArtist());
         return response;
+    }
+
+    private void enrichReccoRank(List<Artist> artist) {
+        for (int i = 0; i < artist.size(); i++) {
+            artist.get(i).setReccoRank(i);
+        }
     }
 
     private WebResource getWebResource(final String username){

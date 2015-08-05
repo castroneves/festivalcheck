@@ -65,7 +65,7 @@ public class CheckerCache {
         }
     }
 
-    public Recommendations getOrLookupRecLastFm(String key, Supplier<Response> func)  {
+    public Response getOrLookupRecLastFm(String key, Supplier<Response> func)  {
         try(Jedis jedis = newJedis()) {
             String redisKey = "recco_" + key;
             System.out.println(jedis.ttl(redisKey));
@@ -74,14 +74,13 @@ public class CheckerCache {
             if (json != null && json != "") {
                 try {
                     Response response = mapper.readValue(json, Response.class);
-                    return response.getRecommendations();
+                    return response;
                 } catch (IOException e) {
                     e.printStackTrace();
-                    return fallback(redisKey, func, mapper, jedis).getRecommendations();
+                    return fallback(redisKey, func, mapper, jedis);
                 }
             }
-            Response response = fallback(redisKey, func, mapper, jedis);
-            return response.getRecommendations();
+            return fallback(redisKey, func, mapper, jedis);
         }
     }
 

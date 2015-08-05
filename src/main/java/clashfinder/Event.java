@@ -29,6 +29,8 @@ public class Event {
     private String ttStart;
     private String ttDuration;
 
+    private int reccorank = -1;
+
     public Event() {
     }
 
@@ -38,8 +40,13 @@ public class Event {
         this.start = e.getStart();
         this.end = e.getEnd();
         this.scrobs = scrobs;
-
     }
+
+    public Event(Event e, int scrobs, int reccorank) {
+        this(e,scrobs);
+        this.reccorank = reccorank;
+    }
+
 
     public String getName() {
         return name;
@@ -128,14 +135,24 @@ public class Event {
         this.ttDuration = ttDuration;
     }
 
+    public int getReccorank() {
+        return reccorank;
+    }
+
+    public void setReccorank(int reccorank) {
+        this.reccorank = reccorank;
+    }
+
     @Override
     public String toString() {
         return "Event{" +
                 "name='" + name + '\'' +
                 ", stage='" + stage + '\'' +
-                ", start='" + start + '\'' +
-                ", end='" + end + '\'' +
+                ", day='" + day + '\'' +
+                ", startTime='" + startTime + '\'' +
+                ", endTime='" + endTime + '\'' +
                 ", scrobs=" + scrobs +
+                ", reccorank=" + reccorank +
                 '}';
     }
 }

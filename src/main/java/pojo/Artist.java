@@ -74,6 +74,10 @@ public class Artist {
         return true;
     }
 
+    public void setReccoRank(Integer rank) {
+        this.rank = rank;
+    }
+
     @Override
     public int hashCode() {
         return name.hashCode();

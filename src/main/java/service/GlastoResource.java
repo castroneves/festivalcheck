@@ -12,6 +12,9 @@ import intersection.IntersectionFinder;
 import lastfm.LastFmSender;
 import pojo.Act;
 import schedule.ScheduleBuilder;
+import strategy.ListenedFirstPreferenceStrategy;
+import strategy.PreferenceStrategy;
+import strategy.ReccoFirstPreferenceStrategy;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -65,6 +68,38 @@ public class GlastoResource {
     public Schedule getScheduleForUsername(@PathParam("username") String username, @PathParam("festival") String festival, @QueryParam("year") String year) {
         try {
             List<Event> intersection = finder.findSIntersection(username, festival, year);
+            return scheduleBuilder.createSchedule(intersection);
+        }  catch (LastFmException e) {
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).type("text/plain").build());
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/s/r/{festival}/{token}")
+    public Schedule getReccomendedSchedule(@PathParam("token") String token, @PathParam("festival") String festival, @QueryParam("year") String year) {
+        try {
+            List<Event> intersection = finder.findReccoScheduleIntersection(token, festival, year);
+            return scheduleBuilder.createSchedule(intersection);
+        }  catch (LastFmException e) {
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).type("text/plain").build());
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/s/h/{strategy}/{festival}/{token}")
+    public Schedule getHybridSchedule(@PathParam("token") String token, @PathParam("festival") String festival, @QueryParam("year") String year, @PathParam("strategy") String strategy) {
+        try {
+            PreferenceStrategy strat = null;
+            if(strategy.equals("listened")) {
+                strat = new ListenedFirstPreferenceStrategy();
+            }
+            else if(strategy.equals("recco")) {
+                strat = new ReccoFirstPreferenceStrategy();
+            }
+
+            List<Event> intersection = finder.findHybridScheduleIntersection(token,festival,year,strat);
             return scheduleBuilder.createSchedule(intersection);
         }  catch (LastFmException e) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).type("text/plain").build());

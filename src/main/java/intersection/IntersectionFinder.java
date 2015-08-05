@@ -10,11 +10,12 @@ import lastfm.LastFmSender;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import pojo.*;
+import service.JedisConfig;
+import service.LastFmConfig;
+import strategy.ListenedFirstPreferenceStrategy;
+import strategy.PreferenceStrategy;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -51,14 +52,14 @@ public class IntersectionFinder {
         lastFmMap.putAll(additionalMap);
 
         return glastoData.stream().filter(g -> lastFmMap.containsKey(g.getName().toLowerCase()))
-                .sorted((x,y) -> Integer.compare(lastFmMap.get(x.getName().toLowerCase()).getRankValue(),lastFmMap.get(y.getName().toLowerCase()).getRankValue()))
+                .sorted((x, y) -> Integer.compare(lastFmMap.get(x.getName().toLowerCase()).getRankValue(), lastFmMap.get(y.getName().toLowerCase()).getRankValue()))
                 .collect(toList());
     }
 
     public List<Act> findRIntersection(String token, String festival, String year) throws FestivalConnectionException {
         Set<Act> glastoData = getFestivalData(festival, year);
-        Recommendations lastFmResponse = cache.getOrLookupRecLastFm(token, () -> lastFmSender.recommendedRequest(token));
-        List<Artist> artists = lastFmResponse.getArtist();
+        Response lastFmResponse = cache.getOrLookupRecLastFm(token, () -> lastFmSender.recommendedRequest(token));
+        List<Artist> artists = lastFmResponse.getRecommendations().getArtist();
         Map<String,Artist> lastFmMap = artists.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity()));
         Map<String,Artist> additionalMap = generateLikeMap(artists, glastoData);
         lastFmMap.putAll(additionalMap);
@@ -69,13 +70,9 @@ public class IntersectionFinder {
 
     public List<Event> findSIntersection(String username, String festival, String year) {
         Set<Event> clashfinderData = clashFinderSender.fetchData(festival,year);
-        TopArtists response = lastFmSender.simpleRequest(username).getTopartists();
+        TopArtists response = cache.getOrLookupLastFm(username, () -> lastFmSender.simpleRequest(username));
         List<Artist> artists = response.getArtist();
-        Map<String,Artist> lastFmMap = artists.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity()));
-        Map<String,Artist> additionalMap = generateLikeMapC(artists, clashfinderData);
-        lastFmMap.putAll(additionalMap);
-        Map<String,Artist> variants = generateArtistVariantMap(artists,clashfinderData);
-        lastFmMap.putAll(variants);
+        Map<String, Artist> lastFmMap = generateLastFmMap(clashfinderData, artists);
 
         return clashfinderData.stream().filter(g -> lastFmMap.containsKey(g.getName().toLowerCase()))
                 .map(e -> new Event(e, Integer.parseInt(lastFmMap.get(e.getName().toLowerCase()).getPlaycount())))
@@ -83,6 +80,45 @@ public class IntersectionFinder {
                 .collect(toList());
 
     }
+
+    public List<Event> findReccoScheduleIntersection(String token, String festival, String year) {
+        Set<Event> clashfinderData = clashFinderSender.fetchData(festival,year);
+        Response response = cache.getOrLookupRecLastFm(token, () -> lastFmSender.recommendedRequest(token));
+        List<Artist> artists = response.getRecommendations().getArtist();
+        Map<String, Artist> lastFmMap = generateLastFmMap(clashfinderData, artists);
+
+        return clashfinderData.stream().filter(g -> lastFmMap.containsKey(g.getName().toLowerCase()))
+                .map(e -> new Event(e, 0, lastFmMap.get(e.getName().toLowerCase()).getRankValue()))
+                .sorted((x, y) -> Integer.compare(x.getReccorank(), y.getReccorank()))
+                .collect(toList());
+
+    }
+
+    public List<Event> findHybridScheduleIntersection(String token, String festival, String year, PreferenceStrategy strategy) {
+        Set<Event> clashfinderData = clashFinderSender.fetchData(festival, year);
+        Response response = cache.getOrLookupRecLastFm(token, () -> lastFmSender.recommendedRequest(token));
+        TopArtists listened = cache.getOrLookupLastFm(response.getSession().getName(), () -> lastFmSender.simpleRequest(response.getSession().getName()));
+
+        Map<String, Artist> reccoArtists = generateLastFmMap(clashfinderData, response.getRecommendations().getArtist());
+        Map<String, Artist> listenedArtists = generateLastFmMap(clashfinderData, listened.getArtist());
+
+        return strategy.findOrderedInterection(clashfinderData, listenedArtists, reccoArtists);
+//        return clashfinderData.stream().filter(g -> lastFmMap.containsKey(g.getName().toLowerCase()))
+//                .map(e -> new Event(e, Integer.parseInt(lastFmMap.get(e.getName().toLowerCase()).getPlaycount())))
+//                .sorted((x, y) -> Integer.compare(y.getScrobs(), x.getScrobs()))
+//                .collect(toList());
+
+    }
+
+    private Map<String, Artist> generateLastFmMap(Set<Event> clashfinderData, List<Artist> agg) {
+        Map<String,Artist> lastFmMap = agg.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity()));
+        Map<String,Artist> additionalMap = generateLikeMapC(agg, clashfinderData);
+        lastFmMap.putAll(additionalMap);
+        Map<String,Artist> variants = generateArtistVariantMap(agg,clashfinderData);
+        lastFmMap.putAll(variants);
+        return lastFmMap;
+    }
+
 
     private Set<Act> getFestivalData(String festival, String year) throws FestivalConnectionException {
         String rawGlastoData = sender.getRawResponse(festival,year);
@@ -148,15 +184,22 @@ public class IntersectionFinder {
 
     }
 
-//    public static void main(String[] args) throws FestivalConnectionException {
-//        IntersectionFinder finder = new IntersectionFinder(
-//                new GlastoRequestSender(),
-//                new GlastoResponseParser(),
-//                new LastFmSender(), new CheckerCache(), new ClashfinderSender());
-////        List<Act> acts = finder.findRIntersection("0a88c1504ae95faaa2a96053a42bbeec", "glastonbury", "2015");
-//        List<Event> events = finder.findSIntersection("castroneves121", "g", "2015");
-//        events.stream().forEach(System.out::println);
-//        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
-//        events.stream().map(x -> formatter.print(x.getStart())).forEach(System.out::println);
-//    }
+    public static void main(String[] args) throws FestivalConnectionException {
+        LastFmConfig config = new LastFmConfig();
+        config.setApiKey("0ba3650498bb88d7328c97b461fc3636");
+        config.setSecret("15d49ba610f2c6ec4e884dacec4e4021");
+        JedisConfig jedis = new JedisConfig();
+        jedis.setHost("glasto.redis.cache.windows.net");
+        jedis.setPort(6379);
+        jedis.setPassword("68v5ZsW+S6+YUE1A+S/k6plja2oS/PU4JJGLvtlXEJE=");
+        IntersectionFinder finder = new IntersectionFinder(
+                new GlastoRequestSender(),
+                new GlastoResponseParser(),
+                new LastFmSender(config), new CheckerCache(jedis), new ClashfinderSender());
+//        List<Act> acts = finder.findRIntersection("0a88c1504ae95faaa2a96053a42bbeec", "glastonbury", "2015");
+        List<Event> events = finder.findHybridScheduleIntersection("5056ea99986842056f5e333162a7a39c", "g", "2015", new ListenedFirstPreferenceStrategy());
+        events.stream().forEach(System.out::println);
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
+        events.stream().map(x -> formatter.print(x.getStart())).forEach(System.out::println);
+    }
 }
