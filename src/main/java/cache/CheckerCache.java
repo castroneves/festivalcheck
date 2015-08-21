@@ -66,21 +66,25 @@ public class CheckerCache {
     }
 
     public Response getOrLookupRecLastFm(String key, Supplier<Response> func)  {
-        try(Jedis jedis = newJedis()) {
-            String redisKey = "recco_" + key;
-            System.out.println(jedis.ttl(redisKey));
-            String json = jedis.get(redisKey);
-            ObjectMapper mapper = new ObjectMapper();
-            if (json != null && json != "") {
-                try {
-                    Response response = mapper.readValue(json, Response.class);
-                    return response;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return fallback(redisKey, func, mapper, jedis);
+        try {
+            try (Jedis jedis = newJedis()) {
+                String redisKey = "recco_" + key;
+                System.out.println(jedis.ttl(redisKey));
+                String json = jedis.get(redisKey);
+                ObjectMapper mapper = new ObjectMapper();
+                if (json != null && json != "") {
+                    try {
+                        Response response = mapper.readValue(json, Response.class);
+                        return response;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return fallback(redisKey, func, mapper, jedis);
+                    }
                 }
+                return fallback(redisKey, func, mapper, jedis);
             }
-            return fallback(redisKey, func, mapper, jedis);
+        } catch (Exception e) {
+            return func.get();
         }
     }
 
@@ -91,7 +95,7 @@ public class CheckerCache {
         try {
             String inputJson = mapper.writeValueAsString(response);
             jedis.set(key, inputJson);
-            jedis.expire(key, 300);
+            jedis.expire(key, 3000);
         } catch (IOException e) {
             // do nothing?
         }

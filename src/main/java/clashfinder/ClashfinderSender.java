@@ -1,5 +1,6 @@
 package clashfinder;
 
+import com.codahale.metrics.annotation.Timed;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
@@ -35,6 +36,7 @@ public class ClashfinderSender {
         
     }
 
+    @Timed
     public Set<Event> fetchData(String festival, String year) {
 
         ClashfinderResponse response = fetchRawResponse(festival,year==null ? "2015" : year);
