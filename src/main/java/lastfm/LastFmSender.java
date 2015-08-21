@@ -39,12 +39,14 @@ public class LastFmSender {
     }
 
     public Response simpleRequest(String username) {
+        System.out.println("sending request for user " + username);
         WebResource webResource = getWebResource(username);
         Response response = webResource.accept(MediaType.APPLICATION_JSON_TYPE).
                 type(MediaType.APPLICATION_JSON_TYPE).get(Response.class);
         if (response.getError() != null) {
             throw new LastFmException(response.getMessage());
         }
+        System.out.println("response recieved for user " + username);
         return response;
     }
 
@@ -153,8 +155,11 @@ public class LastFmSender {
 
 
 //    public static void main(String[] args) {
-//        LastFmSender s = new LastFmSender();
-//        Response a = s.simpleRequest("sometotalsghdfhsdfhdfhdfs");
+//        LastFmConfig config = new LastFmConfig();
+//        config.setApiKey("0ba3650498bb88d7328c97b461fc3636");
+//        config.setSecret("15d49ba610f2c6ec4e884dacec4e4021");
+//        LastFmSender s = new LastFmSender(config);
+//        Response a = s.simpleRequest("potter88");
 //        System.out.println(a);
 //    }
 }

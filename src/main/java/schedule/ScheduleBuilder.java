@@ -38,20 +38,6 @@ public class ScheduleBuilder {
             }
         }
 
-//        List<Event> sorted = schedule.stream().sorted((x, y) -> x.getStart().compareTo(y.getStart())).collect(toList());
-//        Schedule sched = new Schedule(
-//                sorted,
-//                clashes.stream().sorted((x, y) -> x.getStart().compareTo(y.getStart())).collect(toList())
-//        );
-//        Map<String,List<Event>> grouped = sorted.stream().collect(groupingBy(
-//                    e -> e.getDay(), LinkedHashMap::new,
-//                    toList()
-//                )
-//
-//        );
-//
-//        sched.setSched(grouped);
-//        sched.setSchedule(null);
         return new Schedule(sortAndGroupData(schedule), sortAndGroupData(clashes));
     }
 
@@ -75,8 +61,8 @@ public class ScheduleBuilder {
                 return day;
             }
             return Double.valueOf(x.getTtStart()).compareTo(Double.valueOf(y.getTtStart()));
-
         }).collect(toList());
+
         return sorted.stream().collect(groupingBy(
                         e -> e.getDay(), LinkedHashMap::new,
                         toList()
@@ -97,16 +83,6 @@ public class ScheduleBuilder {
     }
 
     private boolean canGoInSchedule(Event e, List<Event> schedule) {
-//        Duration dur = new Duration(e.getStart(),e.getEnd());
-//        long totalmins = dur.getStandardMinutes();
-//        int ticks = (int) totalmins / 15;
-//
-//        int dayOfWeek = e.getStart().get(DateTimeFieldType.dayOfWeek());
-//        String day = DayOfWeek.of(dayOfWeek).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
-//
-//        int hour = e.getStart().get(DateTimeFieldType.hourOfDay());
-//        int mins = e.getStart().get(DateTimeFieldType.minuteOfHour());
-//        e.getStart().plusMinutes()
           return !schedule.stream().anyMatch(f -> new Interval(e.getStart(),e.getEnd()).overlaps(new Interval(f.getStart(),f.getEnd())));
     }
 }

@@ -3,6 +3,7 @@ package intersection;
 import cache.CheckerCache;
 import clashfinder.ClashfinderSender;
 import clashfinder.Event;
+import com.codahale.metrics.annotation.Timed;
 import exception.FestivalConnectionException;
 import glasto.GlastoRequestSender;
 import glasto.GlastoResponseParser;
@@ -94,6 +95,7 @@ public class IntersectionFinder {
 
     }
 
+    @Timed
     public List<Event> findHybridScheduleIntersection(String token, String festival, String year, PreferenceStrategy strategy) {
         Set<Event> clashfinderData = clashFinderSender.fetchData(festival, year);
         Response response = cache.getOrLookupRecLastFm(token, () -> lastFmSender.recommendedRequest(token));
@@ -103,11 +105,6 @@ public class IntersectionFinder {
         Map<String, Artist> listenedArtists = generateLastFmMap(clashfinderData, listened.getArtist());
 
         return strategy.findOrderedInterection(clashfinderData, listenedArtists, reccoArtists);
-//        return clashfinderData.stream().filter(g -> lastFmMap.containsKey(g.getName().toLowerCase()))
-//                .map(e -> new Event(e, Integer.parseInt(lastFmMap.get(e.getName().toLowerCase()).getPlaycount())))
-//                .sorted((x, y) -> Integer.compare(y.getScrobs(), x.getScrobs()))
-//                .collect(toList());
-
     }
 
     private Map<String, Artist> generateLastFmMap(Set<Event> clashfinderData, List<Artist> agg) {
@@ -191,13 +188,14 @@ public class IntersectionFinder {
         JedisConfig jedis = new JedisConfig();
         jedis.setHost("glasto.redis.cache.windows.net");
         jedis.setPort(6379);
-        jedis.setPassword("68v5ZsW+S6+YUE1A+S/k6plja2oS/PU4JJGLvtlXEJE=");
+        jedis.setPassword("juwVhwsxxQHiSX8y0QyO0tzJxHccW3pA0rVPubpivYA=");
         IntersectionFinder finder = new IntersectionFinder(
                 new GlastoRequestSender(),
                 new GlastoResponseParser(),
                 new LastFmSender(config), new CheckerCache(jedis), new ClashfinderSender());
 //        List<Act> acts = finder.findRIntersection("0a88c1504ae95faaa2a96053a42bbeec", "glastonbury", "2015");
-        List<Event> events = finder.findHybridScheduleIntersection("5056ea99986842056f5e333162a7a39c", "g", "2015", new ListenedFirstPreferenceStrategy());
+//        List<Event> events = finder.findSIntersection("castroneves121", "g", "2015");
+        List<Event> events = finder.findReccoScheduleIntersection("0784befb3f70404fc0eec45444c4e9b6", "g", "2015");
         events.stream().forEach(System.out::println);
         DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
         events.stream().map(x -> formatter.print(x.getStart())).forEach(System.out::println);
