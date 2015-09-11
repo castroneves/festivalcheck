@@ -2,6 +2,7 @@ package service;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
+import spotify.SpotifyConfig;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -18,6 +19,10 @@ public class GlastoConfiguration extends Configuration {
     @Valid
     @NotNull
     private LastFmConfig lastFm = new LastFmConfig();
+
+    @Valid
+    @NotNull
+    private SpotifyConfig spotify = new SpotifyConfig();
 
     @JsonProperty("jedis")
     public JedisConfig getJedis() {
@@ -37,5 +42,15 @@ public class GlastoConfiguration extends Configuration {
     @JsonProperty
     public void setLastFm(LastFmConfig lastFm) {
         this.lastFm = lastFm;
+    }
+
+    @JsonProperty
+    public SpotifyConfig getSpotify() {
+        return spotify;
+    }
+
+    @JsonProperty
+    public void setSpotify(SpotifyConfig spotify) {
+        this.spotify = spotify;
     }
 }
