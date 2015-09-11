@@ -7,6 +7,7 @@ import pojo.Response;
 import pojo.TopArtists;
 import redis.clients.jedis.*;
 import service.JedisConfig;
+import spotify.AccessToken;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -28,13 +29,6 @@ public class CheckerCache {
         port = jedis.getPort();
     }
 
-//    public CheckerCache() {
-//        JedisShardInfo shardInfo = new JedisShardInfo("glasto.redis.cache.windows.net", 6379);
-//        shardInfo.setPassword("Umf1pauU7ZBbB/WJltvE3RUgnz3GcgWVy6UBkem6JgU=");
-//        List<JedisShardInfo> shards = Arrays.asList(shardInfo);
-//        pool = new ShardedJedisPool(new GenericObjectPoolConfig(), shards);
-//    }
-
     private Jedis newJedis() {
         JedisShardInfo shardInfo = new JedisShardInfo(host, port);
         shardInfo.setPassword(password);
@@ -53,7 +47,6 @@ public class CheckerCache {
                         Response response = mapper.readValue(json, Response.class);
                         return response.getTopartists();
                     } catch (IOException e) {
-                        e.printStackTrace();
                         return fallback(redisKey, func, mapper, jedis).getTopartists();
                     }
                 }
@@ -77,7 +70,6 @@ public class CheckerCache {
                         Response response = mapper.readValue(json, Response.class);
                         return response;
                     } catch (IOException e) {
-                        e.printStackTrace();
                         return fallback(redisKey, func, mapper, jedis);
                     }
                 }
@@ -88,6 +80,36 @@ public class CheckerCache {
         }
     }
 
+    public AccessToken getOrFetchSpotifyToken(String code, Supplier<AccessToken> func) {
+        try (Jedis jedis = newJedis()) {
+            String redisKey = code;
+            System.out.println(jedis.ttl(redisKey));
+            String json = jedis.get(redisKey);
+            ObjectMapper mapper = new ObjectMapper();
+            if (json != null && json != "") {
+                try {
+                    AccessToken response = mapper.readValue(json, AccessToken.class);
+                    return response;
+                } catch (IOException e) {
+                    return fallbackSpotify(redisKey, func, mapper, jedis);
+                }
+            }
+            return fallbackSpotify(redisKey, func, mapper, jedis);
+        }
+    }
+
+
+    private AccessToken fallbackSpotify(String key, Supplier<AccessToken> func, ObjectMapper mapper, Jedis jedis) {
+        AccessToken response = func.get();
+        try {
+            String inputJson = mapper.writeValueAsString(response);
+            jedis.set(key, inputJson);
+            jedis.expire(key, 3600);
+        } catch (IOException e) {
+            System.out.println("Exception writing value to Redis");
+        }
+        return response;
+    }
 
 
     private Response fallback(String key, Supplier<Response> func, ObjectMapper mapper, Jedis jedis) {
@@ -97,7 +119,7 @@ public class CheckerCache {
             jedis.set(key, inputJson);
             jedis.expire(key, 3000);
         } catch (IOException e) {
-            // do nothing?
+            System.out.println("Exception writing value to Redis");
         }
         return response;
     }

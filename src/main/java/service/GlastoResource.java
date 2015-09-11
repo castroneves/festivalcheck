@@ -12,6 +12,7 @@ import intersection.IntersectionFinder;
 import lastfm.LastFmSender;
 import pojo.Act;
 import schedule.ScheduleBuilder;
+import spotify.SpotifySender;
 import strategy.ListenedFirstPreferenceStrategy;
 import strategy.PreferenceStrategy;
 import strategy.ReccoFirstPreferenceStrategy;
@@ -32,7 +33,7 @@ public class GlastoResource {
     private final ScheduleBuilder scheduleBuilder;
 
     public GlastoResource(GlastoConfiguration config) {
-        finder = new IntersectionFinder(new GlastoRequestSender(), new GlastoResponseParser(), new LastFmSender(config.getLastFm()), new CheckerCache(config.getJedis()), new ClashfinderSender());
+        finder = new IntersectionFinder(new GlastoRequestSender(), new GlastoResponseParser(), new LastFmSender(config.getLastFm()), new CheckerCache(config.getJedis()), new ClashfinderSender(), new SpotifySender(config.getSpotify()));
         scheduleBuilder = new ScheduleBuilder();
     }
 

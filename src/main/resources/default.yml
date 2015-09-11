@@ -15,3 +15,7 @@
   lastFm:
     apiKey: 0ba3650498bb88d7328c97b461fc3636
     secret: 15d49ba610f2c6ec4e884dacec4e4021
+
+  spotify:
+    clientId: 4f9ea44544be4b789e54bfd9c23ebdc9
+    secret: 9faf4223661841fab665172c1dd04550

@@ -13,11 +13,17 @@ import org.joda.time.format.DateTimeFormatter;
 import pojo.*;
 import service.JedisConfig;
 import service.LastFmConfig;
+import spotify.AccessToken;
+import spotify.SpotifyArtist;
+import spotify.SpotifySender;
+import spotify.SpotifyTracksResponse;
 import strategy.ListenedFirstPreferenceStrategy;
 import strategy.PreferenceStrategy;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -31,15 +37,17 @@ public class IntersectionFinder {
     private GlastoRequestSender sender;
     private GlastoResponseParser parser;
     private LastFmSender lastFmSender;
+    private SpotifySender spotifySender;
     private ClashfinderSender clashFinderSender;
     private CheckerCache cache;
 
-    public IntersectionFinder(GlastoRequestSender sender, GlastoResponseParser parser, LastFmSender lastFmSender, CheckerCache cache, ClashfinderSender clashFinderSender) {
+    public IntersectionFinder(GlastoRequestSender sender, GlastoResponseParser parser, LastFmSender lastFmSender, CheckerCache cache, ClashfinderSender clashFinderSender, SpotifySender spotifySender) {
         this.sender = sender;
         this.parser = parser;
         this.lastFmSender = lastFmSender;
         this.cache = cache;
         this.clashFinderSender = clashFinderSender;
+        this.spotifySender = spotifySender;
     }
 
     public List<Act> findIntersection(String username, String festival,String year) throws FestivalConnectionException {
@@ -95,7 +103,6 @@ public class IntersectionFinder {
 
     }
 
-    @Timed
     public List<Event> findHybridScheduleIntersection(String token, String festival, String year, PreferenceStrategy strategy) {
         Set<Event> clashfinderData = clashFinderSender.fetchData(festival, year);
         Response response = cache.getOrLookupRecLastFm(token, () -> lastFmSender.recommendedRequest(token));
@@ -106,6 +113,18 @@ public class IntersectionFinder {
 
         return strategy.findOrderedInterection(clashfinderData, listenedArtists, reccoArtists);
     }
+
+    public List<Event> findSpotifyScheduleIntersection(String authCode, String festival, String year) {
+        AccessToken token = cache.getOrFetchSpotifyToken(authCode, () -> spotifySender.getAuthToken(authCode));
+        System.out.println(token.getAccessToken());
+        SpotifyTracksResponse savedTracks = spotifySender.getSavedTracks(token.getAccessToken());
+        List<SpotifyArtist> collect = savedTracks.getItems().stream().flatMap(x -> x.getTrack().getArtists().stream()).collect(toList());
+        ConcurrentMap<String, Integer> collect1 = collect.stream().map(x -> x.toString()).collect(Collectors.toConcurrentMap(w -> w, w -> 1, Integer::sum));
+        List<String> result = collect1.keySet().stream().sorted((x, y) -> collect1.get(y).compareTo(collect1.get(x))).collect(toList());
+        System.out.println(result);
+        return null;
+    }
+
 
     private Map<String, Artist> generateLastFmMap(Set<Event> clashfinderData, List<Artist> agg) {
         Map<String,Artist> lastFmMap = agg.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity()));
@@ -158,6 +177,8 @@ public class IntersectionFinder {
         }).collect(toList());
     }
 
+
+    // Is filter here nesseccery??
     private List<Artist> fetchVariantArtistsC(List<Artist> artists, Set<Event> glastoData) {
         List<Artist> andToAmp = artists.stream()
                 .filter(a -> a.getName().contains(" "))
@@ -179,25 +200,5 @@ public class IntersectionFinder {
         }).collect(toList());
 
 
-    }
-
-    public static void main(String[] args) throws FestivalConnectionException {
-        LastFmConfig config = new LastFmConfig();
-        config.setApiKey("0ba3650498bb88d7328c97b461fc3636");
-        config.setSecret("15d49ba610f2c6ec4e884dacec4e4021");
-        JedisConfig jedis = new JedisConfig();
-        jedis.setHost("glasto.redis.cache.windows.net");
-        jedis.setPort(6379);
-        jedis.setPassword("juwVhwsxxQHiSX8y0QyO0tzJxHccW3pA0rVPubpivYA=");
-        IntersectionFinder finder = new IntersectionFinder(
-                new GlastoRequestSender(),
-                new GlastoResponseParser(),
-                new LastFmSender(config), new CheckerCache(jedis), new ClashfinderSender());
-//        List<Act> acts = finder.findRIntersection("0a88c1504ae95faaa2a96053a42bbeec", "glastonbury", "2015");
-//        List<Event> events = finder.findSIntersection("castroneves121", "g", "2015");
-        List<Event> events = finder.findReccoScheduleIntersection("0784befb3f70404fc0eec45444c4e9b6", "g", "2015");
-        events.stream().forEach(System.out::println);
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
-        events.stream().map(x -> formatter.print(x.getStart())).forEach(System.out::println);
     }
 }
