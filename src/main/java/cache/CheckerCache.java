@@ -23,6 +23,7 @@ public class CheckerCache {
     private final String host;
     private final int port;
 
+
     public CheckerCache(JedisConfig jedis) {
         password = jedis.getPassword();
         host = jedis.getHost();
@@ -35,33 +36,10 @@ public class CheckerCache {
         return new Jedis(shardInfo);
     }
 
-    public TopArtists getOrLookupLastFm(String key, Supplier<Response> func) {
+    public Response getOrLookupLastFm(String key, Supplier<Response> func, CacheKeyPrefix prefix) {
         try {
             try (Jedis jedis = newJedis()) {
-                String redisKey = "lastfm_" + key;
-                System.out.println(jedis.ttl(redisKey));
-                String json = jedis.get(redisKey);
-                ObjectMapper mapper = new ObjectMapper();
-                if (json != null && json != "") {
-                    try {
-                        Response response = mapper.readValue(json, Response.class);
-                        return response.getTopartists();
-                    } catch (IOException e) {
-                        return fallback(redisKey, func, mapper, jedis).getTopartists();
-                    }
-                }
-                Response response = fallback(redisKey, func, mapper, jedis);
-                return response.getTopartists();
-            }
-        } catch (Exception e) {
-            return func.get().getTopartists();
-        }
-    }
-
-    public Response getOrLookupRecLastFm(String key, Supplier<Response> func)  {
-        try {
-            try (Jedis jedis = newJedis()) {
-                String redisKey = "recco_" + key;
+                String redisKey = prefix + key;
                 System.out.println(jedis.ttl(redisKey));
                 String json = jedis.get(redisKey);
                 ObjectMapper mapper = new ObjectMapper();
@@ -73,12 +51,35 @@ public class CheckerCache {
                         return fallback(redisKey, func, mapper, jedis);
                     }
                 }
-                return fallback(redisKey, func, mapper, jedis);
+                Response response = fallback(redisKey, func, mapper, jedis);
+                return response;
             }
         } catch (Exception e) {
             return func.get();
         }
     }
+
+//    public Response getOrLookupRecLastFm(String key, Supplier<Response> func)  {
+//        try {
+//            try (Jedis jedis = newJedis()) {
+//                String redisKey = "recco_" + key;
+//                System.out.println(jedis.ttl(redisKey));
+//                String json = jedis.get(redisKey);
+//                ObjectMapper mapper = new ObjectMapper();
+//                if (json != null && json != "") {
+//                    try {
+//                        Response response = mapper.readValue(json, Response.class);
+//                        return response;
+//                    } catch (IOException e) {
+//                        return fallback(redisKey, func, mapper, jedis);
+//                    }
+//                }
+//                return fallback(redisKey, func, mapper, jedis);
+//            }
+//        } catch (Exception e) {
+//            return func.get();
+//        }
+//    }
 
     public AccessToken getOrFetchSpotifyToken(String code, Supplier<AccessToken> func) {
         try (Jedis jedis = newJedis()) {

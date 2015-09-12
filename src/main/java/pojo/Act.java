@@ -3,7 +3,7 @@ package pojo;
 /**
  * Created by Adam on 23/04/2015.
  */
-public class Act {
+public class Act implements Show {
     private String name;
     private String day;
     private String stage;

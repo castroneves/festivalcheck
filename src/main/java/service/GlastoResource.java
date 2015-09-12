@@ -8,6 +8,7 @@ import exception.FestivalConnectionException;
 import exception.LastFmException;
 import glasto.GlastoRequestSender;
 import glasto.GlastoResponseParser;
+import intersection.ArtistMapGenerator;
 import intersection.IntersectionFinder;
 import lastfm.LastFmSender;
 import pojo.Act;
@@ -33,7 +34,7 @@ public class GlastoResource {
     private final ScheduleBuilder scheduleBuilder;
 
     public GlastoResource(GlastoConfiguration config) {
-        finder = new IntersectionFinder(new GlastoRequestSender(), new GlastoResponseParser(), new LastFmSender(config.getLastFm()), new CheckerCache(config.getJedis()), new ClashfinderSender(), new SpotifySender(config.getSpotify()));
+        finder = new IntersectionFinder(new GlastoRequestSender(), new LastFmSender(config.getLastFm()), new CheckerCache(config.getJedis()), new ClashfinderSender(), new SpotifySender(config.getSpotify()), new ArtistMapGenerator());
         scheduleBuilder = new ScheduleBuilder();
     }
 
@@ -64,11 +65,23 @@ public class GlastoResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/s/{festival}/{username}")
-    public Schedule getScheduleForUsername(@PathParam("username") String username, @PathParam("festival") String festival, @QueryParam("year") String year) {
+     @Produces(MediaType.APPLICATION_JSON)
+     @Path("/s/{festival}/{username}")
+     public Schedule getScheduleForUsername(@PathParam("username") String username, @PathParam("festival") String festival, @QueryParam("year") String year) {
         try {
             List<Event> intersection = finder.findSIntersection(username, festival, year);
+            return scheduleBuilder.createSchedule(intersection);
+        }  catch (LastFmException e) {
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).type("text/plain").build());
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/s/spotify/{festival}/{authcode}")
+    public Schedule getScheduleSpotify(@PathParam("authcode") String authcode, @PathParam("festival") String festival, @QueryParam("year") String year) {
+        try {
+            List<Event> intersection = finder.findSpotifyScheduleIntersection(authcode, festival, year);
             return scheduleBuilder.createSchedule(intersection);
         }  catch (LastFmException e) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).type("text/plain").build());
