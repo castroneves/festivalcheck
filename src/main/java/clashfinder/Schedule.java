@@ -16,12 +16,6 @@ public class Schedule {
     private List<Event> schedule;
     private List<Event> clashes;
 
-//    public Schedule(List<Event> schedule, List<Event> clashes) {
-//        this.schedule = schedule;
-//        this.clashes = clashes;
-//    }
-
-
     public Schedule(Map<String, List<Event>> sched, Map<String, List<Event>> clash) {
         this.sched = sched;
         this.clash = clash;

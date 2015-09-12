@@ -1,4 +1,5 @@
-package glasto; /**
+package glasto;
+/**
  * Created by Adam on 23/04/2015.
  */
 import com.sun.jersey.api.client.Client;
@@ -9,7 +10,9 @@ import exception.FestivalConnectionException;
 import pojo.Act;
 
 import javax.ws.rs.core.MediaType;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class GlastoRequestSender {
@@ -17,13 +20,19 @@ public class GlastoRequestSender {
     private static final String urlPrefix = "http://www.efestivals.co.uk/festivals/";
     private static final String urlSuffix = "/lineup.shtml";
     private final Client client;
+    private GlastoResponseParser parser = new GlastoResponseParser();
 
     public GlastoRequestSender() {
         ClientConfig cc = new DefaultClientConfig();
         client = Client.create(cc);
     }
 
-    public String getRawResponse(String festival, String inputYear) throws FestivalConnectionException {
+    public Set<Act> getFestivalData(String festival, String year) throws FestivalConnectionException {
+        String rawGlastoData = getRawResponse(festival, year);
+        return new HashSet<>(parser.parseRawResponse(rawGlastoData));
+    }
+
+    private String getRawResponse(String festival, String inputYear) throws FestivalConnectionException {
         String year = inputYear == null ? "2015" : inputYear;
         if(festival.startsWith("vvv")) {
             String venue = festival.replaceAll("vvv", "");
@@ -37,12 +46,7 @@ public class GlastoRequestSender {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        GlastoRequestSender sender = new GlastoRequestSender();
-        String rawResponse = sender.getRawResponse("vvvstafford", "2015");
-        System.out.println(rawResponse);
-        GlastoResponseParser parser = new GlastoResponseParser();
-        List<Act> acts = parser.parseRawResponse(rawResponse);
-        System.out.println(acts.size());
+    public void setParser(GlastoResponseParser parser) {
+        this.parser = parser;
     }
 }

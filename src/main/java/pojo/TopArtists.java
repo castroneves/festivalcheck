@@ -1,7 +1,6 @@
 package pojo;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import pojo.Artist;
 
 import java.util.List;
 

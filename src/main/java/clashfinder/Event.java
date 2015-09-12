@@ -2,6 +2,7 @@ package clashfinder;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import pojo.Show;
 import service.DateTimeDeserialiser;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonDeserialize;
@@ -14,7 +15,7 @@ import org.joda.time.DateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Event {
+public class Event implements Show {
     private String name;
     private String stage;
     private String day;

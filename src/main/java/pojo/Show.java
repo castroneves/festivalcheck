@@ -5,5 +5,6 @@ package pojo;
  */
 public interface Show {
 
-    String getName();
+     String getName();
+
 }
