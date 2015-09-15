@@ -1,4 +1,4 @@
-package service;
+package service.config;
 
 import org.hibernate.validator.constraints.NotEmpty;
 

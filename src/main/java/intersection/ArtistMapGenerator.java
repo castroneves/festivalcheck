@@ -21,7 +21,7 @@ public class ArtistMapGenerator {
     public Map<String, Artist> generateLastFmMap(Set<? extends Show> clashfinderData, List<Artist> artists) {
         Map<String, Artist> lastFmMap = artists.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity()));
         List<Artist> variantArtists = fetchVariantArtists(artists);
-        Map<String, Artist> variants = generateArtistVariantMap(variantArtists, clashfinderData);
+        Map<String, Artist> variants = generateArtistVariantMap(variantArtists);
         lastFmMap.putAll(variants);
         Map<String, Artist> additionalMap = generateLikeMap(artists, clashfinderData);
         lastFmMap.putAll(additionalMap);
@@ -33,7 +33,7 @@ public class ArtistMapGenerator {
         return shortArtists.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity()));
     }
 
-    private Map<String, Artist> generateArtistVariantMap(List<Artist> variantArtists, Set<? extends Show> glastoData) {
+    private Map<String, Artist> generateArtistVariantMap(List<Artist> variantArtists) {
         return variantArtists.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity()));
     }
 

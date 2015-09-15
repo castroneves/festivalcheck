@@ -1,4 +1,4 @@
-package clashfinder;
+package clashfinder.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

@@ -1,19 +1,13 @@
 package service;
 
-import cache.CheckerCache;
-import clashfinder.ClashfinderSender;
-import clashfinder.Event;
-import clashfinder.Schedule;
+import clashfinder.domain.Event;
+import clashfinder.domain.Schedule;
+import com.google.inject.Inject;
 import exception.FestivalConnectionException;
 import exception.LastFmException;
-import glasto.GlastoRequestSender;
-import glasto.GlastoResponseParser;
-import intersection.ArtistMapGenerator;
 import intersection.IntersectionFinder;
-import lastfm.LastFmSender;
 import pojo.Act;
 import schedule.ScheduleBuilder;
-import spotify.SpotifySender;
 import strategy.ListenedFirstPreferenceStrategy;
 import strategy.PreferenceStrategy;
 import strategy.ReccoFirstPreferenceStrategy;
@@ -30,13 +24,15 @@ import java.util.List;
 @Produces({"application/json"})
 public class GlastoResource {
 
-    private final IntersectionFinder finder;
-    private final ScheduleBuilder scheduleBuilder;
+    @Inject
+    private IntersectionFinder finder;
+    @Inject
+    private ScheduleBuilder scheduleBuilder;
 
-    public GlastoResource(GlastoConfiguration config) {
-        finder = new IntersectionFinder(new GlastoRequestSender(), new LastFmSender(config.getLastFm()), new CheckerCache(config.getJedis()), new ClashfinderSender(), new SpotifySender(config.getSpotify()), new ArtistMapGenerator());
-        scheduleBuilder = new ScheduleBuilder();
-    }
+//    public GlastoResource(GlastoConfiguration config) {
+//        finder = new IntersectionFinder(new GlastoRequestSender(), new LastFmSender(config.getLastFm()), new CheckerCache(config.getJedis()), new ClashfinderSender(), new SpotifySender(config.getSpotify()), new ArtistMapGenerator());
+//        scheduleBuilder = new ScheduleBuilder();
+//    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)

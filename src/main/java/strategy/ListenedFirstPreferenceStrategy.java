@@ -1,6 +1,6 @@
 package strategy;
 
-import clashfinder.Event;
+import clashfinder.domain.Event;
 import pojo.Artist;
 
 import java.util.List;

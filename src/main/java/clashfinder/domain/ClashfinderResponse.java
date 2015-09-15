@@ -1,4 +1,4 @@
-package clashfinder;
+package clashfinder.domain;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 

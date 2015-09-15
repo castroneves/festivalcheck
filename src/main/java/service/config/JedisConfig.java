@@ -1,4 +1,4 @@
-package service;
+package service.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;

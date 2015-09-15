@@ -1,7 +1,7 @@
 package schedule;
 
-import clashfinder.Event;
-import clashfinder.Schedule;
+import clashfinder.domain.Event;
+import clashfinder.domain.Schedule;
 import org.joda.time.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
