@@ -2,7 +2,8 @@ package intersection;
 
 import cache.CheckerCache;
 import clashfinder.ClashfinderSender;
-import clashfinder.Event;
+import clashfinder.domain.Event;
+import com.google.inject.Inject;
 import exception.FestivalConnectionException;
 import glasto.GlastoRequestSender;
 import lastfm.LastFmSender;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 import static cache.CacheKeyPrefix.LISTENED;
 import static cache.CacheKeyPrefix.RECCOMENDED;
+import static cache.CacheKeyPrefix.SPOTIFYACCESSTOKEN;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
@@ -31,27 +33,23 @@ import static java.util.stream.Collectors.toMap;
  */
 public class IntersectionFinder {
 
+    @Inject
     private GlastoRequestSender efestivalSender;
+    @Inject
     private LastFmSender lastFmSender;
+    @Inject
     private SpotifySender spotifySender;
+    @Inject
     private ClashfinderSender clashFinderSender;
+    @Inject
     private CheckerCache cache;
+    @Inject
     private ArtistMapGenerator artistMapGenerator;
-
-
-    public IntersectionFinder(GlastoRequestSender efestivalSender, LastFmSender lastFmSender, CheckerCache cache, ClashfinderSender clashFinderSender, SpotifySender spotifySender, ArtistMapGenerator artistMapGenerator) {
-        this.efestivalSender = efestivalSender;
-        this.lastFmSender = lastFmSender;
-        this.cache = cache;
-        this.clashFinderSender = clashFinderSender;
-        this.spotifySender = spotifySender;
-        this.artistMapGenerator = artistMapGenerator;
-    }
 
     public List<Act> findIntersection(String username, String festival,String year) throws FestivalConnectionException {
         //cache this
         Set<Act> glastoData = efestivalSender.getFestivalData(festival, year);
-        Response lastFmData = cache.getOrLookupLastFm(username, () -> lastFmSender.simpleRequest(username), LISTENED);
+        Response lastFmData = cache.getOrLookup(username, () -> lastFmSender.simpleRequest(username), LISTENED, Response.class);
         List<Artist> artists = lastFmData.getTopartists().getArtist();
 
         Map<String, Artist> lastFmMap = artistMapGenerator.generateLastFmMap(glastoData,artists);
@@ -63,7 +61,7 @@ public class IntersectionFinder {
 
     public List<Act> findRIntersection(String token, String festival, String year) throws FestivalConnectionException {
         Set<Act> glastoData = efestivalSender.getFestivalData(festival, year);
-        Response lastFmResponse = cache.getOrLookupLastFm(token, () -> lastFmSender.recommendedRequest(token), RECCOMENDED);
+        Response lastFmResponse = cache.getOrLookup(token, () -> lastFmSender.recommendedRequest(token), RECCOMENDED, Response.class);
         List<Artist> artists = lastFmResponse.getRecommendations().getArtist();
         Map<String, Artist> lastFmMap = artists.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity()));
         Map<String, Artist> additionalMap = artistMapGenerator.generateLikeMap(artists, glastoData);
@@ -75,7 +73,7 @@ public class IntersectionFinder {
 
     public List<Event> findSIntersection(String username, String festival, String year) {
         Set<Event> clashfinderData = clashFinderSender.fetchData(festival,year);
-        Response response = cache.getOrLookupLastFm(username, () -> lastFmSender.simpleRequest(username), LISTENED);
+        Response response = cache.getOrLookup(username, () -> lastFmSender.simpleRequest(username), LISTENED, Response.class);
         List<Artist> artists = response.getTopartists().getArtist();
         Map<String, Artist> lastFmMap = artistMapGenerator.generateLastFmMap(clashfinderData, artists);
 
@@ -92,7 +90,7 @@ public class IntersectionFinder {
 
     public List<Event> findReccoScheduleIntersection(String token, String festival, String year) {
         Set<Event> clashfinderData = clashFinderSender.fetchData(festival,year);
-        Response response = cache.getOrLookupLastFm(token, () -> lastFmSender.recommendedRequest(token), RECCOMENDED);
+        Response response = cache.getOrLookup(token, () -> lastFmSender.recommendedRequest(token), RECCOMENDED, Response.class);
         List<Artist> artists = response.getRecommendations().getArtist();
         Map<String, Artist> lastFmMap = artistMapGenerator.generateLastFmMap(clashfinderData, artists);
 
@@ -105,8 +103,8 @@ public class IntersectionFinder {
 
     public List<Event> findHybridScheduleIntersection(String token, String festival, String year, PreferenceStrategy strategy) {
         Set<Event> clashfinderData = clashFinderSender.fetchData(festival, year);
-        Response response = cache.getOrLookupLastFm(token, () -> lastFmSender.recommendedRequest(token), RECCOMENDED);
-        Response listened = cache.getOrLookupLastFm(response.getSession().getName(), () -> lastFmSender.simpleRequest(response.getSession().getName()), LISTENED);
+        Response response = cache.getOrLookup(token, () -> lastFmSender.recommendedRequest(token), RECCOMENDED, Response.class);
+        Response listened = cache.getOrLookup(response.getSession().getName(), () -> lastFmSender.simpleRequest(response.getSession().getName()), LISTENED, Response.class);
 
         Map<String, Artist> reccoArtists = artistMapGenerator.generateLastFmMap(clashfinderData, response.getRecommendations().getArtist());
         Map<String, Artist> listenedArtists = artistMapGenerator.generateLastFmMap(clashfinderData, listened.getTopartists().getArtist());
@@ -115,7 +113,7 @@ public class IntersectionFinder {
     }
 
     public List<Event> findSpotifyScheduleIntersection(String authCode, String festival, String year) {
-        AccessToken token = cache.getOrFetchSpotifyToken(authCode, () -> spotifySender.getAuthToken(authCode));
+        AccessToken token = cache.getOrLookup(authCode, () -> spotifySender.getAuthToken(authCode), SPOTIFYACCESSTOKEN, AccessToken.class);
         System.out.println(token.getAccessToken());
         SpotifyTracksResponse savedTracks = spotifySender.getSavedTracks(token.getAccessToken());
         List<SpotifyArtist> artists = savedTracks.getItems().stream().flatMap(x -> x.getTrack().getArtists().stream()).collect(toList());

@@ -1,5 +1,6 @@
 package lastfm;
 
+import com.google.inject.Inject;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
@@ -8,7 +9,7 @@ import exception.LastFmException;
 import org.apache.commons.codec.binary.Hex;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 import pojo.*;
-import service.LastFmConfig;
+import service.config.LastFmConfig;
 
 import javax.ws.rs.core.MediaType;
 import java.io.UnsupportedEncodingException;
@@ -20,16 +21,13 @@ import java.util.List;
  * Created by Adam on 25/04/2015.
  */
 public class LastFmSender {
-
     private static final String baseUrl = "http://ws.audioscrobbler.com/2.0/";
-//    private static final String api_key = "0ba3650498bb88d7328c97b461fc3636";
-//    private static final String api_secret = "15d49ba610f2c6ec4e884dacec4e4021";
 
     private final Client client;
     private final String apiKey;
     private final String apiSecret;
 
-
+    @Inject
     public LastFmSender(LastFmConfig config) {
         apiKey = config.getApiKey();
         apiSecret = config.getSecret();
@@ -68,7 +66,6 @@ public class LastFmSender {
     }
 
     private WebResource getWebResource(final String username){
-//        ?method=user.gettopartists&user=rj&api_key=0ba3650498bb88d7328c97b461fc3636&format=json&limit=2
         WebResource resource = client.resource(baseUrl);
         return resource
                 .queryParam("method", "user.gettopartists")
@@ -150,16 +147,4 @@ public class LastFmSender {
         }
         return authSession.getSession();
     }
-
-
-
-
-//    public static void main(String[] args) {
-//        LastFmConfig config = new LastFmConfig();
-//        config.setApiKey("0ba3650498bb88d7328c97b461fc3636");
-//        config.setSecret("15d49ba610f2c6ec4e884dacec4e4021");
-//        LastFmSender s = new LastFmSender(config);
-//        Response a = s.simpleRequest("potter88");
-//        System.out.println(a);
-//    }
 }

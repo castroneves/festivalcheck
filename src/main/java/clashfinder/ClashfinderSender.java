@@ -1,6 +1,7 @@
 package clashfinder;
 
-import com.codahale.metrics.annotation.Timed;
+import clashfinder.domain.ClashfinderResponse;
+import clashfinder.domain.Event;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
@@ -9,17 +10,15 @@ import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 
 import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 public class ClashfinderSender {
 
     private static final String baseUrl = "http://clashfinder.com/data/event/";
-    private Client client;
+    private final Client client;
 
 
     public ClashfinderSender() {
@@ -33,12 +32,9 @@ public class ClashfinderSender {
     static {
         clashfinderFestivalMap.put("glastonbury", "g");
         clashfinderFestivalMap.put("iow","iow");
-        
     }
 
-    @Timed
     public Set<Event> fetchData(String festival, String year) {
-
         ClashfinderResponse response = fetchRawResponse(festival,year==null ? "2015" : year);
         response.getLocations().stream().forEach(l -> l.getEvents().stream().forEach(e -> e.setStage(l.getName())));
         return response.getLocations().stream().flatMap(l -> l.getEvents().stream()).collect(toSet());
@@ -52,13 +48,5 @@ public class ClashfinderSender {
 
     private String buildUrl(String festival, String year) {
         return baseUrl + festival + year + ".json";
-    }
-
-    public static void main(String[] args) {
-        ClashfinderSender sender = new ClashfinderSender();
-        Set<Event> events = sender.fetchData("g", "2015");
-        Set<String> set = events.stream().map(e -> e.getStage()).collect(toSet());
-        set.stream().forEach(System.out::println);
-//        System.out.println(events);
     }
 }

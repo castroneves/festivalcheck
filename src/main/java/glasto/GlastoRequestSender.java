@@ -2,6 +2,7 @@ package glasto;
 /**
  * Created by Adam on 23/04/2015.
  */
+import com.google.inject.Inject;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
@@ -20,7 +21,8 @@ public class GlastoRequestSender {
     private static final String urlPrefix = "http://www.efestivals.co.uk/festivals/";
     private static final String urlSuffix = "/lineup.shtml";
     private final Client client;
-    private GlastoResponseParser parser = new GlastoResponseParser();
+    @Inject
+    private GlastoResponseParser parser;
 
     public GlastoRequestSender() {
         ClientConfig cc = new DefaultClientConfig();

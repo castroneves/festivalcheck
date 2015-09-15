@@ -1,10 +1,13 @@
 package service;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import io.dropwizard.Application;
-import io.dropwizard.Configuration;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import module.GlastoCheckerModule;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import service.config.GlastoConfiguration;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
@@ -25,6 +28,10 @@ public class GlastoService extends Application<GlastoConfiguration> {
 
     @Override
     public void run(GlastoConfiguration configuration, Environment environment) throws Exception {
+        Injector injector = Guice.createInjector(new GlastoCheckerModule(configuration));
+        GlastoResource glastoResource = injector.getInstance(GlastoResource.class);
+
+
         // Enable CORS headers
         final FilterRegistration.Dynamic cors =
                 environment.servlets().addFilter("CORS", CrossOriginFilter.class);
@@ -36,6 +43,6 @@ public class GlastoService extends Application<GlastoConfiguration> {
 
         // Add URL mapping
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
-        environment.jersey().register((new GlastoResource(configuration)));
+        environment.jersey().register(glastoResource);
     }
 }

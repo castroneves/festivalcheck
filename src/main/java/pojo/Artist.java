@@ -49,6 +49,11 @@ public class Artist {
         return rank;
     }
 
+    @JsonIgnore
+    public void setRankValue(Integer rank) {
+        this.rank = rank;
+    }
+
     @JsonProperty("@attr")
     public Map<String,Integer> getRank() {
         Map<String,Integer> result = new HashMap<>();

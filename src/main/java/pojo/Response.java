@@ -1,11 +1,13 @@
 package pojo;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 /**
  * Created by Adam on 27/04/2015.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response {
 
     private TopArtists topartists;

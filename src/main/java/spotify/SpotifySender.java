@@ -1,5 +1,6 @@
 package spotify;
 
+import com.google.inject.Inject;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
@@ -25,6 +26,7 @@ public class SpotifySender {
     private final String clientId;
     private final String secret;
 
+    @Inject
     public SpotifySender(SpotifyConfig config) {
         clientId = config.getClientId();
         secret = config.getSecret();
