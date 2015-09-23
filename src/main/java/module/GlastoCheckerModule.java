@@ -4,7 +4,7 @@ import com.google.inject.AbstractModule;
 import service.config.GlastoConfiguration;
 import service.config.JedisConfig;
 import service.config.LastFmConfig;
-import spotify.SpotifyConfig;
+import service.config.SpotifyConfig;
 
 /**
  * Created by Adam on 15/09/2015.

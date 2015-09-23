@@ -7,11 +7,12 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
+import service.config.SpotifyConfig;
+import spotify.domain.AccessToken;
+import spotify.domain.SpotifyTracksResponse;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import java.util.Base64;
-import java.util.Map;
 
 /**
  * Created by Adam on 23/08/2015.
@@ -48,9 +49,17 @@ public class SpotifySender {
                 type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(AccessToken.class, request);
     }
 
+
+    // Use limit and offset to paginate
     public SpotifyTracksResponse getSavedTracks(final String accessCode) {
         WebResource resource = client.resource(tracksUrl);
         return resource.header("Authorization", "Bearer " + accessCode).accept(MediaType.APPLICATION_JSON_TYPE).
                 type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).get(SpotifyTracksResponse.class);
     }
+
+    // Get user id https://api.spotify.com/v1/me.
+
+    // Get Users playlists https://api.spotify.com/v1/users/{user_id}/playlists
+
+    // Get Tracks from said playlists https://api.spotify.com/v1/users/{user_id}/playlists/{playlist_id}/tracks
 }

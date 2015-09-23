@@ -2,7 +2,6 @@ package service.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
-import spotify.SpotifyConfig;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;

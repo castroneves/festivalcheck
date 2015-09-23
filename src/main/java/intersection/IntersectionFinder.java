@@ -10,10 +10,10 @@ import lastfm.LastFmSender;
 import pojo.Act;
 import pojo.Artist;
 import pojo.Response;
-import spotify.AccessToken;
-import spotify.SpotifyArtist;
+import spotify.domain.AccessToken;
+import spotify.domain.SpotifyArtist;
 import spotify.SpotifySender;
-import spotify.SpotifyTracksResponse;
+import spotify.domain.SpotifyTracksResponse;
 import strategy.PreferenceStrategy;
 
 import java.util.List;
