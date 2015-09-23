@@ -1,4 +1,4 @@
-package spotify;
+package spotify.domain;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 

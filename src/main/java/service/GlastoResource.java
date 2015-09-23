@@ -61,13 +61,13 @@ public class GlastoResource {
     }
 
     @GET
-     @Produces(MediaType.APPLICATION_JSON)
-     @Path("/s/{festival}/{username}")
-     public Schedule getScheduleForUsername(@PathParam("username") String username, @PathParam("festival") String festival, @QueryParam("year") String year) {
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/s/{festival}/{username}")
+    public Schedule getScheduleForUsername(@PathParam("username") String username, @PathParam("festival") String festival, @QueryParam("year") String year) {
         try {
             List<Event> intersection = finder.findSIntersection(username, festival, year);
             return scheduleBuilder.createSchedule(intersection);
-        }  catch (LastFmException e) {
+        } catch (LastFmException e) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).type("text/plain").build());
         }
     }

@@ -3,3 +3,5 @@ target/*
 .idea/*
 .iml
 *.iml
+src/main/resources/default.yml
+/src/main/resources/default.yml

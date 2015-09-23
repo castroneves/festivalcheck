@@ -2,10 +2,7 @@ package cache;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
-import org.codehaus.jackson.type.TypeReference;
-import pojo.Response;
 import redis.clients.jedis.*;
-import spotify.AccessToken;
 
 import java.io.IOException;
 import java.util.function.Supplier;

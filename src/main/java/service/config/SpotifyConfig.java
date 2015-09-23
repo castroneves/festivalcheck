@@ -1,4 +1,4 @@
-package spotify;
+package service.config;
 
 
 import org.hibernate.validator.constraints.NotEmpty;
