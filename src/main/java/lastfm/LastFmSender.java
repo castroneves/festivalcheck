@@ -1,6 +1,7 @@
 package lastfm;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
@@ -20,6 +21,7 @@ import java.util.List;
 /**
  * Created by Adam on 25/04/2015.
  */
+@Singleton
 public class LastFmSender {
     private static final String baseUrl = "http://ws.audioscrobbler.com/2.0/";
 

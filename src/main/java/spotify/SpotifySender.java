@@ -1,6 +1,7 @@
 package spotify;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
@@ -17,6 +18,7 @@ import javax.ws.rs.core.MultivaluedMap;
 /**
  * Created by Adam on 23/08/2015.
  */
+@Singleton
 public class SpotifySender {
 
     private final Client client;
