@@ -60,8 +60,8 @@ public class GlastoResponseParser {
         }
         Splitter splitter = Splitter.on("<div class=\"band\">").omitEmptyStrings();
         List<String> bands = splitter.splitToList(stage);
-        String blah = stageName;
-        return bands.subList(1,bands.size()).stream().map(x -> parseBand(x, blah, dayName)).collect(toList());
+        String stageNameCopy = stageName;
+        return bands.subList(1,bands.size()).stream().map(x -> parseBand(x, stageNameCopy, dayName)).collect(toList());
     }
 
     private Act parseBand(String band, String stageName, String dayName) {

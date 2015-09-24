@@ -2,6 +2,7 @@ package cache;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import redis.clients.jedis.*;
 
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.util.function.Supplier;
 /**
  * Created by Adam on 07/06/2015.
  */
+@Singleton
 public class CheckerCache {
 
     @Inject

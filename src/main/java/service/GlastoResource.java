@@ -5,7 +5,8 @@ import clashfinder.domain.Schedule;
 import com.google.inject.Inject;
 import exception.FestivalConnectionException;
 import exception.LastFmException;
-import intersection.IntersectionFinder;
+import intersection.RumourIntersectionFinder;
+import intersection.ScheduleIntersectionFinder;
 import pojo.Act;
 import schedule.ScheduleBuilder;
 import strategy.ListenedFirstPreferenceStrategy;
@@ -25,21 +26,18 @@ import java.util.List;
 public class GlastoResource {
 
     @Inject
-    private IntersectionFinder finder;
+    private RumourIntersectionFinder rumourIntersectionFinder;
+    @Inject
+    private ScheduleIntersectionFinder scheduleIntersectionFinder;
     @Inject
     private ScheduleBuilder scheduleBuilder;
-
-//    public GlastoResource(GlastoConfiguration config) {
-//        finder = new IntersectionFinder(new GlastoRequestSender(), new LastFmSender(config.getLastFm()), new CheckerCache(config.getJedis()), new ClashfinderSender(), new SpotifySender(config.getSpotify()), new ArtistMapGenerator());
-//        scheduleBuilder = new ScheduleBuilder();
-//    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{festival}/{username}")
     public List<Act> getActsForUsername(@PathParam("username") String username, @PathParam("festival") String festival, @QueryParam("year") String year) {
         try {
-            return finder.findIntersection(username, festival, year);
+            return rumourIntersectionFinder.findIntersection(username, festival, year);
         } catch (FestivalConnectionException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("Unable to retrieve festival data").type("text/plain").build());
         } catch (LastFmException e) {
@@ -52,7 +50,7 @@ public class GlastoResource {
     @Path("/r/{festival}/{token}")
     public List<Act> getRecommendedActsForUsername(@PathParam("token") String token, @PathParam("festival") String festival, @QueryParam("year") String year) {
         try {
-            return finder.findRIntersection(token, festival, year);
+            return rumourIntersectionFinder.findRecommendedIntersection(token, festival, year);
         } catch (FestivalConnectionException e) {
             throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Unable to retrieve festival data").type("text/plain").build());
         } catch (LastFmException e) {
@@ -65,7 +63,7 @@ public class GlastoResource {
     @Path("/s/{festival}/{username}")
     public Schedule getScheduleForUsername(@PathParam("username") String username, @PathParam("festival") String festival, @QueryParam("year") String year) {
         try {
-            List<Event> intersection = finder.findSIntersection(username, festival, year);
+            List<Event> intersection = scheduleIntersectionFinder.findSIntersection(username, festival, year);
             return scheduleBuilder.createSchedule(intersection);
         } catch (LastFmException e) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).type("text/plain").build());
@@ -77,7 +75,7 @@ public class GlastoResource {
     @Path("/s/spotify/{festival}/{authcode}")
     public Schedule getScheduleSpotify(@PathParam("authcode") String authcode, @PathParam("festival") String festival, @QueryParam("year") String year) {
         try {
-            List<Event> intersection = finder.findSpotifyScheduleIntersection(authcode, festival, year);
+            List<Event> intersection = scheduleIntersectionFinder.findSpotifyScheduleIntersection(authcode, festival, year);
             return scheduleBuilder.createSchedule(intersection);
         }  catch (LastFmException e) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).type("text/plain").build());
@@ -89,7 +87,7 @@ public class GlastoResource {
     @Path("/s/r/{festival}/{token}")
     public Schedule getReccomendedSchedule(@PathParam("token") String token, @PathParam("festival") String festival, @QueryParam("year") String year) {
         try {
-            List<Event> intersection = finder.findReccoScheduleIntersection(token, festival, year);
+            List<Event> intersection = scheduleIntersectionFinder.findReccoScheduleIntersection(token, festival, year);
             return scheduleBuilder.createSchedule(intersection);
         }  catch (LastFmException e) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).type("text/plain").build());
@@ -101,18 +99,23 @@ public class GlastoResource {
     @Path("/s/h/{strategy}/{festival}/{token}")
     public Schedule getHybridSchedule(@PathParam("token") String token, @PathParam("festival") String festival, @QueryParam("year") String year, @PathParam("strategy") String strategy) {
         try {
-            PreferenceStrategy strat = null;
-            if(strategy.equals("listened")) {
-                strat = new ListenedFirstPreferenceStrategy();
-            }
-            else if(strategy.equals("recco")) {
-                strat = new ReccoFirstPreferenceStrategy();
-            }
-
-            List<Event> intersection = finder.findHybridScheduleIntersection(token,festival,year,strat);
+            PreferenceStrategy preferenceStrategy = getPreferenceStrategy(strategy);
+            List<Event> intersection = scheduleIntersectionFinder.findHybridScheduleIntersection(token,festival,year, preferenceStrategy);
             return scheduleBuilder.createSchedule(intersection);
         }  catch (LastFmException e) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).type("text/plain").build());
+        }
+    }
+
+    private PreferenceStrategy getPreferenceStrategy(String strategy) {
+        if(strategy.equals("listened")) {
+            return new ListenedFirstPreferenceStrategy();
+        }
+        else if(strategy.equals("recco")) {
+            return new ReccoFirstPreferenceStrategy();
+        }
+        else {
+            throw new RuntimeException("Preference Strategy not found");
         }
     }
 }

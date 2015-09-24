@@ -7,6 +7,13 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SpotifyArtist {
+
+    public SpotifyArtist() {}
+
+    public SpotifyArtist(String name) {
+        this.name = name;
+    }
+
     private String name;
 
     public String getName() {

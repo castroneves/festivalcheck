@@ -1,5 +1,6 @@
 package intersection;
 
+import com.google.inject.Singleton;
 import pojo.Artist;
 import pojo.Show;
 
@@ -16,6 +17,7 @@ import static java.util.stream.Collectors.toMap;
 /**
  * Created by Adam on 12/09/2015.
  */
+@Singleton
 public class ArtistMapGenerator {
 
     public Map<String, Artist> generateLastFmMap(Set<? extends Show> clashfinderData, List<Artist> artists) {
