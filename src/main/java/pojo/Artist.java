@@ -39,6 +39,10 @@ public class Artist {
     public String getPlaycount() {
         return playcount;
     }
+    @JsonIgnore
+    public Integer getPlaycountInt() {
+        return Integer.valueOf(playcount);
+    }
 
     public void setPlaycount(String playcount) {
         this.playcount = playcount;

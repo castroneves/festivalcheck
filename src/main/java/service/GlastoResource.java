@@ -47,6 +47,19 @@ public class GlastoResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Path("/spotify/{festival}/{code}")
+    public List<Act> getActsForSpotify(@PathParam("code") String code, @PathParam("festival") String festival, @QueryParam("year") String year) {
+        try {
+            return rumourIntersectionFinder.findSpotifyIntersection(code, festival, year);
+        } catch (FestivalConnectionException e) {
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("Unable to retrieve festival data").type("text/plain").build());
+        } catch (LastFmException e) {
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).type("text/plain").build());
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/r/{festival}/{token}")
     public List<Act> getRecommendedActsForUsername(@PathParam("token") String token, @PathParam("festival") String festival, @QueryParam("year") String year) {
         try {

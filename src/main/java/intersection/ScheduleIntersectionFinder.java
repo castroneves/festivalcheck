@@ -7,6 +7,7 @@ import com.google.inject.Inject;
 import lastfm.LastFmSender;
 import pojo.Artist;
 import pojo.Response;
+import spotify.SpotifyDataGrabber;
 import spotify.SpotifySender;
 import spotify.domain.AccessToken;
 import spotify.domain.SpotifyArtist;
@@ -30,15 +31,14 @@ public class ScheduleIntersectionFinder {
     @Inject
     private LastFmSender lastFmSender;
     @Inject
-    private SpotifySender spotifySender;
-    @Inject
     private CheckerCache cache;
     @Inject
     private ArtistMapGenerator artistMapGenerator;
     @Inject
     private ClashfinderSender clashFinderSender;
     @Inject
-    private SpotifyOrderingCreator spotifyOrderingCreator;
+    private SpotifyDataGrabber spotifyDataGrabber;
+
 
     public List<Event> findSIntersection(String username, String festival, String year) {
         Set<Event> clashfinderData = clashFinderSender.fetchData(festival,year);
@@ -73,13 +73,7 @@ public class ScheduleIntersectionFinder {
     }
 
     public List<Event> findSpotifyScheduleIntersection(String authCode, String festival, String year) {
-        AccessToken token = cache.getOrLookup(authCode, () -> spotifySender.getAuthToken(authCode), SPOTIFYACCESSTOKEN, AccessToken.class);
-        System.out.println(token.getAccessToken());
-        SpotifyTracksResponse savedTracks = spotifySender.getSavedTracks(token.getAccessToken());
-        List<SpotifyArtist> artists = savedTracks.getItems().stream().flatMap(x -> x.getTrack().getArtists().stream()).collect(toList());
-
-        //Get playlist info here
-        List<Artist> result = spotifyOrderingCreator.artistListByFrequency(artists);
+        List<Artist> result = spotifyDataGrabber.fetchSpotifyArtists(authCode);
         Set<Event> clashfinderData = clashFinderSender.fetchData(festival, year);
         Map<String,Artist> artistMap = artistMapGenerator.generateLastFmMap(clashfinderData, result);
         System.out.println(artistMap);
