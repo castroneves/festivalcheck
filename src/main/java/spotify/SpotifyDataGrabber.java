@@ -6,9 +6,11 @@ import intersection.SpotifyOrderingCreator;
 import pojo.Artist;
 import spotify.domain.AccessToken;
 import spotify.domain.SpotifyArtist;
+import spotify.domain.SpotifyPlaylistTracksResponse;
 import spotify.domain.SpotifyTracksResponse;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static cache.CacheKeyPrefix.SPOTIFYACCESSTOKEN;
 import static java.util.stream.Collectors.toList;
@@ -29,11 +31,17 @@ public class SpotifyDataGrabber {
     public List<Artist> fetchSpotifyArtists(String authCode) {
         AccessToken token = cache.getOrLookup(authCode, () -> spotifySender.getAuthToken(authCode), SPOTIFYACCESSTOKEN, AccessToken.class);
         System.out.println(token.getAccessToken());
-        SpotifyTracksResponse savedTracks = spotifySender.getSavedTracks(token.getAccessToken());
-        List<SpotifyArtist> artists = savedTracks.getItems().stream().flatMap(x -> x.getTrack().getArtists().stream()).collect(toList());
+
+        List<SpotifyTracksResponse> savedTracks = spotifySender.getSavedTracks(token.getAccessToken());
+        List<SpotifyArtist> artists = savedTracks.stream().flatMap(x -> x.getItems().stream()).flatMap(x -> x.getTrack().getArtists().stream()).collect(toList());
+
+        List<SpotifyPlaylistTracksResponse> playListTracks = spotifySender.getPlayListTracks(token.getAccessToken());
+        List<SpotifyArtist> playlistArtists = playListTracks.stream().flatMap(x -> x.getItems().stream()).flatMap(x -> x.getTrack().getArtists().stream()).collect(toList());
+
+        List<SpotifyArtist> combined = Stream.concat(artists.stream(),playlistArtists.stream()).collect(toList());
 
         //Get playlist info here
-        return spotifyOrderingCreator.artistListByFrequency(artists);
+        return spotifyOrderingCreator.artistListByFrequency(combined);
     }
 
     public void setSpotifySender(SpotifySender spotifySender) {
