@@ -1,4 +1,6 @@
-package pojo;
+package efestivals.domain;
+
+import domain.Show;
 
 /**
  * Created by Adam on 23/04/2015.

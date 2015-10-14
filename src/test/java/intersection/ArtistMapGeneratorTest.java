@@ -1,8 +1,8 @@
 package intersection;
 
 import org.testng.annotations.Test;
-import pojo.Artist;
-import pojo.Show;
+import lastfm.domain.Artist;
+import domain.Show;
 
 import java.util.Arrays;
 import java.util.HashSet;

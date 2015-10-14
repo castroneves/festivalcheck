@@ -1,4 +1,4 @@
-package pojo;
+package lastfm.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;

@@ -3,13 +3,12 @@ package intersection;
 import cache.CheckerCache;
 import com.google.inject.Inject;
 import exception.FestivalConnectionException;
-import glasto.GlastoRequestSender;
+import efestivals.GlastoRequestSender;
 import lastfm.LastFmSender;
-import pojo.Act;
-import pojo.Artist;
-import pojo.Response;
+import efestivals.domain.Act;
+import lastfm.domain.Artist;
+import lastfm.domain.Response;
 import spotify.SpotifyDataGrabber;
-import spotify.SpotifySender;
 
 import java.util.List;
 import java.util.Map;

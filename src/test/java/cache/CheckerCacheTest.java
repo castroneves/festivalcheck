@@ -5,9 +5,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import pojo.Artist;
-import pojo.Response;
-import pojo.TopArtists;
+import lastfm.domain.Artist;
+import lastfm.domain.Response;
+import lastfm.domain.TopArtists;
 import redis.clients.jedis.Jedis;
 
 import java.util.Arrays;

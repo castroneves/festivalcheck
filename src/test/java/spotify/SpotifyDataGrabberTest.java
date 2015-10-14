@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import pojo.Artist;
+import lastfm.domain.Artist;
 import spotify.domain.*;
 
 import java.util.ArrayList;

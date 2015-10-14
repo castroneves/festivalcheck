@@ -1,7 +1,7 @@
 package strategy;
 
 import clashfinder.domain.Event;
-import pojo.Artist;
+import lastfm.domain.Artist;
 
 import java.util.List;
 import java.util.Map;

@@ -1,9 +1,8 @@
 package intersection;
 
-import clashfinder.domain.Event;
 import com.google.inject.Singleton;
-import pojo.Artist;
-import pojo.Show;
+import lastfm.domain.Artist;
+import domain.Show;
 
 import java.util.HashSet;
 import java.util.List;

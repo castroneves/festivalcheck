@@ -3,7 +3,7 @@ package spotify;
 import cache.CheckerCache;
 import com.google.inject.Inject;
 import intersection.SpotifyOrderingCreator;
-import pojo.Artist;
+import lastfm.domain.Artist;
 import spotify.domain.AccessToken;
 import spotify.domain.SpotifyArtist;
 import spotify.domain.SpotifyPlaylistTracksResponse;

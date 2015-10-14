@@ -1,4 +1,4 @@
-package pojo;
+package domain;
 
 /**
  * Created by adam.heinke on 02/07/2015.
