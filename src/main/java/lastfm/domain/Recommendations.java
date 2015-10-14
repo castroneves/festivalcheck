@@ -1,14 +1,12 @@
-package pojo;
+package lastfm.domain;
 
+import lastfm.domain.Artist;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import java.util.List;
 
-/**
- * Created by Adam on 27/04/2015.
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TopArtists {
+public class Recommendations {
     private List<Artist> artist;
 
     public List<Artist> getArtist() {

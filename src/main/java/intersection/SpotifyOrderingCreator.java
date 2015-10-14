@@ -1,6 +1,6 @@
 package intersection;
 
-import pojo.Artist;
+import lastfm.domain.Artist;
 import spotify.domain.SpotifyArtist;
 
 import java.util.List;

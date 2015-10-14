@@ -2,15 +2,19 @@ package intersection;
 
 import cache.CacheKeyPrefix;
 import cache.CheckerCache;
+import efestivals.domain.Act;
 import exception.FestivalConnectionException;
-import glasto.GlastoRequestSender;
+import efestivals.GlastoRequestSender;
 import lastfm.LastFmSender;
+import lastfm.domain.Artist;
+import lastfm.domain.Recommendations;
+import lastfm.domain.Response;
+import lastfm.domain.TopArtists;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import pojo.*;
 import spotify.SpotifySender;
 
 import java.util.*;
@@ -18,7 +22,6 @@ import java.util.function.Supplier;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.*;
 

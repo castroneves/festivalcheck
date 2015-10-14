@@ -5,13 +5,9 @@ import clashfinder.ClashfinderSender;
 import clashfinder.domain.Event;
 import com.google.inject.Inject;
 import lastfm.LastFmSender;
-import pojo.Artist;
-import pojo.Response;
+import lastfm.domain.Artist;
+import lastfm.domain.Response;
 import spotify.SpotifyDataGrabber;
-import spotify.SpotifySender;
-import spotify.domain.AccessToken;
-import spotify.domain.SpotifyArtist;
-import spotify.domain.SpotifyTracksResponse;
 import strategy.PreferenceStrategy;
 
 import java.util.List;
@@ -20,7 +16,6 @@ import java.util.Set;
 
 import static cache.CacheKeyPrefix.LISTENED;
 import static cache.CacheKeyPrefix.RECCOMENDED;
-import static cache.CacheKeyPrefix.SPOTIFYACCESSTOKEN;
 import static java.util.stream.Collectors.toList;
 
 /**

@@ -1,4 +1,4 @@
-package glasto;
+package efestivals;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Splitter;
-import pojo.Act;
+import efestivals.domain.Act;
 
 import static java.util.stream.Collectors.toList;
 

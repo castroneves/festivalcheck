@@ -2,7 +2,7 @@ package strategy;
 
 import clashfinder.domain.Event;
 import org.testng.annotations.Test;
-import pojo.Artist;
+import lastfm.domain.Artist;
 
 import java.util.*;
 

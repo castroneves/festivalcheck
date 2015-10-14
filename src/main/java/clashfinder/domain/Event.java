@@ -2,7 +2,7 @@ package clashfinder.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import pojo.Show;
+import domain.Show;
 import service.serialise.DateTimeDeserialiser;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonDeserialize;

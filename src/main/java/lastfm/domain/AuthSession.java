@@ -1,4 +1,4 @@
-package pojo;
+package lastfm.domain;
 
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;

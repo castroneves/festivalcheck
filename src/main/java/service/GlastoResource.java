@@ -7,7 +7,7 @@ import exception.FestivalConnectionException;
 import exception.LastFmException;
 import intersection.RumourIntersectionFinder;
 import intersection.ScheduleIntersectionFinder;
-import pojo.Act;
+import efestivals.domain.Act;
 import schedule.ScheduleBuilder;
 import strategy.ListenedFirstPreferenceStrategy;
 import strategy.PreferenceStrategy;

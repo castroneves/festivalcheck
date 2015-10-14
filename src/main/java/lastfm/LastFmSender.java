@@ -7,9 +7,12 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import exception.LastFmException;
+import lastfm.domain.Artist;
+import lastfm.domain.AuthSession;
+import lastfm.domain.Response;
+import lastfm.domain.Session;
 import org.apache.commons.codec.binary.Hex;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
-import pojo.*;
 import service.config.LastFmConfig;
 
 import javax.ws.rs.core.MediaType;

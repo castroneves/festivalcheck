@@ -1,4 +1,4 @@
-package glasto;
+package efestivals;
 /**
  * Created by Adam on 23/04/2015.
  */
@@ -8,11 +8,10 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import exception.FestivalConnectionException;
-import pojo.Act;
+import efestivals.domain.Act;
 
 import javax.ws.rs.core.MediaType;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
