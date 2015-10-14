@@ -53,7 +53,7 @@ public class RumourIntersectionFinder {
     public List<Act> findSpotifyIntersection(String authCode, String festival, String year) throws FestivalConnectionException {
         List<Artist> artists = spotifyDataGrabber.fetchSpotifyArtists(authCode);
 
-        return computeIntersection(artists,festival,year,Artist::getPlaycountInt);
+        return computeIntersection(artists,festival,year,x -> -1 * x.getPlaycountInt());
     }
 
     private List<Act> computeIntersection(List<Artist> artists, String festival, String year, Function<Artist,Integer> func) throws FestivalConnectionException {
