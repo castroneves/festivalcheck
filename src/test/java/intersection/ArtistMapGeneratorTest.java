@@ -103,5 +103,34 @@ public class ArtistMapGeneratorTest {
         assertFalse(result.containsKey("peter gabriel, phil collins and mike rutherford"));
     }
 
+    @Test
+    public void multiplePartialMatches() {
+        Show show1 = new Show() {
+            @Override
+            public String getName() {
+                return "Frank Turner";
+            }
+        };
+        Show show = new Show() {
+            @Override
+            public String getName() {
+                return "A Radical Round-up Special : Frank Turner With Billy Bragg: \"the Road Beneath My Feet\" -";
+            }
+        };
+
+        Show show2 = new Show() {
+            @Override
+            public String getName() {
+                return "David Cameron, Frank Turner and the Poll Tax";
+            }
+        };
+        Artist artist = new Artist("Frank Turner", "2", 10);
+        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show1,show, show2)), Arrays.asList(artist));
+
+        assertTrue(result.containsKey("frank turner"));
+        assertTrue(result.containsKey("a radical round-up special : frank turner with billy bragg: \"the road beneath my feet\" -"));
+        assertTrue(result.containsKey("david cameron, frank turner and the poll tax"));
+    }
+
 
 }

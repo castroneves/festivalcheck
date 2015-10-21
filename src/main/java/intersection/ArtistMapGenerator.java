@@ -42,12 +42,11 @@ public class ArtistMapGenerator {
     private List<Artist> fetchShortArtists(List<Artist> artists, Set<? extends Show> glastoData) {
 
         List<Artist> matches = artists.stream().filter(a -> a.getName().contains(" ") && glastoData.stream().anyMatch(g -> g.getName().toLowerCase().contains(a.getName().toLowerCase()))).collect(toList());
-        return matches.stream().map(a -> {
-            String adjustedName = glastoData.stream()
-                    .filter(g -> g.getName().toLowerCase().contains(a.getName().toLowerCase())).findFirst().get().getName();
-            return new Artist(adjustedName,a.getPlaycount(),a.getRankValue());
-        }).collect(toList());
-
+        return matches.stream().map(a ->
+            glastoData.stream()
+                    .filter(g -> g.getName().toLowerCase().contains(a.getName().toLowerCase()))
+            .map(n -> new Artist(n.getName(),a.getPlaycount(),a.getRankValue()))
+        ).flatMap(s -> s).collect(toList());
     }
 
     private List<Artist> fetchVariantArtists(List<Artist> artists) {
