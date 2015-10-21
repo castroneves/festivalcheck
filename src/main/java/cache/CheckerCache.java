@@ -17,22 +17,24 @@ public class CheckerCache {
     @Inject
     private JedisFactory jedisFactory;
 
+    @Inject
+    private ObjectMapper mapper;
+
     public <T> T getOrLookup(String key, Supplier<T> func, CacheKeyPrefix prefix, Class<T> clazz) {
         try (Jedis jedis = jedisFactory.newJedis()) {
             String redisKey = prefix + key;
             System.out.println(jedis.ttl(redisKey));
             String json = jedis.get(redisKey);
-            ObjectMapper mapper = new ObjectMapper();
             if (json != null && json != "") {
                 return mapper.readValue(json, clazz);
             }
-            return fallback(redisKey, func, mapper, jedis);
+            return fallback(redisKey, func, jedis);
         } catch (Exception e) {
             return func.get();
         }
     }
 
-    private <T> T fallback(String key, Supplier<T> func, ObjectMapper mapper, Jedis jedis) {
+    private <T> T fallback(String key, Supplier<T> func, Jedis jedis) {
         T response = func.get();
         try {
             String inputJson = mapper.writeValueAsString(response);
@@ -46,5 +48,9 @@ public class CheckerCache {
 
     public void setJedisFactory(JedisFactory jedisFactory) {
         this.jedisFactory = jedisFactory;
+    }
+
+    public void setMapper(ObjectMapper mapper) {
+        this.mapper = mapper;
     }
 }
