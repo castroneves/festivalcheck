@@ -36,88 +36,54 @@ public class GlastoResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{festival}/{username}")
     public List<Act> getActsForUsername(@PathParam("username") String username, @PathParam("festival") String festival, @QueryParam("year") String year) {
-        try {
-            return rumourIntersectionFinder.findIntersection(username, festival, year);
-        } catch (FestivalConnectionException e) {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("Unable to retrieve festival data").type("text/plain").build());
-        } catch (LastFmException e) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).type("text/plain").build());
-        }
+        return rumourIntersectionFinder.findIntersection(username, festival, year);
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/spotify/{festival}/{code}")
     public List<Act> getActsForSpotify(@PathParam("code") String code, @PathParam("festival") String festival, @QueryParam("year") String year) {
-        try {
-            return rumourIntersectionFinder.findSpotifyIntersection(code, festival, year);
-        } catch (FestivalConnectionException e) {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("Unable to retrieve festival data").type("text/plain").build());
-        } catch (LastFmException e) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).type("text/plain").build());
-        }
+        return rumourIntersectionFinder.findSpotifyIntersection(code, festival, year);
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/r/{festival}/{token}")
     public List<Act> getRecommendedActsForUsername(@PathParam("token") String token, @PathParam("festival") String festival, @QueryParam("year") String year) {
-        try {
-            return rumourIntersectionFinder.findRecommendedIntersection(token, festival, year);
-        } catch (FestivalConnectionException e) {
-            throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Unable to retrieve festival data").type("text/plain").build());
-        } catch (LastFmException e) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).type("text/plain").build());
-        }
+        return rumourIntersectionFinder.findRecommendedIntersection(token, festival, year);
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/s/{festival}/{username}")
     public Schedule getScheduleForUsername(@PathParam("username") String username, @PathParam("festival") String festival, @QueryParam("year") String year) {
-        try {
-            List<Event> intersection = scheduleIntersectionFinder.findSIntersection(username, festival, year);
-            return scheduleBuilder.createSchedule(intersection);
-        } catch (LastFmException e) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).type("text/plain").build());
-        }
+        List<Event> intersection = scheduleIntersectionFinder.findSIntersection(username, festival, year);
+        return scheduleBuilder.createSchedule(intersection);
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/s/spotify/{festival}/{authcode}")
     public Schedule getScheduleSpotify(@PathParam("authcode") String authcode, @PathParam("festival") String festival, @QueryParam("year") String year) {
-        try {
-            List<Event> intersection = scheduleIntersectionFinder.findSpotifyScheduleIntersection(authcode, festival, year);
-            return scheduleBuilder.createSchedule(intersection);
-        }  catch (LastFmException e) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).type("text/plain").build());
-        }
+        List<Event> intersection = scheduleIntersectionFinder.findSpotifyScheduleIntersection(authcode, festival, year);
+        return scheduleBuilder.createSchedule(intersection);
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/s/r/{festival}/{token}")
     public Schedule getReccomendedSchedule(@PathParam("token") String token, @PathParam("festival") String festival, @QueryParam("year") String year) {
-        try {
-            List<Event> intersection = scheduleIntersectionFinder.findReccoScheduleIntersection(token, festival, year);
-            return scheduleBuilder.createSchedule(intersection);
-        }  catch (LastFmException e) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).type("text/plain").build());
-        }
+        List<Event> intersection = scheduleIntersectionFinder.findReccoScheduleIntersection(token, festival, year);
+        return scheduleBuilder.createSchedule(intersection);
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/s/h/{strategy}/{festival}/{token}")
     public Schedule getHybridSchedule(@PathParam("token") String token, @PathParam("festival") String festival, @QueryParam("year") String year, @PathParam("strategy") String strategy) {
-        try {
-            PreferenceStrategy preferenceStrategy = getPreferenceStrategy(strategy);
-            List<Event> intersection = scheduleIntersectionFinder.findHybridScheduleIntersection(token,festival,year, preferenceStrategy);
-            return scheduleBuilder.createSchedule(intersection);
-        }  catch (LastFmException e) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).type("text/plain").build());
-        }
+        PreferenceStrategy preferenceStrategy = getPreferenceStrategy(strategy);
+        List<Event> intersection = scheduleIntersectionFinder.findHybridScheduleIntersection(token,festival,year, preferenceStrategy);
+        return scheduleBuilder.createSchedule(intersection);
     }
 
     private PreferenceStrategy getPreferenceStrategy(String strategy) {
