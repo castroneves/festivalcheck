@@ -2,6 +2,7 @@ package service;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import exception.LastFmExceptionMapper;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -43,6 +44,8 @@ public class GlastoService extends Application<GlastoConfiguration> {
 
         // Add URL mapping
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
+
+        environment.jersey().register(new LastFmExceptionMapper());
         environment.jersey().register(glastoResource);
     }
 }
