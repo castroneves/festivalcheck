@@ -3,6 +3,8 @@ package spotify;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientHandlerException;
+import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
@@ -16,6 +18,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -92,6 +96,7 @@ public class SpotifySender {
     public List<SpotifyPlaylistTracksResponse> getPlayListTracks(String accessCode) {
         UserProfile userId = getUserId(accessCode);
         List<SpotifyPlaylist> playlists = getPlaylists(accessCode, userId.getId());
+        System.out.println("Playlists for : " + userId.getId() + " :: " + playlists.stream().map(x -> x.getId()).collect(toList()));
         return getTracksFromPlaylists(accessCode,userId.getId(),playlists);
     }
 
@@ -122,12 +127,28 @@ public class SpotifySender {
     }
 
     private SpotifyPlaylistTracksResponse getSpotifyPlaylistTracksResponse(int retrieved, SpotifyDetails details) {
-        WebResource resource =
-                client.resource("https://api.spotify.com/v1/users/" + details.getUserId() + "/playlists/" + details.getPlaylistId() + "/tracks")
-                        .queryParam("limit", "100")
-                        .queryParam("offset", String.valueOf(retrieved));
-        return resource.header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE)
-                .get(SpotifyPlaylistTracksResponse.class);
+        try {
+            WebResource resource =
+                    client.resource("https://api.spotify.com/v1/users/" + details.getUserId() + "/playlists/" + details.getPlaylistId() + "/tracks")
+                            .queryParam("limit", "100")
+                            .queryParam("offset", String.valueOf(retrieved));
+            return resource.header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SpotifyPlaylistTracksResponse.class);
+        } catch (UniformInterfaceException e) {
+            // Only until this is solved
+            if(!e.getMessage().contains("404 Not Found")) {
+                throw e;
+            }
+            System.out.println("404 ERROR: " +  e.getMessage()  + e.getResponse());
+            return emptySpotifyPlaylistTracksResponse();
+        }
+    }
+
+    private SpotifyPlaylistTracksResponse emptySpotifyPlaylistTracksResponse() {
+        SpotifyPlaylistTracksResponse response = new SpotifyPlaylistTracksResponse();
+        response.setItems(new ArrayList<>());
+        response.setTotal(0);
+        return response;
     }
 
 }

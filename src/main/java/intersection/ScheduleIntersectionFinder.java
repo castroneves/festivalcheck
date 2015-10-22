@@ -71,8 +71,6 @@ public class ScheduleIntersectionFinder {
         List<Artist> result = spotifyDataGrabber.fetchSpotifyArtists(authCode);
         Set<Event> clashfinderData = clashFinderSender.fetchData(festival, year);
         Map<String,Artist> artistMap = artistMapGenerator.generateLastFmMap(clashfinderData, result);
-        System.out.println(artistMap);
-        System.out.println(result);
         return matchingEventsByPlays(clashfinderData,artistMap);
     }
 
