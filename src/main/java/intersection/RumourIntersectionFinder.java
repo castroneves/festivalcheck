@@ -49,8 +49,8 @@ public class RumourIntersectionFinder {
         return computeIntersection(artists,festival,year,Artist::getRankValue);
     }
 
-    public List<Act> findSpotifyIntersection(String authCode, String festival, String year) throws FestivalConnectionException {
-        List<Artist> artists = spotifyDataGrabber.fetchSpotifyArtists(authCode);
+    public List<Act> findSpotifyIntersection(String authCode, String festival, String year, String redirectUrl) throws FestivalConnectionException {
+        List<Artist> artists = spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl);
 
         return computeIntersection(artists,festival,year,x -> -1 * x.getPlaycountInt());
     }

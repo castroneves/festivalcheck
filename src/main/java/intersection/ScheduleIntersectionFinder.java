@@ -67,8 +67,8 @@ public class ScheduleIntersectionFinder {
         return strategy.findOrderedInterection(clashfinderData, listenedArtists, reccoArtists);
     }
 
-    public List<Event> findSpotifyScheduleIntersection(String authCode, String festival, String year) {
-        List<Artist> result = spotifyDataGrabber.fetchSpotifyArtists(authCode);
+    public List<Event> findSpotifyScheduleIntersection(String authCode, String festival, String year, String redirectUrl) {
+        List<Artist> result = spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl);
         Set<Event> clashfinderData = clashFinderSender.fetchData(festival, year);
         Map<String,Artist> artistMap = artistMapGenerator.generateLastFmMap(clashfinderData, result);
         return matchingEventsByPlays(clashfinderData,artistMap);

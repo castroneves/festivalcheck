@@ -42,8 +42,8 @@ public class GlastoResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/spotify/{festival}/{code}")
-    public List<Act> getActsForSpotify(@PathParam("code") String code, @PathParam("festival") String festival, @QueryParam("year") String year) {
-        return rumourIntersectionFinder.findSpotifyIntersection(code, festival, year);
+    public List<Act> getActsForSpotify(@PathParam("code") String code, @PathParam("festival") String festival, @QueryParam("year") String year, @QueryParam("redirectUrl") String redirectUrl) {
+        return rumourIntersectionFinder.findSpotifyIntersection(code, festival, year, redirectUrl);
     }
 
     @GET
@@ -64,8 +64,8 @@ public class GlastoResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/s/spotify/{festival}/{authcode}")
-    public Schedule getScheduleSpotify(@PathParam("authcode") String authcode, @PathParam("festival") String festival, @QueryParam("year") String year) {
-        List<Event> intersection = scheduleIntersectionFinder.findSpotifyScheduleIntersection(authcode, festival, year);
+    public Schedule getScheduleSpotify(@PathParam("authcode") String authcode, @PathParam("festival") String festival, @QueryParam("year") String year, @QueryParam("redirectUrl") String redirectUrl) {
+        List<Event> intersection = scheduleIntersectionFinder.findSpotifyScheduleIntersection(authcode, festival, year, redirectUrl);
         return scheduleBuilder.createSchedule(intersection);
     }
 

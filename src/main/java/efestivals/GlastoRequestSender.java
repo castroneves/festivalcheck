@@ -19,7 +19,9 @@ public class GlastoRequestSender {
 
     private static final String urlPrefix = "http://www.efestivals.co.uk/festivals/";
     private static final String urlSuffix = "/lineup.shtml";
+    private static final String vFestivalPrefix = "vvv";
     private final Client client;
+
     @Inject
     private GlastoResponseParser parser;
 
@@ -35,7 +37,7 @@ public class GlastoRequestSender {
 
     private String getRawResponse(String festival, String inputYear) throws FestivalConnectionException {
         String year = inputYear == null ? "2015" : inputYear;
-        if(festival.startsWith("vvv")) {
+        if(festival.startsWith(vFestivalPrefix)) {
             String venue = festival.replaceAll("vvv", "");
             festival = "v/" + venue;
         }
