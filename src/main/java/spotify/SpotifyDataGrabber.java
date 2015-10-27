@@ -28,8 +28,8 @@ public class SpotifyDataGrabber {
     @Inject
     private SpotifyOrderingCreator spotifyOrderingCreator;
 
-    public List<Artist> fetchSpotifyArtists(String authCode) {
-        AccessToken token = cache.getOrLookup(authCode, () -> spotifySender.getAuthToken(authCode), SPOTIFYACCESSTOKEN, AccessToken.class);
+    public List<Artist> fetchSpotifyArtists(String authCode, String redirectUrl) {
+        AccessToken token = cache.getOrLookup(authCode, () -> spotifySender.getAuthToken(authCode, redirectUrl), SPOTIFYACCESSTOKEN, AccessToken.class);
         System.out.println(token.getAccessToken());
 
         List<SpotifyTracksResponse> savedTracks = spotifySender.getSavedTracks(token.getAccessToken());

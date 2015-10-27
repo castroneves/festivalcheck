@@ -25,13 +25,13 @@ public class ArtistMapGenerator {
         List<Artist> variantArtists = fetchVariantArtists(artists);
         Map<String, Artist> variants = generateArtistVariantMap(variantArtists);
         lastFmMap.putAll(variants);
-        Map<String, Artist> additionalMap = generateLikeMap(artists, clashfinderData);
+        Map<String, Artist> additionalMap = generatePartialMatchMap(artists, clashfinderData);
         lastFmMap.putAll(additionalMap);
         return lastFmMap;
     }
 
-    public Map<String, Artist> generateLikeMap(List<Artist> artists, Set<? extends Show> glastoData) {
-        Set<Artist> shortArtists = new HashSet<>(fetchShortArtists(artists,glastoData));
+    public Map<String, Artist> generatePartialMatchMap(List<Artist> artists, Set<? extends Show> glastoData) {
+        Set<Artist> shortArtists = new HashSet<>(fetchPartialMatches(artists, glastoData));
         return shortArtists.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity()));
     }
 
@@ -39,7 +39,7 @@ public class ArtistMapGenerator {
         return variantArtists.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity()));
     }
 
-    private List<Artist> fetchShortArtists(List<Artist> artists, Set<? extends Show> glastoData) {
+    private List<Artist> fetchPartialMatches(List<Artist> artists, Set<? extends Show> glastoData) {
 
         List<Artist> matches = artists.stream().filter(a -> a.getName().contains(" ") && glastoData.stream().anyMatch(g -> g.getName().toLowerCase().contains(a.getName().toLowerCase()))).collect(toList());
         return matches.stream().map(a ->

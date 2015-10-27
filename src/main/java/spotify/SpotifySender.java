@@ -45,13 +45,13 @@ public class SpotifySender {
         client = Client.create(cc);
     }
 
-    public AccessToken getAuthToken(final String authCode) {
+    public AccessToken getAuthToken(final String authCode, final String redirectUrl) {
         WebResource resource = client.resource(baseUrl);
         MultivaluedMap<String,String> request = new MultivaluedMapImpl();
         request.add("grant_type", "authorization_code");
         //TODO Remove occasional suffixed garbage before sending
         request.add("code", authCode);
-        request.add("redirect_uri", "http://www.wellysplosher.com/schedule.html?source=spotify");
+        request.add("redirect_uri", redirectUrl);
         request.add("client_id", clientId);
         request.add("client_secret", secret);
         return resource.accept(MediaType.APPLICATION_JSON_TYPE).
@@ -103,8 +103,6 @@ public class SpotifySender {
 
     private List<SpotifyPlaylist> getPlaylists(final String accessCode, final String userId) {
         SpotifyPlaylistResponse playlistResponse = getPlaylistResponse(0, new SpotifyDetails(accessCode, userId));
-//        List<SpotifyPlaylistResponse> responses = paginate(this::getPlaylistResponse, new SpotifyDetails(accessCode, userId));
-//        return responses.stream().flatMap(x -> x.getItems().stream()).collect(toList());
         return playlistResponse.getItems();
     }
 

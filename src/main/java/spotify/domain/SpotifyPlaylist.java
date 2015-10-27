@@ -18,4 +18,6 @@ public class SpotifyPlaylist {
     public void setId(String id) {
         this.id = id;
     }
+
+    // Add owner
 }

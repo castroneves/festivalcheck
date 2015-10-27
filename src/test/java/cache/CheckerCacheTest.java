@@ -1,5 +1,6 @@
 package cache;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -30,6 +31,7 @@ public class CheckerCacheTest {
     @BeforeMethod
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        checkerCache.setMapper(new ObjectMapper());
     }
 
     @Test
