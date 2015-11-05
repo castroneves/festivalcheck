@@ -64,7 +64,7 @@ public class SpotifyDataGrabberTest {
 
         when(spotifyOrderingCreator.artistListByFrequency(combined)).thenReturn(artistList);
 
-        List<Artist> result = spotifyDataGrabber.fetchSpotifyArtists(authCode);
+        List<Artist> result = spotifyDataGrabber.fetchSpotifyArtists(authCode, "redirectUrl");
 
         assertSame(result,artistList);
 
