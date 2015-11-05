@@ -3,11 +3,9 @@ package service;
 import clashfinder.domain.Event;
 import clashfinder.domain.Schedule;
 import com.google.inject.Inject;
-import exception.FestivalConnectionException;
-import exception.LastFmException;
+import efestivals.domain.Act;
 import intersection.RumourIntersectionFinder;
 import intersection.ScheduleIntersectionFinder;
-import efestivals.domain.Act;
 import schedule.ScheduleBuilder;
 import strategy.ListenedFirstPreferenceStrategy;
 import strategy.PreferenceStrategy;
@@ -15,7 +13,6 @@ import strategy.ReccoFirstPreferenceStrategy;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 
 /**
@@ -41,9 +38,10 @@ public class GlastoResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/spotify/{festival}/{code}")
-    public List<Act> getActsForSpotify(@PathParam("code") String code, @PathParam("festival") String festival, @QueryParam("year") String year, @QueryParam("redirectUrl") String redirectUrl) {
-        return rumourIntersectionFinder.findSpotifyIntersection(code, festival, year, redirectUrl);
+    @Path("/spotify/{festival}/{code}/{redirectUrl}")
+    public List<Act> getActsForSpotify(@PathParam("code") String code, @PathParam("festival") String festival, @QueryParam("year") String year, @PathParam("redirectUrl") String redirectUrl) {
+        String cleanedCode = code.endsWith("#_=_") ? code.replaceAll("#_=_", "") : code;
+        return rumourIntersectionFinder.findSpotifyIntersection(cleanedCode, festival, year, redirectUrl);
     }
 
     @GET
@@ -63,9 +61,10 @@ public class GlastoResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/s/spotify/{festival}/{authcode}")
-    public Schedule getScheduleSpotify(@PathParam("authcode") String authcode, @PathParam("festival") String festival, @QueryParam("year") String year, @QueryParam("redirectUrl") String redirectUrl) {
-        List<Event> intersection = scheduleIntersectionFinder.findSpotifyScheduleIntersection(authcode, festival, year, redirectUrl);
+    @Path("/s/spotify/{festival}/{authcode}/{redirectUrl}")
+    public Schedule getScheduleSpotify(@PathParam("authcode") String code, @PathParam("festival") String festival, @QueryParam("year") String year, @PathParam("redirectUrl") String redirectUrl) {
+        String cleanedCode = code.endsWith("#_=_") ? code.replaceAll("#_=_", "") : code;
+        List<Event> intersection = scheduleIntersectionFinder.findSpotifyScheduleIntersection(cleanedCode, festival, year, redirectUrl);
         return scheduleBuilder.createSchedule(intersection);
     }
 
