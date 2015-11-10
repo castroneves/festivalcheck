@@ -2,6 +2,7 @@ package intersection;
 
 import cache.CacheKeyPrefix;
 import cache.CheckerCache;
+import domain.RumourResponse;
 import efestivals.domain.Act;
 import exception.FestivalConnectionException;
 import efestivals.GlastoRequestSender;
@@ -58,9 +59,9 @@ public class RumourIntersectionFinderTest {
         when(cache.getOrLookup(eq(username),any(Supplier.class), eq(CacheKeyPrefix.LISTENED),any(Class.class))).thenReturn(response);
         when(artistMapGenerator.generateLastFmMap(festivalData,response.getTopartists().getArtist())).thenReturn(getGenerateLastFmMap());
 
-        List<Act> intersection = rumourIntersectionFinder.findIntersection(username, festival, year);
+        RumourResponse intersection = rumourIntersectionFinder.findIntersection(username, festival, year);
 
-        assertEquals(intersection, expectedActList());
+        assertEquals(intersection.getActs(), expectedActList());
     }
 
     @Test

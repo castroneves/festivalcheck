@@ -2,6 +2,7 @@ package intersection;
 
 import cache.CheckerCache;
 import com.google.inject.Inject;
+import domain.RumourResponse;
 import exception.FestivalConnectionException;
 import efestivals.GlastoRequestSender;
 import lastfm.LastFmSender;
@@ -18,7 +19,6 @@ import java.util.function.Function;
 import static cache.CacheKeyPrefix.LISTENED;
 import static cache.CacheKeyPrefix.RECCOMENDED;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 
 /**
  * Created by Adam on 24/09/2015.
@@ -35,11 +35,12 @@ public class RumourIntersectionFinder {
     @Inject
     private ArtistMapGenerator artistMapGenerator;
 
-    public List<Act> findIntersection(String username, String festival,String year) throws FestivalConnectionException {
+    public RumourResponse findIntersection(String username, String festival,String year) throws FestivalConnectionException {
         Response lastFmData = cache.getOrLookup(username, () -> lastFmSender.simpleRequest(username), LISTENED, Response.class);
         List<Artist> artists = lastFmData.getTopartists().getArtist();
 
-        return computeIntersection(artists,festival,year,Artist::getRankValue);
+        List<Act> acts = computeIntersection(artists, festival, year, Artist::getRankValue);
+        return new RumourResponse(acts);
     }
 
     public List<Act> findRecommendedIntersection(String token, String festival, String year) throws FestivalConnectionException {

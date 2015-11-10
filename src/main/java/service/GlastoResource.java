@@ -1,8 +1,11 @@
 package service;
 
+import cache.CacheKeyPrefix;
+import cache.CheckerCache;
 import clashfinder.domain.Event;
 import clashfinder.domain.Schedule;
 import com.google.inject.Inject;
+import domain.RumourResponse;
 import efestivals.domain.Act;
 import intersection.RumourIntersectionFinder;
 import intersection.ScheduleIntersectionFinder;
@@ -14,6 +17,8 @@ import strategy.ReccoFirstPreferenceStrategy;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
+
+import static cache.CacheKeyPrefix.RUMOUR;
 
 /**
  * Created by Adam on 27/04/2015.
@@ -28,12 +33,15 @@ public class GlastoResource {
     private ScheduleIntersectionFinder scheduleIntersectionFinder;
     @Inject
     private ScheduleBuilder scheduleBuilder;
+    @Inject
+    private CheckerCache cache;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{festival}/{username}")
     public List<Act> getActsForUsername(@PathParam("username") String username, @PathParam("festival") String festival, @QueryParam("year") String year) {
-        return rumourIntersectionFinder.findIntersection(username, festival, year);
+        RumourResponse response = cache.getOrLookup(username + festival + year, () -> rumourIntersectionFinder.findIntersection(username, festival, year), RUMOUR, RumourResponse.class);
+        return response.getActs();
     }
 
     @GET
@@ -55,8 +63,10 @@ public class GlastoResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/s/{festival}/{username}")
     public Schedule getScheduleForUsername(@PathParam("username") String username, @PathParam("festival") String festival, @QueryParam("year") String year) {
-        List<Event> intersection = scheduleIntersectionFinder.findSIntersection(username, festival, year);
-        return scheduleBuilder.createSchedule(intersection);
+        return cache.getOrLookup(username + festival + year, () -> {
+            List<Event> intersection = scheduleIntersectionFinder.findSIntersection(username, festival, year);
+            return scheduleBuilder.createSchedule(intersection);
+        }, CacheKeyPrefix.SCHEDULE, Schedule.class);
     }
 
     @GET

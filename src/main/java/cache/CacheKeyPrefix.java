@@ -6,6 +6,8 @@ package cache;
 public enum CacheKeyPrefix {
     LISTENED("lastfm_"),
     RECCOMENDED("recco_"),
+    RUMOUR("rumour_"),
+    SCHEDULE("schedule_"),
     SPOTIFYACCESSTOKEN("");
 
     private final String prefix;
