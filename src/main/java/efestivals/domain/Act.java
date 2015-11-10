@@ -11,6 +11,8 @@ public class Act implements Show {
     private String stage;
     private String status;
 
+    public Act() {}
+
     public Act(String name, String day, String stage, String status) {
         this.name = name;
         this.day = day;
@@ -32,6 +34,22 @@ public class Act implements Show {
 
     public String getStatus() {
         return status;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDay(String day) {
+        this.day = day;
+    }
+
+    public void setStage(String stage) {
+        this.stage = stage;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     @Override
