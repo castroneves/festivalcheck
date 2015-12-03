@@ -15,3 +15,9 @@
   lastFm:
     apiKey:
     secret:
+
+  mappings:
+    - input: g2015
+      to: g2015
+    - input: g2013
+      to: glast2013

@@ -5,6 +5,7 @@ import io.dropwizard.Configuration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * Created by Adam on 21/07/2015.
@@ -22,6 +23,20 @@ public class GlastoConfiguration extends Configuration {
     @Valid
     @NotNull
     private SpotifyConfig spotify = new SpotifyConfig();
+
+    private List<MappingTuple> mappings;
+
+
+    @JsonProperty("mappings")
+    public List<MappingTuple> getMappingConfig() {
+        return mappings;
+    }
+
+
+    @JsonProperty("mappings")
+    public void setMappingConfig(List<MappingTuple> mappingConfig) {
+        this.mappings = mappingConfig;
+    }
 
     @JsonProperty("jedis")
     public JedisConfig getJedis() {

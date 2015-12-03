@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 import com.google.common.base.Splitter;
 import efestivals.domain.Act;
 
+import static java.util.stream.Collectors.toConcurrentMap;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -17,16 +19,18 @@ import static java.util.stream.Collectors.toList;
  */
 public class GlastoResponseParser {
 
-    private Map<Character,String> dayNames = new HashMap<>();
+    private Map<String,String> abvDays = new HashMap<>();
+
     private Map<String,String> statusMap = new HashMap<>();
 
     public GlastoResponseParser() {
-        dayNames.put('1', "Wednesday");
-        dayNames.put('2', "Thursday");
-        dayNames.put('3', "Friday");
-        dayNames.put('4', "Saturday");
-        dayNames.put('5', "Sunday");
-        dayNames.put('6', "Day Unknown");
+        abvDays.put("Mon", "Monday");
+        abvDays.put("Tue", "Tuesday");
+        abvDays.put("Wed", "Wednesday");
+        abvDays.put("Thu", "Thursday");
+        abvDays.put("Fri", "Friday");
+        abvDays.put("Sat", "Saturday");
+        abvDays.put("Sun", "Sunday");
 
         statusMap.put("TBC", "To Be Confirmed");
         statusMap.put("C", "Confirmed");
@@ -36,13 +40,35 @@ public class GlastoResponseParser {
 
     public List<Act> parseRawResponse(String rawResponse) {
         Splitter splitter = Splitter.on("<div id=\"panel").omitEmptyStrings();
+        Map<Integer,String> dayNamez = fetchDayNames(rawResponse);
+
         List<String> days = splitter.splitToList(rawResponse);
-        return days.subList(1,days.size()).stream().flatMap(x -> parseDay(x).stream()).collect(toList());
+        return days.subList(1,days.size()).stream().flatMap(x -> parseDay(x, dayNamez).stream()).collect(toList());
     }
 
-    private List<Act> parseDay(String day) {
+    private Map<Integer, String> fetchDayNames(String rawResponse) {
+        Splitter splitter = Splitter.on("<li><a href=\"#panel").omitEmptyStrings();
+        List<String> strings = splitter.splitToList(rawResponse);
+        List<String> collect = strings.stream().map(this::fetchDayName).filter(x -> !x.isEmpty()).collect(toList());
+        List<String> dayNames = collect.stream().map(x -> abvDays.get(x) == null ? x : abvDays.get(x)).collect(toList());
+        return IntStream.range(1,dayNames.size() + 1)
+                .mapToObj(x -> new Integer(x))
+                .collect(toConcurrentMap(x -> x, y -> dayNames.get(y - 1)));
+    }
+
+    private String fetchDayName(String row) {
+        Pattern pattern = Pattern.compile("\">(.*)</a></li>");
+        Matcher matcher = pattern.matcher(row);
+        String day = "";
+        if(matcher.find()) {
+            day = matcher.group(1).split(" ")[0];
+        }
+        return day;
+    }
+
+    private List<Act> parseDay(String day, Map<Integer,String> dayNames) {
         char panelNo = day.charAt(0);
-        String dayName = dayNames.get(panelNo);
+        String dayName = dayNames.get(Character.getNumericValue(panelNo));
         if(day == null) {
             return Arrays.asList();
         }

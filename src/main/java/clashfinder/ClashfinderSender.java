@@ -2,11 +2,13 @@ package clashfinder;
 
 import clashfinder.domain.ClashfinderResponse;
 import clashfinder.domain.Event;
+import com.google.inject.Inject;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
+import service.config.MappingConfig;
 
 import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
@@ -29,7 +31,12 @@ public class ClashfinderSender {
 
     private static final Map<String,String> clashfinderFestivalMap = new HashMap<>();
 
+    @Inject
+    private MappingConfig mappingConfig;
+
+
     static {
+        // TODO Move to comfig
         clashfinderFestivalMap.put("g2015", "g2015");
         clashfinderFestivalMap.put("g2014", "g2014");
         clashfinderFestivalMap.put("g2013", "g2013");
@@ -47,6 +54,18 @@ public class ClashfinderSender {
         clashfinderFestivalMap.put("leeds2012","leeds12");
         clashfinderFestivalMap.put("leeds2011","leedsfest2011");
         clashfinderFestivalMap.put("leeds2010","leeds10");
+        clashfinderFestivalMap.put("lat2015","lat2015");
+        clashfinderFestivalMap.put("lat2014","lat2014");
+        clashfinderFestivalMap.put("lat2013","lat2013");
+        clashfinderFestivalMap.put("lat2012","lat12");
+        clashfinderFestivalMap.put("lat2011","lat2011");
+        clashfinderFestivalMap.put("lat2010","latitude2010");
+        clashfinderFestivalMap.put("download2015","downloadfest2015");
+        clashfinderFestivalMap.put("download2014","dl2014");
+        clashfinderFestivalMap.put("download2013","download2013");
+        clashfinderFestivalMap.put("download2011","dl2011");
+        clashfinderFestivalMap.put("download2010","dl10");
+        clashfinderFestivalMap.put("download2009","dl09");
     }
 
     public Set<Event> fetchData(String festival, String year) {
