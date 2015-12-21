@@ -66,6 +66,24 @@ public class ClashfinderSender {
         clashfinderFestivalMap.put("download2011","dl2011");
         clashfinderFestivalMap.put("download2010","dl10");
         clashfinderFestivalMap.put("download2009","dl09");
+        clashfinderFestivalMap.put("reading2015","r2015");
+        clashfinderFestivalMap.put("reading2014","read2014");
+        clashfinderFestivalMap.put("reading2013","rdgfest2013");
+        clashfinderFestivalMap.put("reading2012","r2012");
+        clashfinderFestivalMap.put("reading2011","reading11");
+        clashfinderFestivalMap.put("reading2010","rf2010");
+        clashfinderFestivalMap.put("vvvstafford2015","vfestivallweston2015");
+        clashfinderFestivalMap.put("vvvstafford2014","vnorth2014");
+        clashfinderFestivalMap.put("vvvstafford2013","vs2013");
+        clashfinderFestivalMap.put("vvvstafford2012","vs2012");
+        clashfinderFestivalMap.put("vvvstafford2011","vs2011");
+        clashfinderFestivalMap.put("vvvstafford2010","vfestival2010");
+        clashfinderFestivalMap.put("vvvchelmsford2015","vfestivalhylands2015");
+        clashfinderFestivalMap.put("vvvchelmsford2014","vfest2014chelmsford");
+        clashfinderFestivalMap.put("vvvchelmsford2013","vc2013");
+        clashfinderFestivalMap.put("vvvchelmsford2012","vc2012");
+        clashfinderFestivalMap.put("vvvchelmsford2011","vc2011");
+        clashfinderFestivalMap.put("vvvchelmsford2010","v2010chelmsford");
     }
 
     public Set<Event> fetchData(String festival, String year) {
