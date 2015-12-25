@@ -49,7 +49,7 @@ public class GlastoResponseParser {
     private Map<Integer, String> fetchDayNames(String rawResponse) {
         Splitter splitter = Splitter.on("<li><a href=\"#panel").omitEmptyStrings();
         List<String> strings = splitter.splitToList(rawResponse);
-        List<String> collect = strings.stream().map(this::fetchDayName).filter(x -> !x.isEmpty()).collect(toList());
+        List<String> collect = strings.subList(1,strings.size()).stream().map(this::fetchDayName).filter(x -> !x.isEmpty()).collect(toList());
         List<String> dayNames = collect.stream().map(x -> abvDays.get(x) == null ? x : abvDays.get(x)).collect(toList());
         return IntStream.range(1,dayNames.size() + 1)
                 .mapToObj(x -> new Integer(x))
