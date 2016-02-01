@@ -132,5 +132,48 @@ public class ArtistMapGeneratorTest {
         assertTrue(result.containsKey("david cameron, frank turner and the poll tax"));
     }
 
+    @Test
+    public void bandNamePartialMatch() {
+        Show show = new Show() {
+            @Override
+            public String getName() {
+                return "Daryl Hall & John Oates";
+            }
+        };
+        Artist artist = new Artist("Hall & Oates", "2", 10);
+        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist));
+
+        assertTrue(result.containsKey("daryl hall & john oates"));
+    }
+
+    @Test
+    public void bandNamePartialMatchMixedAmpersand() {
+        Show show = new Show() {
+            @Override
+            public String getName() {
+                return "Daryl Hall & John Oates";
+            }
+        };
+        Artist artist = new Artist("Hall and Oates", "2", 10);
+        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist));
+
+        assertTrue(result.containsKey("daryl hall & john oates"));
+    }
+
+    @Test
+    public void tlaBandPartialMatch() {
+        Show show = new Show() {
+            @Override
+            public String getName() {
+                return "Jeff Lynne's ELO";
+            }
+        };
+        Artist artist = new Artist("elo", "2", 10);
+        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist));
+
+        assertTrue(result.containsKey("jeff lynne's elo"));
+    }
+
+
 
 }
