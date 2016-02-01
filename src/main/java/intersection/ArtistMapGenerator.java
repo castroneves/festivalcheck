@@ -1,13 +1,13 @@
 package intersection;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.inject.Singleton;
 import lastfm.domain.Artist;
 import domain.Show;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -20,18 +20,47 @@ import static java.util.stream.Collectors.toMap;
 @Singleton
 public class ArtistMapGenerator {
 
+    private BiMap<String,String> aliases = HashBiMap.create();
+
+    public ArtistMapGenerator() {
+        aliases.put("omd", "orchestral Manoeuvres in the dark");
+        aliases.put("orchestral manoeuvres in the dark", "o.m.d.");
+        aliases.put("o.m.d.", "omd");
+        aliases.put("elo", "electric light orchestra" );
+        aliases.put("electric light orchestra", "e.l.o." );
+        aliases.put("e.l.o", "elo" );
+    }
+
     public Map<String, Artist> generateLastFmMap(Set<? extends Show> clashfinderData, List<Artist> artists) {
+        List<Artist> artistList = new ArrayList<>(artists);
+
         Map<String, Artist> lastFmMap = artists.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity()));
+        List<Artist> knownAliases = fetchKnownAliases(artists);
+        artistList.addAll(knownAliases);
+        lastFmMap.putAll(generateArtistVariantMap(knownAliases));
         List<Artist> variantArtists = fetchVariantArtists(artists);
+        artistList.addAll(variantArtists);
         Map<String, Artist> variants = generateArtistVariantMap(variantArtists);
         lastFmMap.putAll(variants);
-        Map<String, Artist> additionalMap = generatePartialMatchMap(artists, clashfinderData);
+        Map<String, Artist> additionalMap = generatePartialMatchMap(artistList, clashfinderData);
         lastFmMap.putAll(additionalMap);
         return lastFmMap;
     }
 
+    private List<Artist> fetchKnownAliases(List<Artist> artists) {
+        List<Artist> aliasedForward = artists.stream().filter(x -> aliases.containsKey(x.getName().toLowerCase()))
+                .map(x -> new Artist(aliases.get(x.getName().toLowerCase()), x.getPlaycount(), x.getRankValue()))
+                .collect(toList());
+        List<Artist> aliasedBack = artists.stream().filter(x -> aliases.inverse().containsKey(x.getName().toLowerCase()))
+                .map(x -> new Artist(aliases.inverse().get(x.getName().toLowerCase()), x.getPlaycount(), x.getRankValue()))
+                .collect(toList());
+
+        return Stream.concat(aliasedForward.stream(),aliasedBack.stream()).collect(toList());
+    }
+
     public Map<String, Artist> generatePartialMatchMap(List<Artist> artists, Set<? extends Show> glastoData) {
-        Set<Artist> shortArtists = new HashSet<>(fetchPartialMatches(artists, glastoData));
+        List<Artist> artists1 = fetchPartialMatches(artists, glastoData);
+        Set<Artist> shortArtists = new HashSet<>(artists1);
         return shortArtists.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity()));
     }
 
@@ -39,14 +68,39 @@ public class ArtistMapGenerator {
         return variantArtists.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity()));
     }
 
+    // Possibly flag match as partial?
     private List<Artist> fetchPartialMatches(List<Artist> artists, Set<? extends Show> glastoData) {
 
-        List<Artist> matches = artists.stream().filter(a -> a.getName().contains(" ") && glastoData.stream().anyMatch(g -> g.getName().toLowerCase().contains(a.getName().toLowerCase()))).collect(toList());
+        List<Artist> matches = artists.stream()
+                .filter(a -> (a.getName().contains(" ") &&
+                        glastoData.stream().anyMatch(
+                                g -> g.getName().toLowerCase().contains(a.getName().toLowerCase())
+                                        || isBandMatch(a.getName(), g.getName())
+                        )) || glastoData.stream().anyMatch(g -> isTLABandMatch(a.getName(), g.getName())))
+                .collect(toList());
         return matches.stream().map(a ->
             glastoData.stream()
-                    .filter(g -> g.getName().toLowerCase().contains(a.getName().toLowerCase()))
+                    .filter(g -> g.getName().toLowerCase().contains(a.getName().toLowerCase()) || isBandMatch(a.getName(),g.getName()) || isTLABandMatch(a.getName(),g.getName()))
             .map(n -> new Artist(n.getName(),a.getPlaycount(),a.getRankValue()))
         ).flatMap(s -> s).collect(toList());
+    }
+
+    private boolean isTLABandMatch(String listened, String showArtist) {
+        if (listened.length() == 3) {
+            return showArtist.contains(listened.toUpperCase());
+        }
+        return false;
+    }
+
+    private boolean isBandMatch(String listened, String showArtist) {
+        if (listened.contains("&")) {
+            if (showArtist.contains(" and ") || showArtist.contains(" & ")) {
+                Splitter splitter = Splitter.on("&").omitEmptyStrings();
+                List<String> entries = splitter.splitToList(listened);
+                return entries.stream().allMatch(x -> showArtist.contains(x));
+            }
+        }
+        return false;
     }
 
     private List<Artist> fetchVariantArtists(List<Artist> artists) {
