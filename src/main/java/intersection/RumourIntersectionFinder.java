@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static cache.CacheKeyPrefix.LISTENED;
 import static cache.CacheKeyPrefix.RECCOMENDED;
@@ -31,9 +32,13 @@ public class RumourIntersectionFinder {
     @Inject
     private SpotifyDataGrabber spotifyDataGrabber;
     @Inject
+    private SpotifyOrderingCreator orderingCreator;
+    @Inject
     private CheckerCache cache;
     @Inject
     private ArtistMapGenerator artistMapGenerator;
+    @Inject
+    private RecommendedArtistGenerator recommendedArtistGenerator;
 
     public RumourResponse findIntersection(String username, String festival,String year) throws FestivalConnectionException {
         Response lastFmData = cache.getOrLookup(username, () -> lastFmSender.simpleRequest(username), LISTENED, Response.class);
@@ -47,7 +52,15 @@ public class RumourIntersectionFinder {
         Response lastFmResponse = cache.getOrLookup(token, () -> lastFmSender.recommendedRequest(token), RECCOMENDED, Response.class);
         List<Artist> artists = lastFmResponse.getRecommendations().getArtist();
 
-        return computeIntersection(artists,festival,year,Artist::getRankValue);
+        return computeIntersection(artists,festival,year, Artist::getRankValue);
+    }
+
+    public List<Act> computeRecommendedIntersection(String username, String festival,String year) {
+        Response lastFmData = cache.getOrLookup(username, () -> lastFmSender.simpleRequest(username), LISTENED, Response.class);
+        List<Artist> artists = lastFmData.getTopartists().getArtist();
+        List<Artist> recArtists = recommendedArtistGenerator.fetchRecommendations(artists);
+        return computeIntersection(recArtists,festival,year,Artist::getRankValue);
+
     }
 
     public List<Act> findSpotifyIntersection(String authCode, String festival, String year, String redirectUrl) throws FestivalConnectionException {
@@ -61,6 +74,7 @@ public class RumourIntersectionFinder {
         Map<String, Artist> lastFmMap = artistMapGenerator.generateLastFmMap(glastoData,artists);
 
         return glastoData.stream().filter(g -> lastFmMap.containsKey(g.getName().toLowerCase()))
+                .map(g -> new Act(g,lastFmMap.get(g.getName().toLowerCase()).getPlaycount(),lastFmMap.get(g.getName().toLowerCase()).getRankValue()))
                 .sorted((x, y) -> Integer.compare(func.apply(lastFmMap.get(x.getName().toLowerCase())),
                         func.apply(lastFmMap.get(y.getName().toLowerCase()))))
                 .collect(toList());

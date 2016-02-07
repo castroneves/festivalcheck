@@ -2,6 +2,7 @@ package lastfm;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
@@ -19,7 +20,12 @@ import javax.ws.rs.core.MediaType;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by Adam on 25/04/2015.
@@ -62,6 +68,52 @@ public class LastFmSender {
         response.setSession(session);
         enrichReccoRank(response.getRecommendations().getArtist());
         return response;
+    }
+
+    public List<Artist> fetchSimilarArtists(List<String> actualArtists, int limit) {
+        List<Future<Response>> collect = actualArtists.parallelStream().limit(limit).map(x -> similarArtistRequestAsync(x)).collect(toList());
+        List<Artist> collect1 = collect.parallelStream().flatMap(x -> {
+            try {
+                return x.get(1, TimeUnit.SECONDS).getSimilarartists().getArtist().stream();
+            } catch (Exception e) {
+                return new ArrayList<Artist>().stream();
+            }
+        }).collect(toList());
+        return collect1;
+    }
+
+    private Future<Response> similarArtistRequestAsync(String artistName) {
+        AsyncWebResource resource =  getWebResourceSimilarAsync(artistName);
+        Future<Response> response = resource.accept(MediaType.APPLICATION_JSON_TYPE).
+                type(MediaType.APPLICATION_JSON_TYPE).get(Response.class);
+        return response;
+    }
+
+    public Response similarArtistRequest(String artistName) {
+        WebResource resource = getWebResourceSimilar(artistName);
+        Response response = resource.accept(MediaType.APPLICATION_JSON_TYPE).
+                type(MediaType.APPLICATION_JSON_TYPE).get(Response.class);
+        return response;
+    }
+
+    private WebResource getWebResourceSimilar(final String artistName){
+        WebResource resource = client.resource(baseUrl);
+        return resource
+                .queryParam("method", "artist.getsimilar")
+                .queryParam("api_key", apiKey)
+                .queryParam("artist", artistName)
+                .queryParam("limit", "20")
+                .queryParam("format", "json");
+    }
+
+    private AsyncWebResource getWebResourceSimilarAsync(final String artistName){
+        AsyncWebResource resource = client.asyncResource(baseUrl);
+        return resource
+                .queryParam("method", "artist.getsimilar")
+                .queryParam("api_key", apiKey)
+                .queryParam("artist", artistName)
+                .queryParam("limit", "20")
+                .queryParam("format", "json");
     }
 
     private void enrichReccoRank(List<Artist> artist) {

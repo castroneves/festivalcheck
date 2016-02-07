@@ -1,7 +1,7 @@
 package intersection;
 
+import domain.BasicArtist;
 import lastfm.domain.Artist;
-import spotify.domain.SpotifyArtist;
 
 import java.util.List;
 import java.util.Map;
@@ -14,8 +14,8 @@ import static java.util.stream.Collectors.toList;
  */
 public class SpotifyOrderingCreator {
 
-    public List<Artist> artistListByFrequency(List<SpotifyArtist> collect) {
-        Map<String, Integer> frequencyMap = collect.stream().map(x -> x.toString()).collect(Collectors.toConcurrentMap(w -> w, w -> 1, Integer::sum));
+    public List<Artist> artistListByFrequency(List<? extends BasicArtist> collect) {
+        Map<String, Integer> frequencyMap = collect.stream().map(x -> x.getName()).collect(Collectors.toConcurrentMap(w -> w, w -> 1, Integer::sum));
         return frequencyMap.keySet().stream().sorted((x, y) -> frequencyMap.get(y).compareTo(frequencyMap.get(x)))
                 .map(x -> new Artist(x, frequencyMap.get(x).toString(), 0)).collect(toList());
     }

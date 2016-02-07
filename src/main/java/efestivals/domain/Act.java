@@ -10,6 +10,8 @@ public class Act implements Show {
     private String day;
     private String stage;
     private String status;
+    private String scrobs;
+    private Integer recrank;
 
     public Act() {}
 
@@ -18,6 +20,12 @@ public class Act implements Show {
         this.day = day;
         this.stage = stage;
         this.status = status;
+    }
+
+    public Act(Act act, String scrobs, Integer recrank) {
+        this(act.getName(), act.getDay(), act.getStage(), act.getStatus());
+        this.scrobs = scrobs;
+        this.recrank = recrank;
     }
 
     public String getName() {
@@ -50,6 +58,22 @@ public class Act implements Show {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getScrobs() {
+        return scrobs;
+    }
+
+    public void setScrobs(String scrobs) {
+        this.scrobs = scrobs;
+    }
+
+    public Integer getRecrank() {
+        return recrank;
+    }
+
+    public void setRecrank(Integer recrank) {
+        this.recrank = recrank;
     }
 
     @Override

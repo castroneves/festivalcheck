@@ -9,6 +9,7 @@ import domain.RumourResponse;
 import efestivals.domain.Act;
 import intersection.RumourIntersectionFinder;
 import intersection.ScheduleIntersectionFinder;
+import lastfm.LastFmSender;
 import schedule.ScheduleBuilder;
 import strategy.ListenedFirstPreferenceStrategy;
 import strategy.PreferenceStrategy;
@@ -36,6 +37,9 @@ public class GlastoResource {
     @Inject
     private CheckerCache cache;
 
+    @Inject
+    private LastFmSender lastFmSender;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{festival}/{username}")
@@ -55,8 +59,15 @@ public class GlastoResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/r/{festival}/{token}")
-    public List<Act> getRecommendedActsForUsername(@PathParam("token") String token, @PathParam("festival") String festival, @QueryParam("year") String year) {
+    public List<Act> getLastFmRecommendedActsForUsername(@PathParam("token") String token, @PathParam("festival") String festival, @QueryParam("year") String year) {
         return rumourIntersectionFinder.findRecommendedIntersection(token, festival, year);
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/rec/{festival}/{username}")
+    public List<Act> getRecommendedActsForUsername(@PathParam("username") String username, @PathParam("festival") String festival, @QueryParam("year") String year) {
+        return rumourIntersectionFinder.computeRecommendedIntersection(username, festival, year);
     }
 
     @GET
