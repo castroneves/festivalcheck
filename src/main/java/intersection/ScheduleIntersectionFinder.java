@@ -33,27 +33,32 @@ public class ScheduleIntersectionFinder {
     private ClashfinderSender clashFinderSender;
     @Inject
     private SpotifyDataGrabber spotifyDataGrabber;
+    @Inject
+    private RecommendedArtistGenerator recommendedArtistGenerator;
 
 
     public List<Event> findSIntersection(String username, String festival, String year) {
         Set<Event> clashfinderData = clashFinderSender.fetchData(festival,year);
         Response response = cache.getOrLookup(username, () -> lastFmSender.simpleRequest(username), LISTENED, Response.class);
         List<Artist> artists = response.getTopartists().getArtist();
-        Map<String, Artist> lastFmMap = artistMapGenerator.generateLastFmMap(clashfinderData, artists);
 
-        return matchingEventsByPlays(clashfinderData, lastFmMap);
+        return matchingEventsByPlays(clashfinderData, artists);
     }
 
-    public List<Event> findReccoScheduleIntersection(String token, String festival, String year) {
+    public List<Event> findLfmReccoScheduleIntersection(String token, String festival, String year) {
         Set<Event> clashfinderData = clashFinderSender.fetchData(festival,year);
         Response response = cache.getOrLookup(token, () -> lastFmSender.recommendedRequest(token), RECCOMENDED, Response.class);
         List<Artist> artists = response.getRecommendations().getArtist();
-        Map<String, Artist> lastFmMap = artistMapGenerator.generateLastFmMap(clashfinderData, artists);
+        return matchingEventsByRank(clashfinderData, artists);
+    }
 
-        return clashfinderData.stream().filter(g -> lastFmMap.containsKey(g.getName().toLowerCase()))
-                .map(e -> new Event(e, 0, lastFmMap.get(e.getName().toLowerCase()).getRankValue()))
-                .sorted((x, y) -> Integer.compare(x.getReccorank(), y.getReccorank()))
-                .collect(toList());
+    public List<Event> findReccoScheduleIntersection(String username, String festival, String year) {
+        Set<Event> clashfinderData = clashFinderSender.fetchData(festival,year);
+        Response response = cache.getOrLookup(username, () -> lastFmSender.simpleRequest(username), LISTENED, Response.class);
+        List<Artist> artists = response.getTopartists().getArtist();
+        List<Artist> recArtists = recommendedArtistGenerator.fetchRecommendations(artists);
+
+        return matchingEventsByRank(clashfinderData, recArtists);
     }
 
     public List<Event> findHybridScheduleIntersection(String token, String festival, String year, PreferenceStrategy strategy) {
@@ -70,14 +75,23 @@ public class ScheduleIntersectionFinder {
     public List<Event> findSpotifyScheduleIntersection(String authCode, String festival, String year, String redirectUrl) {
         List<Artist> result = spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl);
         Set<Event> clashfinderData = clashFinderSender.fetchData(festival, year);
-        Map<String,Artist> artistMap = artistMapGenerator.generateLastFmMap(clashfinderData, result);
-        return matchingEventsByPlays(clashfinderData,artistMap);
+        return matchingEventsByPlays(clashfinderData,result);
     }
 
-    private List<Event> matchingEventsByPlays(Set<Event> clashfinderData, Map<String, Artist> lastFmMap) {
+    private List<Event> matchingEventsByPlays(Set<Event> clashfinderData, List<Artist> artists) {
+        Map<String,Artist> lastFmMap = artistMapGenerator.generateLastFmMap(clashfinderData, artists);
         return clashfinderData.stream().filter(g -> lastFmMap.containsKey(g.getName().toLowerCase()))
                 .map(e -> new Event(e, Integer.parseInt(lastFmMap.get(e.getName().toLowerCase()).getPlaycount())))
                 .sorted((x, y) -> Integer.compare(y.getScrobs(), x.getScrobs()))
+                .collect(toList());
+    }
+
+    private List<Event> matchingEventsByRank(Set<Event> clashfinderData, List<Artist> artists) {
+        Map<String, Artist> lastFmMap = artistMapGenerator.generateLastFmMap(clashfinderData, artists);
+
+        return clashfinderData.stream().filter(g -> lastFmMap.containsKey(g.getName().toLowerCase()))
+                .map(e -> new Event(e, 0, lastFmMap.get(e.getName().toLowerCase()).getRankValue()))
+                .sorted((x, y) -> Integer.compare(x.getReccorank(), y.getReccorank()))
                 .collect(toList());
     }
 }
