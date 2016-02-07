@@ -1,12 +1,13 @@
 package spotify.domain;
 
+import domain.BasicArtist;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 /**
  * Created by Adam on 08/09/2015.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SpotifyArtist {
+public class SpotifyArtist implements BasicArtist {
 
     public SpotifyArtist() {}
 

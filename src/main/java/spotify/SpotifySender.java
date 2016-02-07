@@ -78,6 +78,7 @@ public class SpotifySender {
         int total = 0;
         int retrieved = 0;
         do {
+            // TODO Async requests like LastFm similar artists
             T response = func.apply(retrieved, details);
             total = response.getTotal();
             retrieved += response.getItems().size();

@@ -3,6 +3,7 @@ package lastfm.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import domain.BasicArtist;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -14,7 +15,7 @@ import java.util.Map;
  */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Artist {
+public class Artist implements BasicArtist {
     private String name;
     private String playcount;
     private Integer rank;

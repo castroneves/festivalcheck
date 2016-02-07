@@ -12,6 +12,8 @@ public class Response {
 
     private TopArtists topartists;
     private Recommendations recommendations;
+
+    private SimilarArtists similarartists;
     private Session session;
     private String error;
     private String message;
@@ -54,5 +56,13 @@ public class Response {
 
     public void setRecommendations(Recommendations recommendations) {
         this.recommendations = recommendations;
+    }
+
+    public SimilarArtists getSimilarartists() {
+        return similarartists;
+    }
+
+    public void setSimilarartists(SimilarArtists similarartists) {
+        this.similarartists = similarartists;
     }
 }
