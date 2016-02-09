@@ -6,6 +6,7 @@ import clashfinder.domain.Event;
 import com.google.inject.Inject;
 import lastfm.LastFmSender;
 import lastfm.domain.Artist;
+import lastfm.domain.Recommendations;
 import lastfm.domain.Response;
 import spotify.SpotifyDataGrabber;
 import strategy.PreferenceStrategy;
@@ -56,9 +57,9 @@ public class ScheduleIntersectionFinder {
         Set<Event> clashfinderData = clashFinderSender.fetchData(festival,year);
         Response response = cache.getOrLookup(username, () -> lastFmSender.simpleRequest(username), LISTENED, Response.class);
         List<Artist> artists = response.getTopartists().getArtist();
-        List<Artist> recArtists = recommendedArtistGenerator.fetchRecommendations(artists);
+        Recommendations recArtists = cache.getOrLookup(username, () -> recommendedArtistGenerator.fetchRecommendations(artists), RECCOMENDED, Recommendations.class);
 
-        return matchingEventsByRank(clashfinderData, recArtists);
+        return matchingEventsByRank(clashfinderData, recArtists.getArtist());
     }
 
     public List<Event> findHybridScheduleIntersection(String token, String festival, String year, PreferenceStrategy strategy) {

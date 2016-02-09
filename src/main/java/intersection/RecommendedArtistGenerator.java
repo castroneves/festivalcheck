@@ -3,6 +3,7 @@ package intersection;
 import com.google.inject.Inject;
 import lastfm.LastFmSender;
 import lastfm.domain.Artist;
+import lastfm.domain.Recommendations;
 
 import java.util.List;
 
@@ -19,13 +20,14 @@ public class RecommendedArtistGenerator {
     @Inject
     private SpotifyOrderingCreator orderingCreator;
 
-    public List<Artist> fetchRecommendations(List<Artist> actualArtists) {
+    public Recommendations fetchRecommendations(List<Artist> actualArtists) {
+        System.out.println("Sending recommendation requests");
         List<Artist> rawRecArtists = lastFmSender.fetchSimilarArtists(actualArtists.stream().map(Artist::getName).collect(toList()), LIMIT);
         List<Artist> recArtists = orderingCreator.artistListByFrequency(rawRecArtists);
         recArtists.removeAll(actualArtists);
         List<Artist> finalRecArtists = recArtists.stream().filter(x -> x.getPlaycountInt() > 1).collect(toList());
         enrichReccoRank(finalRecArtists);
-        return finalRecArtists;
+        return new Recommendations(finalRecArtists);
     }
 
     private void enrichReccoRank(List<Artist> artist) {

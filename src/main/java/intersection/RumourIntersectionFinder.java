@@ -8,6 +8,7 @@ import efestivals.GlastoRequestSender;
 import lastfm.LastFmSender;
 import efestivals.domain.Act;
 import lastfm.domain.Artist;
+import lastfm.domain.Recommendations;
 import lastfm.domain.Response;
 import spotify.SpotifyDataGrabber;
 
@@ -56,10 +57,14 @@ public class RumourIntersectionFinder {
     }
 
     public List<Act> computeRecommendedIntersection(String username, String festival,String year) {
+        long x = System.currentTimeMillis();
         Response lastFmData = cache.getOrLookup(username, () -> lastFmSender.simpleRequest(username), LISTENED, Response.class);
         List<Artist> artists = lastFmData.getTopartists().getArtist();
-        List<Artist> recArtists = recommendedArtistGenerator.fetchRecommendations(artists);
-        return computeIntersection(recArtists,festival,year,Artist::getRankValue);
+        Recommendations recArtists = cache.getOrLookup(username, () -> recommendedArtistGenerator.fetchRecommendations(artists), RECCOMENDED, Recommendations.class);
+        System.out.println(System.currentTimeMillis() - x);
+        List<Act> acts = computeIntersection(recArtists.getArtist(), festival, year, Artist::getRankValue);
+        System.out.println(System.currentTimeMillis() - x);
+        return acts;
 
     }
 
