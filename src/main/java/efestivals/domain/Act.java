@@ -1,10 +1,14 @@
 package efestivals.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import domain.Show;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 /**
  * Created by Adam on 23/04/2015.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Act implements Show {
     private String name;
     private String day;
@@ -12,6 +16,7 @@ public class Act implements Show {
     private String status;
     private String scrobs;
     private Integer recrank;
+    private String matchString;
 
     public Act() {}
 
@@ -26,6 +31,19 @@ public class Act implements Show {
         this(act.getName(), act.getDay(), act.getStage(), act.getStatus());
         this.scrobs = scrobs;
         this.recrank = recrank;
+    }
+
+    public Act(Act act, String matchString) {
+        this(act, act.getScrobs(), act.getRecrank());
+        this.matchString = matchString;
+    }
+
+    public String getMatchString() {
+        return matchString;
+    }
+
+    public void setMatchString(String matchString) {
+        this.matchString = matchString;
     }
 
     public String getName() {

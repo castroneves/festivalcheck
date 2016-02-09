@@ -32,6 +32,8 @@ public class Event implements Show {
 
     private int reccorank = -1;
 
+    private String matchString;
+
     public Event() {
     }
 
@@ -46,6 +48,11 @@ public class Event implements Show {
     public Event(Event e, int scrobs, int reccorank) {
         this(e,scrobs);
         this.reccorank = reccorank;
+    }
+
+    public Event(Event e, String matchString) {
+        this(e,e.getScrobs(),e.getReccorank());
+        this.matchString = matchString;
     }
 
 
@@ -140,6 +147,14 @@ public class Event implements Show {
 
     public void setReccorank(int reccorank) {
         this.reccorank = reccorank;
+    }
+
+    public String getMatchString() {
+        return matchString;
+    }
+
+    public void setMatchString(String matchString) {
+        this.matchString = matchString;
     }
 
     @Override

@@ -91,6 +91,7 @@ public class ScheduleIntersectionFinder {
 
         return clashfinderData.stream().filter(g -> lastFmMap.containsKey(g.getName().toLowerCase()))
                 .map(e -> new Event(e, 0, lastFmMap.get(e.getName().toLowerCase()).getRankValue()))
+                .map(e -> new Event(e, lastFmMap.get(e.getName().toLowerCase()).getMatch()))
                 .sorted((x, y) -> Integer.compare(x.getReccorank(), y.getReccorank()))
                 .collect(toList());
     }

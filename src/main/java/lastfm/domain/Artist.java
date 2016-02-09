@@ -3,6 +3,7 @@ package lastfm.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import domain.BasicArtist;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -15,10 +16,13 @@ import java.util.Map;
  */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Artist implements BasicArtist {
     private String name;
     private String playcount;
     private Integer rank;
+    private String match;
+
 
     public Artist() {
     }
@@ -27,6 +31,20 @@ public class Artist implements BasicArtist {
         this.name = name;
         this.playcount = playcount;
         this.rank = rank;
+    }
+
+    public Artist(String name, String playcount, Integer rank, String match) {
+        this(name, playcount, rank);
+        this.match = match;
+    }
+
+
+    public String getMatch() {
+        return match;
+    }
+
+    public void setMatch(String match) {
+        this.match = match;
     }
 
     public String getName() {

@@ -174,6 +174,17 @@ public class ArtistMapGeneratorTest {
         assertTrue(result.containsKey("jeff lynne's elo"));
     }
 
+    @Test
+    public void partialMatchesOfWordsDoNotMatch() {
+        Show show = new Show() {
+            @Override
+            public String getName() {
+                return "The beatbox";
+            }
+        };
+        Artist artist = new Artist("The Beat", "2", 10);
+        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist));
 
-
+        assertTrue(!result.containsKey("the beatbox"));
+    }
 }
