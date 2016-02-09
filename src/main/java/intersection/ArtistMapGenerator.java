@@ -9,6 +9,7 @@ import domain.Show;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -20,15 +21,21 @@ import static java.util.stream.Collectors.toMap;
 @Singleton
 public class ArtistMapGenerator {
 
-    private BiMap<String,String> aliases = HashBiMap.create();
+    private BiMap<String, String> aliases = HashBiMap.create();
+    private List<String> acceptedChars = new ArrayList<>();
+
 
     public ArtistMapGenerator() {
         aliases.put("omd", "orchestral Manoeuvres in the dark");
         aliases.put("orchestral manoeuvres in the dark", "o.m.d.");
         aliases.put("o.m.d.", "omd");
-        aliases.put("elo", "electric light orchestra" );
-        aliases.put("electric light orchestra", "e.l.o." );
-        aliases.put("e.l.o", "elo" );
+        aliases.put("elo", "electric light orchestra");
+        aliases.put("electric light orchestra", "e.l.o.");
+        aliases.put("e.l.o", "elo");
+
+        acceptedChars.add(",");
+        acceptedChars.add(" ");
+        acceptedChars.add(":");
     }
 
     public Map<String, Artist> generateLastFmMap(Set<? extends Show> clashfinderData, List<Artist> artists) {
@@ -55,12 +62,13 @@ public class ArtistMapGenerator {
                 .map(x -> new Artist(aliases.inverse().get(x.getName().toLowerCase()), x.getPlaycount(), x.getRankValue()))
                 .collect(toList());
 
-        return Stream.concat(aliasedForward.stream(),aliasedBack.stream()).collect(toList());
+        return Stream.concat(aliasedForward.stream(), aliasedBack.stream()).collect(toList());
     }
 
     public Map<String, Artist> generatePartialMatchMap(List<Artist> artists, Set<? extends Show> glastoData) {
         List<Artist> artists1 = fetchPartialMatches(artists, glastoData);
-        Set<Artist> shortArtists = new HashSet<>(artists1);
+        // To bypass case inconsistancy in Clashfinder data
+        Set<Artist> shortArtists = artists1.stream().map(a -> new Artist(a.getName().toLowerCase(), a.getPlaycount(), a.getRankValue(), a.getMatch())).collect(Collectors.toSet());
         return shortArtists.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity()));
     }
 
@@ -74,15 +82,23 @@ public class ArtistMapGenerator {
         List<Artist> matches = artists.stream()
                 .filter(a -> (a.getName().contains(" ") &&
                         glastoData.stream().anyMatch(
-                                g -> g.getName().toLowerCase().contains(a.getName().toLowerCase())
+                                g -> containsMatch(a, g)
                                         || isBandMatch(a.getName(), g.getName())
                         )) || glastoData.stream().anyMatch(g -> isTLABandMatch(a.getName(), g.getName())))
                 .collect(toList());
         return matches.stream().map(a ->
-            glastoData.stream()
-                    .filter(g -> g.getName().toLowerCase().contains(a.getName().toLowerCase()) || isBandMatch(a.getName(),g.getName()) || isTLABandMatch(a.getName(),g.getName()))
-            .map(n -> new Artist(n.getName(),a.getPlaycount(),a.getRankValue()))
+                glastoData.stream()
+                        .filter(g -> containsMatch(a,g) || isBandMatch(a.getName(), g.getName()) || isTLABandMatch(a.getName(), g.getName()))
+                        .map(n -> new Artist(n.getName(), a.getPlaycount(), a.getRankValue(), a.getName()))
         ).flatMap(s -> s).collect(toList());
+    }
+
+    private boolean containsMatch(Artist a, Show g) {
+        return acceptedChars.stream().anyMatch(
+                x -> acceptedChars.stream().anyMatch(
+                        y -> g.getName().toLowerCase().contains(x + a.getName().toLowerCase() + y)))
+                || acceptedChars.stream().anyMatch(x -> g.getName().toLowerCase().startsWith(a.getName().toLowerCase() + x))
+                || acceptedChars.stream().anyMatch(x -> g.getName().toLowerCase().endsWith(x + a.getName().toLowerCase()));
     }
 
     private boolean isTLABandMatch(String listened, String showArtist) {
@@ -107,12 +123,12 @@ public class ArtistMapGenerator {
         List<Artist> andToAmp = artists.stream()
                 .filter(a -> a.getName().contains(" "))
                 .filter(a -> a.getName().toLowerCase().contains(" and "))
-                .map(a -> new Artist(a.getName().replaceAll("(?i) and ", " & "),a.getPlaycount(),a.getRankValue()))
+                .map(a -> new Artist(a.getName().replaceAll("(?i) and ", " & "), a.getPlaycount(), a.getRankValue()))
                 .collect(toList());
         List<Artist> ampToAnd = artists.stream()
                 .filter(a -> a.getName().contains(" "))
                 .filter(a -> a.getName().toLowerCase().contains(" & "))
-                .map(a -> new Artist(a.getName().replaceAll("(?i) & ", " and "),a.getPlaycount(),a.getRankValue()))
+                .map(a -> new Artist(a.getName().replaceAll("(?i) & ", " and "), a.getPlaycount(), a.getRankValue()))
                 .collect(toList());
         return Stream.concat(andToAmp.stream(), ampToAnd.stream()).collect(toList());
     }

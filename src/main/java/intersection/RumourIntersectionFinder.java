@@ -75,6 +75,7 @@ public class RumourIntersectionFinder {
 
         return glastoData.stream().filter(g -> lastFmMap.containsKey(g.getName().toLowerCase()))
                 .map(g -> new Act(g,lastFmMap.get(g.getName().toLowerCase()).getPlaycount(),lastFmMap.get(g.getName().toLowerCase()).getRankValue()))
+                .map(g -> new Act(g,lastFmMap.get(g.getName().toLowerCase()).getMatch()))
                 .sorted((x, y) -> Integer.compare(func.apply(lastFmMap.get(x.getName().toLowerCase())),
                         func.apply(lastFmMap.get(y.getName().toLowerCase()))))
                 .collect(toList());
