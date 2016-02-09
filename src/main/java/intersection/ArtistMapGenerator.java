@@ -35,7 +35,6 @@ public class ArtistMapGenerator {
 
         acceptedChars.add(",");
         acceptedChars.add(" ");
-        acceptedChars.add(":");
     }
 
     public Map<String, Artist> generateLastFmMap(Set<? extends Show> clashfinderData, List<Artist> artists) {
@@ -94,6 +93,7 @@ public class ArtistMapGenerator {
     }
 
     private boolean containsMatch(Artist a, Show g) {
+//        return false;
         return acceptedChars.stream().anyMatch(
                 x -> acceptedChars.stream().anyMatch(
                         y -> g.getName().toLowerCase().contains(x + a.getName().toLowerCase() + y)))
