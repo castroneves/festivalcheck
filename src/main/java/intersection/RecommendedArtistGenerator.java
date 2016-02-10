@@ -15,6 +15,7 @@ import static java.util.stream.Collectors.toList;
 public class RecommendedArtistGenerator {
 
     public static final int LIMIT = 500;
+    private static final int RESULT_CAP = 850;
     @Inject
     private LastFmSender lastFmSender;
     @Inject
@@ -25,7 +26,7 @@ public class RecommendedArtistGenerator {
         List<Artist> rawRecArtists = lastFmSender.fetchSimilarArtists(actualArtists.stream().map(Artist::getName).collect(toList()), LIMIT);
         List<Artist> recArtists = orderingCreator.artistListByFrequency(rawRecArtists);
         recArtists.removeAll(actualArtists);
-        List<Artist> finalRecArtists = recArtists.stream().filter(x -> x.getPlaycountInt() > 1).collect(toList());
+        List<Artist> finalRecArtists = recArtists.stream().filter(x -> x.getPlaycountInt() > 1).limit(RESULT_CAP).collect(toList());
         enrichReccoRank(finalRecArtists);
         return new Recommendations(finalRecArtists);
     }

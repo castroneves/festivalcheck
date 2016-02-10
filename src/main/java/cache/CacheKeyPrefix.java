@@ -8,6 +8,7 @@ public enum CacheKeyPrefix {
     RECCOMENDED("recco_"),
     RUMOUR("rumour_"),
     SCHEDULE("schedule_"),
+    CLASHFINDER("clashfinder_"),
     SPOTIFYACCESSTOKEN("");
 
     private final String prefix;

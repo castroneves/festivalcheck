@@ -1,7 +1,7 @@
 package clashfinder;
 
+import clashfinder.domain.ClashfinderData;
 import clashfinder.domain.ClashfinderResponse;
-import clashfinder.domain.Event;
 import com.google.inject.Inject;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
@@ -13,7 +13,6 @@ import service.config.MappingConfig;
 import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -86,13 +85,13 @@ public class ClashfinderSender {
         clashfinderFestivalMap.put("vvvchelmsford2010","v2010chelmsford");
     }
 
-    public Set<Event> fetchData(String festival, String year) {
+    public ClashfinderData fetchData(String festival, String year) {
         String actualYear = year==null ? "2015" : year;
         String suffix = clashfinderFestivalMap.get(festival + actualYear);
         String actualSuffix = suffix == null ? festival + actualYear :suffix;
         ClashfinderResponse response = fetchRawResponse(actualSuffix);
         response.getLocations().stream().forEach(l -> l.getEvents().stream().forEach(e -> e.setStage(l.getName())));
-        return response.getLocations().stream().flatMap(l -> l.getEvents().stream()).collect(toSet());
+        return new ClashfinderData(response.getLocations().stream().flatMap(l -> l.getEvents().stream()).collect(toSet()));
     }
 
     private ClashfinderResponse fetchRawResponse(String festival) {

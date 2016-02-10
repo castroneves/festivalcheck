@@ -1,7 +1,8 @@
 package clashfinder.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.joda.ser.DateTimeSerializer;
 import domain.Show;
 import service.serialise.DateTimeDeserialiser;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -65,7 +66,7 @@ public class Event implements Show {
     }
 
 
-    @JsonIgnore
+    @JsonSerialize(using = DateTimeSerializer.class)
     public DateTime getStart() {
         return start;
     }
@@ -75,7 +76,7 @@ public class Event implements Show {
         this.start = start;
     }
 
-    @JsonIgnore
+    @JsonSerialize(using = DateTimeSerializer.class)
     public DateTime getEnd() {
         return end;
     }
