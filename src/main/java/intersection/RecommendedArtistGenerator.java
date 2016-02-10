@@ -15,7 +15,7 @@ import static java.util.stream.Collectors.toList;
 public class RecommendedArtistGenerator {
 
     public static final int LIMIT = 500;
-    private static final int RESULT_CAP = 850;
+    private static final int RESULT_CAP = 600;
     @Inject
     private LastFmSender lastFmSender;
     @Inject
