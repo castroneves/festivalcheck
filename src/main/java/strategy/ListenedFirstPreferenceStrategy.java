@@ -25,6 +25,6 @@ public class ListenedFirstPreferenceStrategy implements PreferenceStrategy {
                 .sorted((x, y) -> Integer.compare(x.getReccorank(), y.getReccorank()))
                 .collect(toList());
 
-        return Stream.concat(listened.stream(),recco.stream()).collect(toList());
+        return Stream.concat(listened.stream(),recco.stream()).distinct().collect(toList());
     }
 }

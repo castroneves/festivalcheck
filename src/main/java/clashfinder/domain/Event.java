@@ -158,6 +158,31 @@ public class Event implements Show {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Event event = (Event) o;
+
+        if (name != null ? !name.equals(event.name) : event.name != null) return false;
+        if (stage != null ? !stage.equals(event.stage) : event.stage != null) return false;
+        if (day != null ? !day.equals(event.day) : event.day != null) return false;
+        if (startTime != null ? !startTime.equals(event.startTime) : event.startTime != null) return false;
+        return !(endTime != null ? !endTime.equals(event.endTime) : event.endTime != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (stage != null ? stage.hashCode() : 0);
+        result = 31 * result + (day != null ? day.hashCode() : 0);
+        result = 31 * result + (startTime != null ? startTime.hashCode() : 0);
+        result = 31 * result + (endTime != null ? endTime.hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public String toString() {
         return "Event{" +
                 "name='" + name + '\'' +

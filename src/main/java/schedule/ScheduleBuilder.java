@@ -30,21 +30,23 @@ public class ScheduleBuilder {
 
         cleanData(events);
 
-        for (Event e : events) {
-            if(canGoInSchedule(e, schedule)) {
-                schedule.add(e);
-            } else {
-                clashes.add(e);
-            }
-        }
+        events.stream().filter(e -> Double.parseDouble(e.getTtStart()) < 15.0).forEachOrdered(
+                e -> {
+                    if (canGoInSchedule(e, schedule)) {
+                        schedule.add(e);
+                    } else {
+                        clashes.add(e);
+                    }
+                }
+        );
 
         return new Schedule(sortAndGroupData(schedule), sortAndGroupData(clashes));
     }
 
     private void setUpTimeTableData(Event e) {
-        Duration d = new Duration(e.getStart(),e.getEnd());
+        Duration d = new Duration(e.getStart(), e.getEnd());
         Minutes minutes = d.toStandardMinutes();
-        BigDecimal hours = BigDecimal.valueOf(minutes.getMinutes()).divide(BigDecimal.valueOf(60),4,BigDecimal.ROUND_HALF_UP);
+        BigDecimal hours = BigDecimal.valueOf(minutes.getMinutes()).divide(BigDecimal.valueOf(60), 4, BigDecimal.ROUND_HALF_UP);
         e.setTtDuration(hours.toString());
 
         DateTime offsetAdjusted = e.getStart().minusHours(11);
@@ -54,18 +56,18 @@ public class ScheduleBuilder {
         e.setTtStart(ttStart.toString());
     }
 
-    private Map<String,List<Event>> sortAndGroupData(List<Event> events) {
+    private Map<String, List<Event>> sortAndGroupData(List<Event> events) {
         List<Event> sorted = events.stream().sorted((x, y) -> {
             int day = Integer.valueOf(DayOfWeek.valueOf(x.getDay().toUpperCase()).getValue()).compareTo(DayOfWeek.valueOf(y.getDay().toUpperCase()).getValue());
-            if (day != 0 ) {
+            if (day != 0) {
                 return day;
             }
             return Double.valueOf(x.getTtStart()).compareTo(Double.valueOf(y.getTtStart()));
         }).collect(toList());
 
         return sorted.stream().collect(groupingBy(
-                        e -> e.getDay(), LinkedHashMap::new,
-                        toList()
+                e -> e.getDay(), LinkedHashMap::new,
+                toList()
                 )
 
         );
@@ -78,11 +80,11 @@ public class ScheduleBuilder {
             DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm");
             e.setStartTime(formatter.print(e.getStart()));
             e.setEndTime(formatter.print(e.getEnd()));
-        } );
+        });
 
     }
 
     private boolean canGoInSchedule(Event e, List<Event> schedule) {
-          return !schedule.stream().anyMatch(f -> new Interval(e.getStart(),e.getEnd()).overlaps(new Interval(f.getStart(),f.getEnd())));
+        return !schedule.stream().anyMatch(f -> new Interval(e.getStart(), e.getEnd()).overlaps(new Interval(f.getStart(), f.getEnd())));
     }
 }
