@@ -107,10 +107,10 @@ public class GlastoResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/s/h/{strategy}/{festival}/{token}")
-    public Schedule getHybridSchedule(@PathParam("token") String token, @PathParam("festival") String festival, @QueryParam("year") String year, @PathParam("strategy") String strategy) {
+    @Path("/s/h/{strategy}/{festival}/{username}")
+    public Schedule getHybridSchedule(@PathParam("username") String username, @PathParam("festival") String festival, @QueryParam("year") String year, @PathParam("strategy") String strategy) {
         PreferenceStrategy preferenceStrategy = getPreferenceStrategy(strategy);
-        List<Event> intersection = scheduleIntersectionFinder.findHybridScheduleIntersection(token,festival,year, preferenceStrategy);
+        List<Event> intersection = scheduleIntersectionFinder.findHybridScheduleIntersection(username,festival,year, preferenceStrategy);
         return scheduleBuilder.createSchedule(intersection);
     }
 

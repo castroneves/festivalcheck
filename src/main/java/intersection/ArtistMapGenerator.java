@@ -93,7 +93,6 @@ public class ArtistMapGenerator {
     }
 
     private boolean containsMatch(Artist a, Show g) {
-//        return false;
         return acceptedChars.stream().anyMatch(
                 x -> acceptedChars.stream().anyMatch(
                         y -> g.getName().toLowerCase().contains(x + a.getName().toLowerCase() + y)))

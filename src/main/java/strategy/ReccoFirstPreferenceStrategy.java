@@ -25,6 +25,6 @@ public class ReccoFirstPreferenceStrategy implements PreferenceStrategy {
                 .sorted((x, y) -> Integer.compare(x.getReccorank(), y.getReccorank()))
                 .collect(toList());
 
-        return Stream.concat(recco.stream(), listened.stream()).collect(toList());
+        return Stream.concat(recco.stream(), listened.stream()).distinct().collect(toList());
     }
 }

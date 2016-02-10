@@ -62,13 +62,25 @@ public class ScheduleIntersectionFinder {
         return matchingEventsByRank(clashfinderData, recArtists.getArtist());
     }
 
-    public List<Event> findHybridScheduleIntersection(String token, String festival, String year, PreferenceStrategy strategy) {
+    public List<Event> findLfmHybridScheduleIntersection(String token, String festival, String year, PreferenceStrategy strategy) {
         Set<Event> clashfinderData = clashFinderSender.fetchData(festival, year);
         Response response = cache.getOrLookup(token, () -> lastFmSender.recommendedRequest(token), RECCOMENDED, Response.class);
         Response listened = cache.getOrLookup(response.getSession().getName(), () -> lastFmSender.simpleRequest(response.getSession().getName()), LISTENED, Response.class);
 
         Map<String, Artist> reccoArtists = artistMapGenerator.generateLastFmMap(clashfinderData, response.getRecommendations().getArtist());
         Map<String, Artist> listenedArtists = artistMapGenerator.generateLastFmMap(clashfinderData, listened.getTopartists().getArtist());
+
+        return strategy.findOrderedInterection(clashfinderData, listenedArtists, reccoArtists);
+    }
+
+    public List<Event> findHybridScheduleIntersection(String username, String festival, String year, PreferenceStrategy strategy) {
+        Set<Event> clashfinderData = clashFinderSender.fetchData(festival,year);
+        Response response = cache.getOrLookup(username, () -> lastFmSender.simpleRequest(username), LISTENED, Response.class);
+        List<Artist> artists = response.getTopartists().getArtist();
+        Recommendations recArtists = cache.getOrLookup(username, () -> recommendedArtistGenerator.fetchRecommendations(artists), RECCOMENDED, Recommendations.class);
+
+        Map<String, Artist> reccoArtists = artistMapGenerator.generateLastFmMap(clashfinderData, recArtists.getArtist());
+        Map<String, Artist> listenedArtists = artistMapGenerator.generateLastFmMap(clashfinderData, artists);
 
         return strategy.findOrderedInterection(clashfinderData, listenedArtists, reccoArtists);
     }
