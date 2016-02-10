@@ -78,26 +78,31 @@ public class ArtistMapGenerator {
     // Possibly flag match as partial?
     private List<Artist> fetchPartialMatches(List<Artist> artists, Set<? extends Show> glastoData) {
 
+        List<Show> filterGlasto = glastoData.stream().filter(g -> artists.stream().anyMatch(a -> containsMatch(a, g)
+                || isBandMatch(a.getName(), g.getName())
+                || isTLABandMatch(a.getName(), g.getName()))).collect(toList());
+
         List<Artist> matches = artists.stream()
-                .filter(a -> (a.getName().contains(" ") &&
-                        glastoData.stream().anyMatch(
+                .filter(a -> (
+                        filterGlasto.stream().anyMatch(
                                 g -> containsMatch(a, g)
                                         || isBandMatch(a.getName(), g.getName())
-                        )) || glastoData.stream().anyMatch(g -> isTLABandMatch(a.getName(), g.getName())))
+                                        || isTLABandMatch(a.getName(), g.getName())
+                        )))
                 .collect(toList());
         return matches.stream().map(a ->
-                glastoData.stream()
-                        .filter(g -> containsMatch(a,g) || isBandMatch(a.getName(), g.getName()) || isTLABandMatch(a.getName(), g.getName()))
-                        .map(n -> new Artist(n.getName(), a.getPlaycount(), a.getRankValue(), a.getName()))
+                filterGlasto.stream().map(n -> new Artist(n.getName(), a.getPlaycount(), a.getRankValue(), a.getName()))
         ).flatMap(s -> s).collect(toList());
     }
 
-    private boolean containsMatch(Artist a, Show g) {
-        return acceptedChars.stream().anyMatch(
-                x -> acceptedChars.stream().anyMatch(
-                        y -> g.getName().toLowerCase().contains(x + a.getName().toLowerCase() + y)))
-                || acceptedChars.stream().anyMatch(x -> g.getName().toLowerCase().startsWith(a.getName().toLowerCase() + x))
-                || acceptedChars.stream().anyMatch(x -> g.getName().toLowerCase().endsWith(x + a.getName().toLowerCase()));
+    private boolean containsMatch(Artist a, Show show) {
+        String g = show.getName().replaceAll(",", " ");
+        return a.getName().contains(" ") &&
+                ((g.toLowerCase().contains(a.getName().toLowerCase())) && (
+                        g.toLowerCase().contains(" " + a.getName().toLowerCase() + " ")
+                                || g.toLowerCase().startsWith(a.getName().toLowerCase() + " ")
+                                || g.toLowerCase().endsWith(" " + a.getName().toLowerCase())
+                ));
     }
 
     private boolean isTLABandMatch(String listened, String showArtist) {
@@ -108,7 +113,7 @@ public class ArtistMapGenerator {
     }
 
     private boolean isBandMatch(String listened, String showArtist) {
-        if (listened.contains("&")) {
+        if (listened.contains(" ") && listened.contains("&")) {
             if (showArtist.contains(" and ") || showArtist.contains(" & ")) {
                 Splitter splitter = Splitter.on("&").omitEmptyStrings();
                 List<String> entries = splitter.splitToList(listened);
