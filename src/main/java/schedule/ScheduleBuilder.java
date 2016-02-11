@@ -7,7 +7,6 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.math.BigDecimal;
-import java.time.DayOfWeek;
 import java.time.format.TextStyle;
 import java.util.*;
 
@@ -69,13 +68,12 @@ public class ScheduleBuilder {
                 e -> e.getDay(), LinkedHashMap::new,
                 toList()
                 )
-
         );
     }
 
     private void cleanData(List<Event> events) {
         events.stream().forEach(e -> {
-            String day = DayOfWeek.of(e.getStart().getDayOfWeek()).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+            String day = java.time.DayOfWeek.of(e.getStart().getDayOfWeek()).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
             e.setDay(day);
             DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm");
             e.setStartTime(formatter.print(e.getStart()));
