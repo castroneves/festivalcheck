@@ -2,6 +2,7 @@ package intersection;
 
 import cache.CacheKeyPrefix;
 import cache.CheckerCache;
+import domain.ArtistMap;
 import domain.RumourResponse;
 import efestivals.domain.Act;
 import exception.FestivalConnectionException;
@@ -83,12 +84,12 @@ public class RumourIntersectionFinderTest {
         return Arrays.asList(a2,a1);
     }
 
-    private Map<String, Artist> getGenerateLastFmMap() {
+    private ArtistMap getGenerateLastFmMap() {
         Map<String,Artist> map = new HashMap<>();
         map.put("talking heads", new Artist("talking heads", "10", 3));
         map.put("genesis", new Artist("genesis", "5", 15));
         map.put("blue october", new Artist("blue october", "10000", 1));
-        return map;
+        return new ArtistMap(map);
     }
 
     private Response generateLastFmData() {

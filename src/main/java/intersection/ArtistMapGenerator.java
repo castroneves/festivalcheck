@@ -4,6 +4,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.inject.Singleton;
+import domain.ArtistMap;
 import lastfm.domain.Artist;
 import domain.Show;
 
@@ -37,7 +38,7 @@ public class ArtistMapGenerator {
         acceptedChars.add(" ");
     }
 
-    public Map<String, Artist> generateLastFmMap(Set<? extends Show> clashfinderData, List<Artist> artists) {
+    public ArtistMap generateLastFmMap(Set<? extends Show> clashfinderData, List<Artist> artists) {
         List<Artist> artistList = new ArrayList<>(artists);
 
         Map<String, Artist> lastFmMap = artists.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity()));
@@ -50,7 +51,7 @@ public class ArtistMapGenerator {
         lastFmMap.putAll(variants);
         Map<String, Artist> additionalMap = generatePartialMatchMap(artistList, clashfinderData);
         lastFmMap.putAll(additionalMap);
-        return lastFmMap;
+        return new ArtistMap(lastFmMap);
     }
 
     private List<Artist> fetchKnownAliases(List<Artist> artists) {

@@ -17,7 +17,7 @@ public class ArtistMapGeneratorTest {
     @Test
     public void simpleArtistPropagadedtoMap() {
         Artist artist = new Artist("Mike and the Mechanics", "2", 10);
-        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(), Arrays.asList(artist));
+        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(), Arrays.asList(artist)).getArtistMap();
 
         assertTrue(result.containsKey("mike and the mechanics"));
         Artist resultArtist = result.get("mike and the mechanics");
@@ -28,7 +28,7 @@ public class ArtistMapGeneratorTest {
     @Test
     public void ampersandToAndInteroperable() {
         Artist artist = new Artist("Mike and the Mechanics", "2", 10);
-        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(), Arrays.asList(artist));
+        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(), Arrays.asList(artist)).getArtistMap();
 
         assertTrue(result.containsKey("mike & the mechanics"));
         Artist resultArtist = result.get("mike & the mechanics");
@@ -39,7 +39,7 @@ public class ArtistMapGeneratorTest {
     @Test
     public void andToAmpersandInteroperable() {
         Artist artist = new Artist("Mike & the Mechanics", "2", 10);
-        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(), Arrays.asList(artist));
+        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(), Arrays.asList(artist)).getArtistMap();
 
         assertTrue(result.containsKey("mike and the mechanics"));
         Artist resultArtist = result.get("mike and the mechanics");
@@ -56,7 +56,7 @@ public class ArtistMapGeneratorTest {
             }
         };
         Artist artist = new Artist("Phil Collins", "2", 10);
-        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist));
+        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist)).getArtistMap();
 
         assertTrue(result.containsKey("peter gabriel, phil collins and mike rutherford"));
     }
@@ -70,7 +70,7 @@ public class ArtistMapGeneratorTest {
             }
         };
         Artist artist = new Artist("Peter Gabriel", "2", 10);
-        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist));
+        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist)).getArtistMap();
 
         assertTrue(result.containsKey("peter gabriel, phil collins and mike rutherford"));
     }
@@ -84,7 +84,7 @@ public class ArtistMapGeneratorTest {
             }
         };
         Artist artist = new Artist("Mike Rutherford", "2", 10);
-        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist));
+        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist)).getArtistMap();
 
         assertTrue(result.containsKey("peter gabriel, phil collins and mike rutherford"));
     }
@@ -98,7 +98,7 @@ public class ArtistMapGeneratorTest {
             }
         };
         Artist artist = new Artist("Rutherford", "2", 10);
-        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist));
+        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist)).getArtistMap();
 
         assertFalse(result.containsKey("peter gabriel, phil collins and mike rutherford"));
     }
@@ -125,7 +125,7 @@ public class ArtistMapGeneratorTest {
             }
         };
         Artist artist = new Artist("Frank Turner", "2", 10);
-        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show1,show, show2)), Arrays.asList(artist));
+        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show1,show, show2)), Arrays.asList(artist)).getArtistMap();
 
         assertTrue(result.containsKey("frank turner"));
         assertTrue(result.containsKey("a radical round-up special : frank turner with billy bragg: \"the road beneath my feet\" -"));
@@ -141,7 +141,7 @@ public class ArtistMapGeneratorTest {
             }
         };
         Artist artist = new Artist("Hall & Oates", "2", 10);
-        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist));
+        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist)).getArtistMap();
 
         assertTrue(result.containsKey("daryl hall & john oates"));
     }
@@ -155,7 +155,7 @@ public class ArtistMapGeneratorTest {
             }
         };
         Artist artist = new Artist("Hall and Oates", "2", 10);
-        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist));
+        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist)).getArtistMap();
 
         assertTrue(result.containsKey("daryl hall & john oates"));
     }
@@ -169,7 +169,7 @@ public class ArtistMapGeneratorTest {
             }
         };
         Artist artist = new Artist("elo", "2", 10);
-        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist));
+        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist)).getArtistMap();
 
         assertTrue(result.containsKey("jeff lynne's elo"));
     }
@@ -183,7 +183,7 @@ public class ArtistMapGeneratorTest {
             }
         };
         Artist artist = new Artist("The Beat", "2", 10);
-        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist));
+        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist)).getArtistMap();
 
         assertTrue(!result.containsKey("the beatbox"));
     }

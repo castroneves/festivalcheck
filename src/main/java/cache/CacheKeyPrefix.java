@@ -9,7 +9,10 @@ public enum CacheKeyPrefix {
     RUMOUR("rumour_"),
     SCHEDULE("schedule_"),
     CLASHFINDER("clashfinder_"),
-    SPOTIFYACCESSTOKEN("");
+    SPOTIFYACCESSTOKEN(""),
+    ARTISTMAP("artistmap_"),
+    ARTISTMAPREC("artistmaprec_"),
+    SPOTIFYARTISTS("spotifyartists_");
 
     private final String prefix;
 

@@ -3,23 +3,22 @@ package intersection;
 import cache.CheckerCache;
 import com.google.inject.Inject;
 import domain.RumourResponse;
-import exception.FestivalConnectionException;
 import efestivals.GlastoRequestSender;
-import lastfm.LastFmSender;
 import efestivals.domain.Act;
+import exception.FestivalConnectionException;
+import lastfm.LastFmSender;
 import lastfm.domain.Artist;
 import lastfm.domain.Recommendations;
 import lastfm.domain.Response;
 import spotify.SpotifyDataGrabber;
+import spotify.domain.SpotifyArtists;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import static cache.CacheKeyPrefix.LISTENED;
-import static cache.CacheKeyPrefix.RECCOMENDED;
+import static cache.CacheKeyPrefix.*;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -69,14 +68,14 @@ public class RumourIntersectionFinder {
     }
 
     public List<Act> findSpotifyIntersection(String authCode, String festival, String year, String redirectUrl) throws FestivalConnectionException {
-        List<Artist> artists = spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl);
+        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl), SPOTIFYARTISTS, SpotifyArtists.class);
 
-        return computeIntersection(artists,festival,year,x -> -1 * x.getPlaycountInt());
+        return computeIntersection(artists.getArtists(),festival,year,x -> -1 * x.getPlaycountInt());
     }
 
     private List<Act> computeIntersection(List<Artist> artists, String festival, String year, Function<Artist,Integer> func) throws FestivalConnectionException {
         Set<Act> glastoData = efestivalSender.getFestivalData(festival, year);
-        Map<String, Artist> lastFmMap = artistMapGenerator.generateLastFmMap(glastoData,artists);
+        Map<String, Artist> lastFmMap = artistMapGenerator.generateLastFmMap(glastoData,artists).getArtistMap();
 
         return glastoData.stream().filter(g -> lastFmMap.containsKey(g.getName().toLowerCase()))
                 .map(g -> new Act(g,lastFmMap.get(g.getName().toLowerCase()).getPlaycount(),lastFmMap.get(g.getName().toLowerCase()).getRankValue()))

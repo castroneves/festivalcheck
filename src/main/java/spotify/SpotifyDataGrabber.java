@@ -3,11 +3,7 @@ package spotify;
 import cache.CheckerCache;
 import com.google.inject.Inject;
 import intersection.SpotifyOrderingCreator;
-import lastfm.domain.Artist;
-import spotify.domain.AccessToken;
-import spotify.domain.SpotifyArtist;
-import spotify.domain.SpotifyPlaylistTracksResponse;
-import spotify.domain.SpotifyTracksResponse;
+import spotify.domain.*;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -28,7 +24,7 @@ public class SpotifyDataGrabber {
     @Inject
     private SpotifyOrderingCreator spotifyOrderingCreator;
 
-    public List<Artist> fetchSpotifyArtists(String authCode, String redirectUrl) {
+    public SpotifyArtists fetchSpotifyArtists(String authCode, String redirectUrl) {
         AccessToken token = cache.getOrLookup(authCode, () -> spotifySender.getAuthToken(authCode, redirectUrl), SPOTIFYACCESSTOKEN, AccessToken.class);
         System.out.println(token.getAccessToken());
 
@@ -41,7 +37,7 @@ public class SpotifyDataGrabber {
         List<SpotifyArtist> combined = Stream.concat(artists.stream(),playlistArtists.stream()).collect(toList());
 
         //Get playlist info here
-        return spotifyOrderingCreator.artistListByFrequency(combined);
+        return new SpotifyArtists(spotifyOrderingCreator.artistListByFrequency(combined));
     }
 
     public void setSpotifySender(SpotifySender spotifySender) {
