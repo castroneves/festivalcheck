@@ -91,14 +91,6 @@ public class GlastoResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/s/r/{festival}/{token}")
-    public Schedule getLfmReccomendedSchedule(@PathParam("token") String token, @PathParam("festival") String festival, @QueryParam("year") String year) {
-        List<Event> intersection = scheduleIntersectionFinder.findLfmReccoScheduleIntersection(token, festival, year);
-        return scheduleBuilder.createSchedule(intersection);
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
     @Path("/s/rec/{festival}/{username}")
     public Schedule getReccomendedSchedule(@PathParam("username") String username, @PathParam("festival") String festival, @QueryParam("year") String year) {
         List<Event> intersection = scheduleIntersectionFinder.findReccoScheduleIntersection(username, festival, year);

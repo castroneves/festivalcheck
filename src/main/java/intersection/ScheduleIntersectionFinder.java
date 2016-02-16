@@ -5,20 +5,20 @@ import clashfinder.ClashfinderSender;
 import clashfinder.domain.ClashfinderData;
 import clashfinder.domain.Event;
 import com.google.inject.Inject;
+import domain.ArtistMap;
 import lastfm.LastFmSender;
 import lastfm.domain.Artist;
 import lastfm.domain.Recommendations;
 import lastfm.domain.Response;
 import spotify.SpotifyDataGrabber;
+import spotify.domain.SpotifyArtists;
 import strategy.PreferenceStrategy;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static cache.CacheKeyPrefix.CLASHFINDER;
-import static cache.CacheKeyPrefix.LISTENED;
-import static cache.CacheKeyPrefix.RECCOMENDED;
+import static cache.CacheKeyPrefix.*;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -45,16 +45,8 @@ public class ScheduleIntersectionFinder {
                 cache.getOrLookup(festival + year, () -> clashFinderSender.fetchData(festival,year),CLASHFINDER,ClashfinderData.class);
         Response response = cache.getOrLookup(username, () -> lastFmSender.simpleRequest(username), LISTENED, Response.class);
         List<Artist> artists = response.getTopartists().getArtist();
-
-        return matchingEventsByPlays(clashfinderData.getEvents(), artists);
-    }
-
-    public List<Event> findLfmReccoScheduleIntersection(String token, String festival, String year) {
-        ClashfinderData clashfinderData =
-                cache.getOrLookup(festival + year, () -> clashFinderSender.fetchData(festival,year),CLASHFINDER,ClashfinderData.class);
-        Response response = cache.getOrLookup(token, () -> lastFmSender.recommendedRequest(token), RECCOMENDED, Response.class);
-        List<Artist> artists = response.getRecommendations().getArtist();
-        return matchingEventsByRank(clashfinderData.getEvents(), artists);
+        ArtistMap artistMap = cache.getOrLookup(username + festival + year, () -> artistMapGenerator.generateLastFmMap(clashfinderData.getEvents(), artists), ARTISTMAP, ArtistMap.class);
+        return matchingEventsByPlays(clashfinderData.getEvents(), artistMap.getArtistMap());
     }
 
     public List<Event> findReccoScheduleIntersection(String username, String festival, String year) {
@@ -66,19 +58,8 @@ public class ScheduleIntersectionFinder {
         List<Artist> artists = response.getTopartists().getArtist();
         Recommendations recArtists = cache.getOrLookup(username, () -> recommendedArtistGenerator.fetchRecommendations(artists), RECCOMENDED, Recommendations.class);
         System.out.println("All data in hand " + (System.currentTimeMillis() - l));
-        return matchingEventsByRank(clashfinderData.getEvents(), recArtists.getArtist());
-    }
-
-    public List<Event> findLfmHybridScheduleIntersection(String token, String festival, String year, PreferenceStrategy strategy) {
-        ClashfinderData clashfinderData =
-                cache.getOrLookup(festival + year, () -> clashFinderSender.fetchData(festival,year),CLASHFINDER,ClashfinderData.class);
-        Response response = cache.getOrLookup(token, () -> lastFmSender.recommendedRequest(token), RECCOMENDED, Response.class);
-        Response listened = cache.getOrLookup(response.getSession().getName(), () -> lastFmSender.simpleRequest(response.getSession().getName()), LISTENED, Response.class);
-
-        Map<String, Artist> reccoArtists = artistMapGenerator.generateLastFmMap(clashfinderData.getEvents(), response.getRecommendations().getArtist());
-        Map<String, Artist> listenedArtists = artistMapGenerator.generateLastFmMap(clashfinderData.getEvents(), listened.getTopartists().getArtist());
-
-        return strategy.findOrderedInterection(clashfinderData.getEvents(), listenedArtists, reccoArtists);
+        ArtistMap artistMap = cache.getOrLookup(username + festival + year, () -> artistMapGenerator.generateLastFmMap(clashfinderData.getEvents(), recArtists.getArtist()), ARTISTMAPREC, ArtistMap.class);
+        return matchingEventsByRank(clashfinderData.getEvents(), artistMap.getArtistMap());
     }
 
     public List<Event> findHybridScheduleIntersection(String username, String festival, String year, PreferenceStrategy strategy) {
@@ -88,34 +69,33 @@ public class ScheduleIntersectionFinder {
         List<Artist> artists = response.getTopartists().getArtist();
         Recommendations recArtists = cache.getOrLookup(username, () -> recommendedArtistGenerator.fetchRecommendations(artists), RECCOMENDED, Recommendations.class);
 
-        Map<String, Artist> reccoArtists = artistMapGenerator.generateLastFmMap(clashfinderData.getEvents(), recArtists.getArtist());
-        Map<String, Artist> listenedArtists = artistMapGenerator.generateLastFmMap(clashfinderData.getEvents(), artists);
+        ArtistMap reccoArtists =
+                cache.getOrLookup(username + festival + year, () -> artistMapGenerator.generateLastFmMap(clashfinderData.getEvents(), recArtists.getArtist()), ARTISTMAPREC, ArtistMap.class);
+        ArtistMap listenedArtists =
+                cache.getOrLookup(username + festival + year, () -> artistMapGenerator.generateLastFmMap(clashfinderData.getEvents(), artists),ARTISTMAP, ArtistMap.class);
 
-        return strategy.findOrderedInterection(clashfinderData.getEvents(), listenedArtists, reccoArtists);
+        return strategy.findOrderedInterection(clashfinderData.getEvents(), listenedArtists.getArtistMap(), reccoArtists.getArtistMap());
     }
 
     public List<Event> findSpotifyScheduleIntersection(String authCode, String festival, String year, String redirectUrl) {
-        List<Artist> result = spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl);
+        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl), SPOTIFYARTISTS, SpotifyArtists.class);
         ClashfinderData clashfinderData =
                 cache.getOrLookup(festival + year, () -> clashFinderSender.fetchData(festival,year),CLASHFINDER,ClashfinderData.class);
-        return matchingEventsByPlays(clashfinderData.getEvents(),result);
+        ArtistMap artistMap = cache.getOrLookup(authCode, () -> artistMapGenerator.generateLastFmMap(clashfinderData.getEvents(), artists.getArtists()), ARTISTMAP, ArtistMap.class);
+
+        return matchingEventsByPlays(clashfinderData.getEvents(),artistMap.getArtistMap());
     }
 
-    private List<Event> matchingEventsByPlays(Set<Event> clashfinderData, List<Artist> artists) {
-        Map<String,Artist> lastFmMap = artistMapGenerator.generateLastFmMap(clashfinderData, artists);
-        return clashfinderData.stream().filter(g -> lastFmMap.containsKey(g.getName().toLowerCase()))
-                .map(e -> new Event(e, Integer.parseInt(lastFmMap.get(e.getName().toLowerCase()).getPlaycount())))
+    private List<Event> matchingEventsByPlays(Set<Event> clashfinderData, Map<String, Artist> artistMap) {
+        return clashfinderData.stream().filter(g -> artistMap.containsKey(g.getName().toLowerCase()))
+                .map(e -> new Event(e, Integer.parseInt(artistMap.get(e.getName().toLowerCase()).getPlaycount())))
                 .sorted((x, y) -> Integer.compare(y.getScrobs(), x.getScrobs()))
                 .collect(toList());
     }
 
-    private List<Event> matchingEventsByRank(Set<Event> clashfinderData, List<Artist> artists) {
-        long l = System.currentTimeMillis();
-        Map<String, Artist> lastFmMap = artistMapGenerator.generateLastFmMap(clashfinderData, artists);
-        System.out.println("Data generation time " + (System.currentTimeMillis() - l));
-
-        return clashfinderData.stream().filter(g -> lastFmMap.containsKey(g.getName().toLowerCase()))
-                .map(e -> new Event(e, 0, lastFmMap.get(e.getName().toLowerCase()).getRankValue()))
+    private List<Event> matchingEventsByRank(Set<Event> clashfinderData, Map<String, Artist> artistMap) {
+        return clashfinderData.stream().filter(g -> artistMap.containsKey(g.getName().toLowerCase()))
+                .map(e -> new Event(e, 0, artistMap.get(e.getName().toLowerCase()).getRankValue()))
                 .sorted((x, y) -> Integer.compare(x.getReccorank(), y.getReccorank()))
                 .collect(toList());
     }
