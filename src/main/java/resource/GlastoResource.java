@@ -1,4 +1,4 @@
-package service;
+package resource;
 
 import cache.CacheKeyPrefix;
 import cache.CheckerCache;
