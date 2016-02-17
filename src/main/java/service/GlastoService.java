@@ -8,6 +8,7 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import module.GlastoCheckerModule;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import resource.GlastoResource;
 import service.config.GlastoConfiguration;
 
 import javax.servlet.DispatcherType;
