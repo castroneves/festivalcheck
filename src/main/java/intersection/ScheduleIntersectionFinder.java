@@ -25,7 +25,6 @@ import static java.util.stream.Collectors.toList;
  * Created by Adam on 24/09/2015.
  */
 public class ScheduleIntersectionFinder {
-
     @Inject
     private LastFmSender lastFmSender;
     @Inject
@@ -50,14 +49,11 @@ public class ScheduleIntersectionFinder {
     }
 
     public List<Event> findReccoScheduleIntersection(String username, String festival, String year) {
-        long l = System.currentTimeMillis();
         ClashfinderData clashfinderData =
                 cache.getOrLookup(festival + year, () -> clashFinderSender.fetchData(festival,year),CLASHFINDER,ClashfinderData.class);
-        System.out.println("clashfinder retrieve time " + (System.currentTimeMillis() - l));
         Response response = cache.getOrLookup(username, () -> lastFmSender.simpleRequest(username), LISTENED, Response.class);
         List<Artist> artists = response.getTopartists().getArtist();
         Recommendations recArtists = cache.getOrLookup(username, () -> recommendedArtistGenerator.fetchRecommendations(artists), RECCOMENDED, Recommendations.class);
-        System.out.println("All data in hand " + (System.currentTimeMillis() - l));
         ArtistMap artistMap = cache.getOrLookup(username + festival + year, () -> artistMapGenerator.generateLastFmMap(clashfinderData.getEvents(), recArtists.getArtist()), ARTISTMAPREC, ArtistMap.class);
         return matchingEventsByRank(clashfinderData.getEvents(), artistMap.getArtistMap());
     }

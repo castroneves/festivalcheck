@@ -26,7 +26,6 @@ public class SpotifyDataGrabber {
 
     public SpotifyArtists fetchSpotifyArtists(String authCode, String redirectUrl) {
         AccessToken token = cache.getOrLookup(authCode, () -> spotifySender.getAuthToken(authCode, redirectUrl), SPOTIFYACCESSTOKEN, AccessToken.class);
-        System.out.println(token.getAccessToken());
 
         List<SpotifyTracksResponse> savedTracks = spotifySender.getSavedTracks(token.getAccessToken());
         List<SpotifyArtist> artists = savedTracks.stream().flatMap(x -> x.getItems().stream()).flatMap(x -> x.getTrack().getArtists().stream()).collect(toList());

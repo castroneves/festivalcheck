@@ -14,6 +14,8 @@ import lastfm.domain.Response;
 import lastfm.domain.Session;
 import org.apache.commons.codec.binary.Hex;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import service.config.LastFmConfig;
 
 import javax.ws.rs.core.MediaType;
@@ -32,6 +34,7 @@ import static java.util.stream.Collectors.toList;
  */
 @Singleton
 public class LastFmSender {
+    private static final Logger logger = LoggerFactory.getLogger(LastFmSender.class);
     private static final String baseUrl = "http://ws.audioscrobbler.com/2.0/";
 
     private final Client client;
@@ -48,14 +51,14 @@ public class LastFmSender {
     }
 
     public Response simpleRequest(String username) {
-        System.out.println("sending request for user " + username);
+        logger.info("sending request for user " + username);
         WebResource webResource = getWebResource(username);
         Response response = webResource.accept(MediaType.APPLICATION_JSON_TYPE).
                 type(MediaType.APPLICATION_JSON_TYPE).get(Response.class);
         if (response.getError() != null) {
             throw new LastFmException(response.getMessage());
         }
-        System.out.println("response recieved for user " + username);
+        logger.info("response recieved for user " + username);
         return response;
     }
 
@@ -72,14 +75,13 @@ public class LastFmSender {
 
     public List<Artist> fetchSimilarArtists(List<String> actualArtists, int limit) {
         List<Future<Response>> collect = actualArtists.parallelStream().limit(limit).map(x -> similarArtistRequestAsync(x)).collect(toList());
-        List<Artist> collect1 = collect.parallelStream().flatMap(x -> {
+        return collect.parallelStream().flatMap(x -> {
             try {
                 return x.get(1, TimeUnit.SECONDS).getSimilarartists().getArtist().stream();
             } catch (Exception e) {
                 return new ArrayList<Artist>().stream();
             }
         }).collect(toList());
-        return collect1;
     }
 
     private Future<Response> similarArtistRequestAsync(String artistName) {
@@ -188,7 +190,6 @@ public class LastFmSender {
         builder.append(token);
         builder.append(apiSecret);
         String s = builder.toString();
-        System.out.println(s);
         return s;
     }
 

@@ -7,6 +7,18 @@
     - type: http
       port: 8091
 
+  logging:
+      level: INFO
+      appenders:
+        - type: file
+          currentLogFilename: wellysplosher.log
+          threshold: ALL
+          archive: true
+          archivedLogFilenamePattern: wellysplosher-%d.log
+          archivedFileCount: 5
+          timeZone: UTC
+        - type: console
+
   jedis:
     host:
     port:
@@ -15,6 +27,10 @@
   lastFm:
     apiKey:
     secret:
+
+   spotify:
+      clientId:
+      secret:
 
   mappings:
     - input: g2015

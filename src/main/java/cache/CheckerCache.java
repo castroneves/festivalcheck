@@ -3,6 +3,8 @@ package cache;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import redis.clients.jedis.*;
 
 import java.io.IOException;
@@ -13,6 +15,8 @@ import java.util.function.Supplier;
  */
 @Singleton
 public class CheckerCache {
+    private static final Logger logger = LoggerFactory.getLogger(CheckerCache.class);
+
 
     @Inject
     private JedisFactory jedisFactory;
@@ -23,7 +27,7 @@ public class CheckerCache {
     public <T> T getOrLookup(String key, Supplier<T> func, CacheKeyPrefix prefix, Class<T> clazz) {
         try (Jedis jedis = jedisFactory.newJedis()) {
             String redisKey = prefix + key;
-            System.out.println(jedis.ttl(redisKey));
+            logger.info(key + " " + jedis.ttl(redisKey));
             String json = jedis.get(redisKey);
             if (json != null && json != "") {
                 return mapper.readValue(json, clazz);
@@ -41,7 +45,7 @@ public class CheckerCache {
             jedis.set(key, inputJson);
             jedis.expire(key, 3000);
         } catch (IOException e) {
-            System.out.println("Exception writing value to Redis");
+            logger.error("Exception writing value to Redis");
         }
         return response;
     }

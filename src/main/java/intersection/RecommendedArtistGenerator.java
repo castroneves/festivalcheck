@@ -22,7 +22,6 @@ public class RecommendedArtistGenerator {
     private SpotifyOrderingCreator orderingCreator;
 
     public Recommendations fetchRecommendations(List<Artist> actualArtists) {
-        System.out.println("Sending recommendation requests");
         List<Artist> rawRecArtists = lastFmSender.fetchSimilarArtists(actualArtists.stream().map(Artist::getName).collect(toList()), LIMIT);
         List<Artist> recArtists = orderingCreator.artistListByFrequency(rawRecArtists);
         recArtists.removeAll(actualArtists);
