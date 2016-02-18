@@ -3,13 +3,14 @@ package spotify;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import service.config.SpotifyConfig;
 import spotify.domain.*;
 
@@ -27,6 +28,7 @@ import static java.util.stream.Collectors.toList;
  */
 @Singleton
 public class SpotifySender {
+    private static final Logger logger = LoggerFactory.getLogger(SpotifySender.class);
 
     private final Client client;
 
@@ -97,7 +99,7 @@ public class SpotifySender {
     public List<SpotifyPlaylistTracksResponse> getPlayListTracks(String accessCode) {
         UserProfile userId = getUserId(accessCode);
         List<SpotifyPlaylist> playlists = getPlaylists(accessCode, userId.getId());
-        System.out.println("Playlists for : " + userId.getId() + " :: " + playlists.stream().map(x -> x.getId()).collect(toList()));
+        logger.info("Playlists for : " + userId.getId() + " :: " + playlists.stream().map(x -> x.getId()).collect(toList()));
         return getTracksFromPlaylists(accessCode,userId.getId(),playlists);
     }
 
@@ -138,7 +140,7 @@ public class SpotifySender {
             if(!e.getMessage().contains("404 Not Found")) {
                 throw e;
             }
-            System.out.println("404 ERROR: " +  e.getMessage()  + e.getResponse());
+            logger.debug("404 ERROR: " +  e.getMessage()  + e.getResponse());
             return emptySpotifyPlaylistTracksResponse();
         }
     }

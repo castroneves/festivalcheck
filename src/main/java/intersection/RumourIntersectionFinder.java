@@ -43,7 +43,6 @@ public class RumourIntersectionFinder {
     public RumourResponse findIntersection(String username, String festival,String year) throws FestivalConnectionException {
         Response lastFmData = cache.getOrLookup(username, () -> lastFmSender.simpleRequest(username), LISTENED, Response.class);
         List<Artist> artists = lastFmData.getTopartists().getArtist();
-
         List<Act> acts = computeIntersection(artists, festival, year, Artist::getRankValue);
         return new RumourResponse(acts);
     }
@@ -51,25 +50,18 @@ public class RumourIntersectionFinder {
     public List<Act> findRecommendedIntersection(String token, String festival, String year) throws FestivalConnectionException {
         Response lastFmResponse = cache.getOrLookup(token, () -> lastFmSender.recommendedRequest(token), RECCOMENDED, Response.class);
         List<Artist> artists = lastFmResponse.getRecommendations().getArtist();
-
         return computeIntersection(artists,festival,year, Artist::getRankValue);
     }
 
     public List<Act> computeRecommendedIntersection(String username, String festival,String year) {
-        long x = System.currentTimeMillis();
         Response lastFmData = cache.getOrLookup(username, () -> lastFmSender.simpleRequest(username), LISTENED, Response.class);
         List<Artist> artists = lastFmData.getTopartists().getArtist();
         Recommendations recArtists = cache.getOrLookup(username, () -> recommendedArtistGenerator.fetchRecommendations(artists), RECCOMENDED, Recommendations.class);
-        System.out.println(System.currentTimeMillis() - x);
-        List<Act> acts = computeIntersection(recArtists.getArtist(), festival, year, Artist::getRankValue);
-        System.out.println(System.currentTimeMillis() - x);
-        return acts;
-
+        return computeIntersection(recArtists.getArtist(), festival, year, Artist::getRankValue);
     }
 
     public List<Act> findSpotifyIntersection(String authCode, String festival, String year, String redirectUrl) throws FestivalConnectionException {
         SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl), SPOTIFYARTISTS, SpotifyArtists.class);
-
         return computeIntersection(artists.getArtists(),festival,year,x -> -1 * x.getPlaycountInt());
     }
 
