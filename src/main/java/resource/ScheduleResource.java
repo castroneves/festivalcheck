@@ -25,12 +25,9 @@ import static cache.CacheKeyPrefix.RUMOUR;
 /**
  * Created by Adam on 27/04/2015.
  */
-@Path("/")
+@Path("/s/")
 @Produces({"application/json"})
-public class GlastoResource {
-
-    @Inject
-    private RumourIntersectionFinder rumourIntersectionFinder;
+public class ScheduleResource {
     @Inject
     private ScheduleIntersectionFinder scheduleIntersectionFinder;
     @Inject
@@ -40,44 +37,9 @@ public class GlastoResource {
     @Inject
     private LastFmSender lastFmSender;
 
-
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{festival}/{username}")
-    @Metered
-    public List<Act> getActsForUsername(@PathParam("username") String username, @PathParam("festival") String festival, @QueryParam("year") String year) {
-        RumourResponse response = cache.getOrLookup(username + festival + year, () -> rumourIntersectionFinder.findIntersection(username, festival, year), RUMOUR, RumourResponse.class);
-        return response.getActs();
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/spotify/{festival}/{code}/{redirectUrl}")
-    @Metered
-    public List<Act> getActsForSpotify(@PathParam("code") String code, @PathParam("festival") String festival, @QueryParam("year") String year, @PathParam("redirectUrl") String redirectUrl) {
-        String cleanedCode = code.endsWith("#_=_") ? code.replaceAll("#_=_", "") : code;
-        return rumourIntersectionFinder.findSpotifyIntersection(cleanedCode, festival, year, redirectUrl);
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/r/{festival}/{token}")
-    @Metered
-    public List<Act> getLastFmRecommendedActsForUsername(@PathParam("token") String token, @PathParam("festival") String festival, @QueryParam("year") String year) {
-        return rumourIntersectionFinder.findRecommendedIntersection(token, festival, year);
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/rec/{festival}/{username}")
-    @Metered
-    public List<Act> getRecommendedActsForUsername(@PathParam("username") String username, @PathParam("festival") String festival, @QueryParam("year") String year) {
-        return rumourIntersectionFinder.computeRecommendedIntersection(username, festival, year);
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/s/{festival}/{username}")
     @Metered
     public Schedule getScheduleForUsername(@PathParam("username") String username, @PathParam("festival") String festival, @QueryParam("year") String year) {
         return cache.getOrLookup(username + festival + year, () -> {
@@ -88,7 +50,7 @@ public class GlastoResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/s/spotify/{festival}/{authcode}/{redirectUrl}")
+    @Path("/spotify/{festival}/{authcode}/{redirectUrl}")
     @Metered
     public Schedule getScheduleSpotify(@PathParam("authcode") String code, @PathParam("festival") String festival, @QueryParam("year") String year, @PathParam("redirectUrl") String redirectUrl) {
         String cleanedCode = code.endsWith("#_=_") ? code.replaceAll("#_=_", "") : code;
@@ -98,7 +60,7 @@ public class GlastoResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/s/rec/{festival}/{username}")
+    @Path("/rec/{festival}/{username}")
     @Metered
     public Schedule getReccomendedSchedule(@PathParam("username") String username, @PathParam("festival") String festival, @QueryParam("year") String year) {
         List<Event> intersection = scheduleIntersectionFinder.findReccoScheduleIntersection(username, festival, year);
@@ -107,7 +69,7 @@ public class GlastoResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/s/h/{strategy}/{festival}/{username}")
+    @Path("/h/{strategy}/{festival}/{username}")
     @Metered
     public Schedule getHybridSchedule(@PathParam("username") String username, @PathParam("festival") String festival, @QueryParam("year") String year, @PathParam("strategy") String strategy) {
         PreferenceStrategy preferenceStrategy = getPreferenceStrategy(strategy);
