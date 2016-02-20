@@ -8,7 +8,8 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import module.GlastoCheckerModule;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import resource.GlastoResource;
+import resource.LineupResource;
+import resource.ScheduleResource;
 import service.config.GlastoConfiguration;
 
 import javax.servlet.DispatcherType;
@@ -31,7 +32,8 @@ public class GlastoService extends Application<GlastoConfiguration> {
     @Override
     public void run(GlastoConfiguration configuration, Environment environment) throws Exception {
         Injector injector = Guice.createInjector(new GlastoCheckerModule(configuration));
-        GlastoResource glastoResource = injector.getInstance(GlastoResource.class);
+        ScheduleResource scheduleResource = injector.getInstance(ScheduleResource.class);
+        LineupResource lineupResource = injector.getInstance(LineupResource.class);
 
 
         // Enable CORS headers
@@ -47,6 +49,7 @@ public class GlastoService extends Application<GlastoConfiguration> {
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
         environment.jersey().register(new LastFmExceptionMapper());
-        environment.jersey().register(glastoResource);
+        environment.jersey().register(scheduleResource);
+        environment.jersey().register(lineupResource);
     }
 }
