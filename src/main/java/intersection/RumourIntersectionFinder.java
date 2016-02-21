@@ -78,4 +78,9 @@ public class RumourIntersectionFinder {
 
     }
 
+    public List<Act> findSpotifyRecommendedIntersection(String authCode, String festival, String year, String redirectUrl) {
+        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl), SPOTIFYARTISTS, SpotifyArtists.class);
+        Recommendations recArtists = cache.getOrLookup(authCode, () -> recommendedArtistGenerator.fetchRecommendations(artists.getArtists()), RECCOMENDED, Recommendations.class);
+        return computeIntersection(recArtists.getArtist(),festival,year,Artist::getRankValue);
+    }
 }

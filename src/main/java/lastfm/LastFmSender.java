@@ -77,7 +77,7 @@ public class LastFmSender {
         List<Future<Response>> collect = actualArtists.parallelStream().limit(limit).map(x -> similarArtistRequestAsync(x)).collect(toList());
         return collect.parallelStream().flatMap(x -> {
             try {
-                return x.get(1, TimeUnit.SECONDS).getSimilarartists().getArtist().stream();
+                return x.get(1500, TimeUnit.MILLISECONDS).getSimilarartists().getArtist().stream();
             } catch (Exception e) {
                 return new ArrayList<Artist>().stream();
             }
