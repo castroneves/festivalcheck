@@ -50,4 +50,13 @@ public class LineupResource {
         return rumourIntersectionFinder.findSpotifyIntersection(cleanedCode, festival, year, redirectUrl);
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/spotify/rec/{festival}/{code}/{redirectUrl}")
+    @Metered
+    public List<Act> getRecommendedActsForSpotify(@PathParam("code") String code, @PathParam("festival") String festival, @QueryParam("year") String year, @PathParam("redirectUrl") String redirectUrl) {
+        String cleanedCode = code.endsWith("#_=_") ? code.replaceAll("#_=_", "") : code;
+        return rumourIntersectionFinder.findSpotifyRecommendedIntersection(cleanedCode, festival, year, redirectUrl);
+    }
+
 }
