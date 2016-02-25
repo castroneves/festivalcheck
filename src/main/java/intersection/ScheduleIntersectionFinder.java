@@ -82,6 +82,28 @@ public class ScheduleIntersectionFinder {
         return matchingEventsByPlays(clashfinderData.getEvents(),artistMap.getArtistMap());
     }
 
+    public List<Event> findSpotifyReccommendedScheduleIntersection(String authCode, String festival, String year, String redirectUrl) {
+        ClashfinderData clashfinderData =
+                cache.getOrLookup(festival + year, () -> clashFinderSender.fetchData(festival,year),CLASHFINDER,ClashfinderData.class);
+        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl), SPOTIFYARTISTS, SpotifyArtists.class);
+        Recommendations recArtists = cache.getOrLookup(authCode, () -> recommendedArtistGenerator.fetchRecommendations(artists.getArtists()), RECCOMENDED, Recommendations.class);
+        ArtistMap artistMap = cache.getOrLookup(authCode + festival + year, () -> artistMapGenerator.generateLastFmMap(clashfinderData.getEvents(), recArtists.getArtist()), ARTISTMAPREC, ArtistMap.class);
+        return matchingEventsByRank(clashfinderData.getEvents(), artistMap.getArtistMap());
+    }
+
+    public List<Event> findHybridSpotifyScheduleIntersection(String authCode, String festival, String year, String redirectUrl, PreferenceStrategy strategy) {
+        ClashfinderData clashfinderData =
+                cache.getOrLookup(festival + year, () -> clashFinderSender.fetchData(festival,year),CLASHFINDER,ClashfinderData.class);
+        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl), SPOTIFYARTISTS, SpotifyArtists.class);
+        Recommendations recArtists = cache.getOrLookup(authCode, () -> recommendedArtistGenerator.fetchRecommendations(artists.getArtists()), RECCOMENDED, Recommendations.class);
+        ArtistMap reccoArtists =
+                cache.getOrLookup(authCode + festival + year, () -> artistMapGenerator.generateLastFmMap(clashfinderData.getEvents(), recArtists.getArtist()), ARTISTMAPREC, ArtistMap.class);
+        ArtistMap listenedArtists =
+                cache.getOrLookup(authCode + festival + year, () -> artistMapGenerator.generateLastFmMap(clashfinderData.getEvents(), artists.getArtists()),ARTISTMAP, ArtistMap.class);
+
+        return strategy.findOrderedInterection(clashfinderData.getEvents(), listenedArtists.getArtistMap(), reccoArtists.getArtistMap());
+    }
+
     private List<Event> matchingEventsByPlays(Set<Event> clashfinderData, Map<String, Artist> artistMap) {
         return clashfinderData.stream().filter(g -> artistMap.containsKey(g.getName().toLowerCase()))
                 .map(e -> new Event(e, Integer.parseInt(artistMap.get(e.getName().toLowerCase()).getPlaycount())))
