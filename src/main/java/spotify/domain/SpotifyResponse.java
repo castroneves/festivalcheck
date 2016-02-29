@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Created by Adam on 13/10/2015.
  */
-public interface SpotifyResponse {
+public interface SpotifyResponse<T> {
     Integer getTotal();
-    List<?> getItems();
+    List<T> getItems();
 }
