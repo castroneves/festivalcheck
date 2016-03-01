@@ -18,11 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -94,36 +90,7 @@ public class SpotifySender {
     }
 
 
-    // TODO extract to utils or collaborator
-    private <T extends SpotifyResponse<T>> List<T> paginateAsync(BiFunction<Integer, SpotifyDetails, Future<T>> func, SpotifyDetails details, int pageSize) {
-        List<Future<T>> responseList = new ArrayList<>();
-        SpotifyResponse<T> initialResponse = fetchInitialResponse(func, details);
-        int total = initialResponse.getTotal();
-        int offset = initialResponse.getItems().size();
 
-        while(offset < total) {
-            responseList.add(func.apply(offset, details));
-            offset += pageSize;
-        }
-        List<T> result = responseList.stream().flatMap(x -> {
-            try {
-                return x.get(1500, TimeUnit.MILLISECONDS).getItems().stream();
-            } catch (Exception e) {
-                return new ArrayList<T>().stream();
-            }
-        }).collect(toList());
-
-        return Stream.concat(result.stream(), initialResponse.getItems().stream()).collect(Collectors.toList());
-    }
-
-    private <T extends SpotifyResponse<T>> SpotifyResponse<T> fetchInitialResponse(BiFunction<Integer, SpotifyDetails, Future<T>> func, SpotifyDetails details) {
-        try {
-            return func.apply(0, details).get(1, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            return new EmptySpotifyResponse<>();
-        }
-
-    }
 
     private UserProfile getUserId(final String accessCode) {
         WebResource resource = client.resource("https://api.spotify.com/v1/me");
