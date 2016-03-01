@@ -6,14 +6,14 @@ import java.util.List;
 /**
  * Created by Adam on 28/02/2016.
  */
-public class EmptySpotifyResponse<T> implements SpotifyResponse<T> {
+public class EmptySpotifyResponse implements SpotifyResponse {
     @Override
     public Integer getTotal() {
         return 0;
     }
 
     @Override
-    public List<T> getItems() {
+    public List<?> getItems() {
         return new ArrayList<>();
     }
 }
