@@ -2,8 +2,8 @@ package spotify;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
@@ -18,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
 import java.util.function.BiFunction;
 
 import static java.util.stream.Collectors.toList;
@@ -63,12 +64,12 @@ public class SpotifySender {
 
     // Use limit and offset to paginate
     public List<SpotifyTracksResponse> getSavedTracks(final String accessCode) {
-        return paginate(this::savedTracksRequest, new SpotifyDetails(accessCode));
+        return AsyncPaginationUtils.paginateAsync(this::savedTracksRequest, new SpotifyDetails(accessCode),50);
     }
 
 
-    private SpotifyTracksResponse savedTracksRequest(int retrieved, SpotifyDetails details) {
-        WebResource resource = client.resource(tracksUrl)
+    private Future<SpotifyTracksResponse> savedTracksRequest(int retrieved, SpotifyDetails details) {
+        AsyncWebResource resource = client.asyncResource(tracksUrl)
         .queryParam("limit", "50")
         .queryParam("offset", String.valueOf(retrieved));
         return resource.header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE)
@@ -124,28 +125,21 @@ public class SpotifySender {
                                                                        final List<SpotifyPlaylist> playlists) {
         List<SpotifyPlaylistTracksResponse> responses = new ArrayList<>();
         for (SpotifyPlaylist playlist : playlists) {
-            List<SpotifyPlaylistTracksResponse> res = paginate(this::getSpotifyPlaylistTracksResponse, new SpotifyDetails(accessCode, playlist.getId(), userId));
+            List<SpotifyPlaylistTracksResponse> res = AsyncPaginationUtils.paginateAsync(this::getSpotifyPlaylistTracksResponse, new SpotifyDetails(accessCode, playlist.getId(), userId),100);
             responses.addAll(res);
         }
         return responses;
     }
 
-    private SpotifyPlaylistTracksResponse getSpotifyPlaylistTracksResponse(int retrieved, SpotifyDetails details) {
-        try {
-            WebResource resource =
-                    client.resource("https://api.spotify.com/v1/users/" + details.getUserId() + "/playlists/" + details.getPlaylistId() + "/tracks")
+    private Future<SpotifyPlaylistTracksResponse> getSpotifyPlaylistTracksResponse(int retrieved, SpotifyDetails details) {
+
+            AsyncWebResource resource =
+                    client.asyncResource("https://api.spotify.com/v1/users/" + details.getUserId() + "/playlists/" + details.getPlaylistId() + "/tracks")
                             .queryParam("limit", "100")
                             .queryParam("offset", String.valueOf(retrieved));
             return resource.header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE)
                     .get(SpotifyPlaylistTracksResponse.class);
-        } catch (UniformInterfaceException e) {
-            // Only until this is solved
-            if(!e.getMessage().contains("404 Not Found")) {
-                throw e;
-            }
-            logger.debug("404 ERROR: " +  e.getMessage()  + e.getResponse());
-            return emptySpotifyPlaylistTracksResponse();
-        }
+
     }
 
     private SpotifyPlaylistTracksResponse emptySpotifyPlaylistTracksResponse() {

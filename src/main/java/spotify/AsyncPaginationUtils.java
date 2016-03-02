@@ -1,5 +1,7 @@
 package spotify;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spotify.domain.EmptySpotifyResponse;
 import spotify.domain.SpotifyDetails;
 import spotify.domain.SpotifyResponse;
@@ -18,6 +20,7 @@ import static java.util.stream.Collectors.toList;
  * Created by Adam on 29/02/2016.
  */
 public class AsyncPaginationUtils {
+    private static final Logger logger = LoggerFactory.getLogger(AsyncPaginationUtils.class);
 
     public static <T extends SpotifyResponse> List<T> paginateAsync(BiFunction<Integer, SpotifyDetails, Future<T>> func, SpotifyDetails details, int pageSize) {
         T response = fetchInitialResponse(func, details);
@@ -34,6 +37,7 @@ public class AsyncPaginationUtils {
             try {
                 return x.get(1500, TimeUnit.MILLISECONDS);
             } catch (Exception e) {
+                logger.info(e.getMessage());
                 return null;
             }
         }).collect(toList());
@@ -44,6 +48,7 @@ public class AsyncPaginationUtils {
         try {
             return func.apply(0, details).get(2, TimeUnit.SECONDS);
         } catch (Exception e) {
+            logger.info(e.getMessage());
             return null;
         }
     }
