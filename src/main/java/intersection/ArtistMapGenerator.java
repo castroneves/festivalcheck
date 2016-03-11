@@ -27,7 +27,7 @@ public class ArtistMapGenerator {
 
 
     public ArtistMapGenerator() {
-        aliases.put("omd", "orchestral Manoeuvres in the dark");
+        aliases.put("omd", "orchestral manoeuvres in the dark");
         aliases.put("orchestral manoeuvres in the dark", "o.m.d.");
         aliases.put("o.m.d.", "omd");
         aliases.put("elo", "electric light orchestra");
@@ -62,7 +62,7 @@ public class ArtistMapGenerator {
                 .map(x -> new Artist(aliases.inverse().get(x.getName().toLowerCase()), x.getPlaycount(), x.getRankValue()))
                 .collect(toList());
 
-        return Stream.concat(aliasedForward.stream(), aliasedBack.stream()).collect(toList());
+        return Stream.concat(aliasedForward.stream(), aliasedBack.stream()).distinct().collect(toList());
     }
 
     public Map<String, Artist> generatePartialMatchMap(List<Artist> artists, Set<? extends Show> glastoData) {
