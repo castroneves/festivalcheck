@@ -13,6 +13,7 @@ Provides refined music festival data based on listening data from a Last.Fm or S
 Get artists linked with festival that match those in Last.Fm user's listening history
 
     /{festival}/{username}
+###### Path Params    
 <dl>
   <dt>festival</dt>
   <dd>The festival key dictated by efestivals, e.g. for Glastonbury, use glastonbury. For V Festival, prefix with 'vvv'</dd>
@@ -20,11 +21,19 @@ Get artists linked with festival that match those in Last.Fm user's listening hi
   <dt>username</dt>
   <dd>A valid Last.Fm username</dd>
 </dl>
+
+###### Query Params
+<dl>
+  <dt>year</dt>
+  <dd>Year of festival data. 2015 if not specified</dd>
+</dl>
+
 ***
 
 Get artists linked with festival that are recommended based on Last.Fm user's listening history
 
     /rec/{festival}/{username}
+###### Path Params     
 <dl>
   <dt>festival</dt>
   <dd>The festival key dictated by efestivals, e.g. for Glastonbury, use glastonbury. For V Festival, prefix with 'vvv'</dd>
@@ -33,10 +42,17 @@ Get artists linked with festival that are recommended based on Last.Fm user's li
   <dd>A valid Last.Fm username</dd>
 </dl> 
 
+###### Query Params
+<dl>
+  <dt>year</dt>
+  <dd>Year of festival data. 2015 if not specified</dd>
+</dl>
+
 #### Spotify
 Get artists linked with festival that are recommended based on Spotify user's owned playlists and saved tracks
 
     /spotify/{festival}/{code}/{redirectUrl}
+###### Path Params 
 <dl>
   <dt>festival</dt>
   <dd>The festival key dictated by efestivals, e.g. for Glastonbury, use glastonbury. For V Festival, prefix with 'vvv'</dd>
@@ -48,10 +64,17 @@ Get artists linked with festival that are recommended based on Spotify user's ow
   <dd>Redirect URL used in acquiring Authorization Code</dd>
 </dl>
 
+###### Query Params
+<dl>
+  <dt>year</dt>
+  <dd>Year of festival data. 2015 if not specified</dd>
+</dl>
+
 ***
 Get artists linked with festival that are recommended based on Spotify user's owned playlists and saved tracks
 
     /spotify/rec/{festival}/{code}/{redirectUrl}
+###### Path Params 
 <dl>
   <dt>festival</dt>
   <dd>The festival key dictated by efestivals, e.g. for Glastonbury, use glastonbury. For V Festival, prefix with 'vvv'</dd>
@@ -61,6 +84,12 @@ Get artists linked with festival that are recommended based on Spotify user's ow
   
   <dt>redirectUrl</dt>
   <dd>Redirect URL used in acquiring Authorization Code</dd>
+</dl>
+
+###### Query Params
+<dl>
+  <dt>year</dt>
+  <dd>Year of festival data. 2015 if not specified</dd>
 </dl>
 
 ##Notes
