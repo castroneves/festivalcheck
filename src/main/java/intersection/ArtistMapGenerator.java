@@ -5,10 +5,13 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.inject.Singleton;
 import domain.ArtistMap;
-import lastfm.domain.Artist;
 import domain.Show;
+import lastfm.domain.Artist;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -21,10 +24,8 @@ import static java.util.stream.Collectors.toMap;
  */
 @Singleton
 public class ArtistMapGenerator {
-
     private BiMap<String, String> aliases = HashBiMap.create();
     private List<String> acceptedChars = new ArrayList<>();
-
 
     public ArtistMapGenerator() {
         aliases.put("omd", "orchestral manoeuvres in the dark");
@@ -78,22 +79,23 @@ public class ArtistMapGenerator {
 
     // Possibly flag match as partial?
     private List<Artist> fetchPartialMatches(List<Artist> artists, Set<? extends Show> glastoData) {
-
-        List<Show> filterGlasto = glastoData.stream().filter(g -> artists.stream().anyMatch(a -> containsMatch(a, g)
-                || isBandMatch(a.getName(), g.getName())
-                || isTLABandMatch(a.getName(), g.getName()))).collect(toList());
+        List<Show> filterGlasto = glastoData.stream().filter(g -> artists.stream().anyMatch(a -> isPartialMatch(a, g))).collect(toList());
 
         List<Artist> matches = artists.stream()
                 .filter(a -> (
                         filterGlasto.stream().anyMatch(
-                                g -> containsMatch(a, g)
-                                        || isBandMatch(a.getName(), g.getName())
-                                        || isTLABandMatch(a.getName(), g.getName())
+                                g -> isPartialMatch(a, g)
                         )))
                 .collect(toList());
-        return matches.stream().map(a ->
-                filterGlasto.stream().map(n -> new Artist(n.getName(), a.getPlaycount(), a.getRankValue(), a.getName()))
-        ).flatMap(s -> s).collect(toList());
+        return matches.stream().flatMap(a ->
+                        filterGlasto.stream().filter(g -> isPartialMatch(a, g)).map(n -> new Artist(n.getName(), a.getPlaycount(), a.getRankValue(), a.getName()))
+        ).collect(toList());
+    }
+
+    private boolean isPartialMatch(Artist a, Show g) {
+        return containsMatch(a, g)
+                || isBandMatch(a.getName(), g.getName())
+                || isTLABandMatch(a.getName(), g.getName());
     }
 
     private boolean containsMatch(Artist a, Show show) {

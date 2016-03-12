@@ -130,6 +130,7 @@ public class ArtistMapGeneratorTest {
         assertTrue(result.containsKey("frank turner"));
         assertTrue(result.containsKey("a radical round-up special : frank turner with billy bragg: \"the road beneath my feet\" -"));
         assertTrue(result.containsKey("david cameron, frank turner and the poll tax"));
+        assertEquals(result.get("david cameron, frank turner and the poll tax").getMatch(), "Frank Turner");
     }
 
     @Test
