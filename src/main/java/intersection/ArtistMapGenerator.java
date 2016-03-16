@@ -51,8 +51,8 @@ public class ArtistMapGenerator {
         Map<String, Artist> variants = generateArtistVariantMap(variantArtists);
         lastFmMap.putAll(variants);
         Map<String, Artist> additionalMap = generatePartialMatchMap(artistList, clashfinderData);
-        lastFmMap.putAll(additionalMap);
-        return new ArtistMap(lastFmMap);
+        additionalMap.putAll(lastFmMap);
+        return new ArtistMap(additionalMap);
     }
 
     private List<Artist> fetchKnownAliases(List<Artist> artists) {

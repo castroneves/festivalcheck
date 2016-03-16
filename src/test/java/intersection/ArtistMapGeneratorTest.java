@@ -188,4 +188,19 @@ public class ArtistMapGeneratorTest {
 
         assertTrue(!result.containsKey("the beatbox"));
     }
+
+    @Test
+    public void wholeMatchNotFlaggedAsPartial() {
+        Show show = new Show() {
+            @Override
+            public String getName() {
+                return "Mumford & Sons";
+            }
+        };
+        Artist artist = new Artist("Mumford & Sons", "2", 10);
+        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist)).getArtistMap();
+
+        assertTrue(result.containsKey("mumford & sons"));
+        assertNull(result.get("mumford & sons").getMatch());
+    }
 }
