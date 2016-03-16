@@ -107,6 +107,7 @@ public class ScheduleIntersectionFinder {
     private List<Event> matchingEventsByPlays(Set<Event> clashfinderData, Map<String, Artist> artistMap) {
         return clashfinderData.stream().filter(g -> artistMap.containsKey(g.getName().toLowerCase()))
                 .map(e -> new Event(e, Integer.parseInt(artistMap.get(e.getName().toLowerCase()).getPlaycount())))
+                .map(e -> new Event(e, artistMap.get(e.getName().toLowerCase()).getMatch()))
                 .sorted((x, y) -> Integer.compare(y.getScrobs(), x.getScrobs()))
                 .collect(toList());
     }
@@ -114,6 +115,7 @@ public class ScheduleIntersectionFinder {
     private List<Event> matchingEventsByRank(Set<Event> clashfinderData, Map<String, Artist> artistMap) {
         return clashfinderData.stream().filter(g -> artistMap.containsKey(g.getName().toLowerCase()))
                 .map(e -> new Event(e, 0, artistMap.get(e.getName().toLowerCase()).getRankValue()))
+                .map(e -> new Event(e, artistMap.get(e.getName().toLowerCase()).getMatch()))
                 .sorted((x, y) -> Integer.compare(x.getReccorank(), y.getReccorank()))
                 .collect(toList());
     }
