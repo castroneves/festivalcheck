@@ -252,7 +252,86 @@ Generate hybrid personalised schedule from Spotify user's owned playlists, saved
 
 ***
 #### Sample Response
-
+    {
+        "sched": {
+            "Friday": [
+                {
+                    "name": "Bastille",
+                    "stage": "Main Stage",
+                    "day": "Friday",
+                    "startTime": "18:10",
+                    "endTime": "19:10",
+                    "scrobs": 26,
+                    "ttStart": "7.1667",
+                    "ttDuration": "1.0000",
+                    "reccorank": -1,
+                    "start": 1440781800000,
+                    "end": 1440785400000
+                },
+                {
+                    "name": "Mumford & Sons",
+                    "stage": "Main Stage",
+                    "day": "Friday",
+                    "startTime": "21:30",
+                    "endTime": "23:30",
+                    "scrobs": 231,
+                    "ttStart": "10.5000",
+                    "ttDuration": "2.0000",
+                    "reccorank": -1,
+                    "start": 1440793800000,
+                    "end": 1440801000000
+                }
+            ],
+            "Saturday": [
+                {
+                    "name": "Twin Atlantic",
+                    "stage": "NME",
+                    "day": "Saturday",
+                    "startTime": "21:10",
+                    "endTime": "22:00",
+                    "scrobs": 72,
+                    "ttStart": "10.1667",
+                    "ttDuration": "0.8333",
+                    "reccorank": -1,
+                    "start": 1440879000000,
+                    "end": 1440882000000
+                }
+            ],
+            "Sunday": [
+                {
+                    "name": "Frank Turner (Solo)",
+                    "stage": "Festival Republic",
+                    "day": "Sunday",
+                    "startTime": "21:35",
+                    "endTime": "22:35",
+                    "scrobs": 359,
+                    "ttStart": "10.5833",
+                    "ttDuration": "1.0000",
+                    "reccorank": -1,
+                    "matchString": "Frank Turner",
+                    "start": 1440966900000,
+                    "end": 1440970500000
+                }
+            ]
+        },
+        "clash": {
+            "Friday": [
+                {
+                    "name": "Limp Bizkit",
+                    "stage": "NME",
+                    "day": "Friday",
+                    "startTime": "21:10",
+                    "endTime": "22:10",
+                    "scrobs": 55,
+                    "ttStart": "10.1667",
+                    "ttDuration": "1.0000",
+                    "reccorank": -1,
+                    "start": 1440792600000,
+                    "end": 1440796200000
+                }
+            ]
+        }
+    }
 
 
 ##Notes
