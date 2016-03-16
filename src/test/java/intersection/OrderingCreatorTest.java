@@ -9,8 +9,8 @@ import java.util.List;
 
 import static org.testng.Assert.*;
 
-public class SpotifyOrderingCreatorTest {
-    private SpotifyOrderingCreator spotifyOrderingCreator = new SpotifyOrderingCreator();
+public class OrderingCreatorTest {
+    private OrderingCreator orderingCreator = new OrderingCreator();
 
     @Test
     public void groupsAndOrdersArtistsByFrequency() {
@@ -23,7 +23,7 @@ public class SpotifyOrderingCreatorTest {
         SpotifyArtist a7 = new SpotifyArtist("John Parr");
         List<SpotifyArtist> spotifyArtists = Arrays.asList(a1, a2, a3, a4, a5, a6, a7);
 
-        List<Artist> result = spotifyOrderingCreator.artistListByFrequency(spotifyArtists);
+        List<Artist> result = orderingCreator.artistListByFrequency(spotifyArtists);
 
         assertEquals(result.get(0).getName(), "Genesis");
         assertEquals(result.get(0).getPlaycount(), "3");

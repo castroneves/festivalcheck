@@ -2,7 +2,7 @@ package spotify;
 
 import cache.CacheKeyPrefix;
 import cache.CheckerCache;
-import intersection.SpotifyOrderingCreator;
+import intersection.OrderingCreator;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -32,7 +32,7 @@ public class SpotifyDataGrabberTest {
     private CheckerCache cache;
 
     @Mock
-    private SpotifyOrderingCreator spotifyOrderingCreator;
+    private OrderingCreator orderingCreator;
 
     @InjectMocks
     private SpotifyDataGrabber spotifyDataGrabber;
@@ -62,7 +62,7 @@ public class SpotifyDataGrabberTest {
 
         List<SpotifyArtist> combined = Stream.concat(artists.stream(), playlistArtists.stream()).collect(toList());
 
-        when(spotifyOrderingCreator.artistListByFrequency(combined)).thenReturn(artistList);
+        when(orderingCreator.artistListByFrequency(combined)).thenReturn(artistList);
 
         SpotifyArtists result = spotifyDataGrabber.fetchSpotifyArtists(authCode, "redirectUrl");
 

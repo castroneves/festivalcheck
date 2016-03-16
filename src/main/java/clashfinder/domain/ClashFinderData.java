@@ -5,13 +5,13 @@ import java.util.Set;
 /**
  * Created by Adam on 10/02/2016.
  */
-public class ClashfinderData {
+public class ClashFinderData {
     private Set<Event> events;
 
-    public ClashfinderData() {
+    public ClashFinderData() {
     }
 
-    public ClashfinderData(Set<Event> events) {
+    public ClashFinderData(Set<Event> events) {
         this.events = events;
     }
 

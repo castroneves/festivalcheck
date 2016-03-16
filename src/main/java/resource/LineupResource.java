@@ -38,7 +38,7 @@ public class LineupResource {
     @Path("/rec/{festival}/{username}")
     @Metered
     public List<Act> getRecommendedActsForUsername(@PathParam("username") String username, @PathParam("festival") String festival, @QueryParam("year") String year) {
-        return rumourIntersectionFinder.computeRecommendedIntersection(username, festival, year);
+        return rumourIntersectionFinder.findRecommendedIntersection(username, festival, year);
     }
 
     @GET

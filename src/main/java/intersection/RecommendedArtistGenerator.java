@@ -19,7 +19,7 @@ public class RecommendedArtistGenerator {
     @Inject
     private LastFmSender lastFmSender;
     @Inject
-    private SpotifyOrderingCreator orderingCreator;
+    private OrderingCreator orderingCreator;
 
     public Recommendations fetchRecommendations(List<Artist> actualArtists) {
         List<Artist> rawRecArtists = lastFmSender.fetchSimilarArtists(actualArtists.stream().map(Artist::getName).collect(toList()), LIMIT);
