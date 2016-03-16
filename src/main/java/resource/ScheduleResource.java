@@ -78,7 +78,7 @@ public class ScheduleResource {
     @Metered
     public Schedule getRecommendedScheduleSpotify(@PathParam("authcode") String code, @PathParam("festival") String festival, @QueryParam("year") String year, @PathParam("redirectUrl") String redirectUrl) {
         String cleanedCode = code.endsWith("#_=_") ? code.replaceAll("#_=_", "") : code;
-        List<Event> intersection = scheduleIntersectionFinder.findSpotifyReccommendedScheduleIntersection(cleanedCode, festival, year, redirectUrl);
+        List<Event> intersection = scheduleIntersectionFinder.findSpotifyRecommendedScheduleIntersection(cleanedCode, festival, year, redirectUrl);
         return scheduleBuilder.createSchedule(intersection);
     }
 

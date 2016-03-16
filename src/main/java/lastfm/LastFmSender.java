@@ -91,23 +91,6 @@ public class LastFmSender {
         return response;
     }
 
-    public Response similarArtistRequest(String artistName) {
-        WebResource resource = getWebResourceSimilar(artistName);
-        Response response = resource.accept(MediaType.APPLICATION_JSON_TYPE).
-                type(MediaType.APPLICATION_JSON_TYPE).get(Response.class);
-        return response;
-    }
-
-    private WebResource getWebResourceSimilar(final String artistName){
-        WebResource resource = client.resource(baseUrl);
-        return resource
-                .queryParam("method", "artist.getsimilar")
-                .queryParam("api_key", apiKey)
-                .queryParam("artist", artistName)
-                .queryParam("limit", "20")
-                .queryParam("format", "json");
-    }
-
     private AsyncWebResource getWebResourceSimilarAsync(final String artistName){
         AsyncWebResource resource = client.asyncResource(baseUrl);
         return resource

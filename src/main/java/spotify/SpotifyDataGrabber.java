@@ -2,7 +2,7 @@ package spotify;
 
 import cache.CheckerCache;
 import com.google.inject.Inject;
-import intersection.SpotifyOrderingCreator;
+import intersection.OrderingCreator;
 import spotify.domain.*;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class SpotifyDataGrabber {
     @Inject
     private CheckerCache cache;
     @Inject
-    private SpotifyOrderingCreator spotifyOrderingCreator;
+    private OrderingCreator orderingCreator;
 
     public SpotifyArtists fetchSpotifyArtists(String authCode, String redirectUrl) {
         AccessToken token = cache.getOrLookup(authCode, () -> spotifySender.getAuthToken(authCode, redirectUrl), SPOTIFYACCESSTOKEN, AccessToken.class);
@@ -36,7 +36,7 @@ public class SpotifyDataGrabber {
         List<SpotifyArtist> combined = Stream.concat(artists.stream(),playlistArtists.stream()).collect(toList());
 
         //Get playlist info here
-        return new SpotifyArtists(spotifyOrderingCreator.artistListByFrequency(combined));
+        return new SpotifyArtists(orderingCreator.artistListByFrequency(combined));
     }
 
     public void setSpotifySender(SpotifySender spotifySender) {
@@ -47,7 +47,7 @@ public class SpotifyDataGrabber {
         this.cache = cache;
     }
 
-    public void setSpotifyOrderingCreator(SpotifyOrderingCreator spotifyOrderingCreator) {
-        this.spotifyOrderingCreator = spotifyOrderingCreator;
+    public void setOrderingCreator(OrderingCreator orderingCreator) {
+        this.orderingCreator = orderingCreator;
     }
 }

@@ -32,8 +32,6 @@ public class RumourIntersectionFinder {
     @Inject
     private SpotifyDataGrabber spotifyDataGrabber;
     @Inject
-    private SpotifyOrderingCreator orderingCreator;
-    @Inject
     private CheckerCache cache;
     @Inject
     private ArtistMapGenerator artistMapGenerator;
@@ -47,13 +45,7 @@ public class RumourIntersectionFinder {
         return new RumourResponse(acts);
     }
 
-    public List<Act> findRecommendedIntersection(String token, String festival, String year) throws FestivalConnectionException {
-        Response lastFmResponse = cache.getOrLookup(token, () -> lastFmSender.recommendedRequest(token), RECCOMENDED, Response.class);
-        List<Artist> artists = lastFmResponse.getRecommendations().getArtist();
-        return computeIntersection(artists,festival,year, Artist::getRankValue);
-    }
-
-    public List<Act> computeRecommendedIntersection(String username, String festival,String year) {
+    public List<Act> findRecommendedIntersection(String username, String festival, String year) {
         Response lastFmData = cache.getOrLookup(username, () -> lastFmSender.simpleRequest(username), LISTENED, Response.class);
         List<Artist> artists = lastFmData.getTopartists().getArtist();
         Recommendations recArtists = cache.getOrLookup(username, () -> recommendedArtistGenerator.fetchRecommendations(artists), RECCOMENDED, Recommendations.class);
@@ -65,9 +57,21 @@ public class RumourIntersectionFinder {
         return computeIntersection(artists.getArtists(),festival,year,x -> -1 * x.getPlaycountInt());
     }
 
+    public List<Act> findSpotifyRecommendedIntersection(String authCode, String festival, String year, String redirectUrl) {
+        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl), SPOTIFYARTISTS, SpotifyArtists.class);
+        Recommendations recArtists = cache.getOrLookup(authCode, () -> recommendedArtistGenerator.fetchRecommendations(artists.getArtists()), RECCOMENDED, Recommendations.class);
+        return computeIntersection(recArtists.getArtist(), festival, year, Artist::getRankValue);
+    }
+
+    public List<Act> findLastFmRecommendedIntersectionLegacy(String token, String festival, String year) throws FestivalConnectionException {
+        Response lastFmResponse = cache.getOrLookup(token, () -> lastFmSender.recommendedRequest(token), RECCOMENDED, Response.class);
+        List<Artist> artists = lastFmResponse.getRecommendations().getArtist();
+        return computeIntersection(artists, festival, year, Artist::getRankValue);
+    }
+
     private List<Act> computeIntersection(List<Artist> artists, String festival, String year, Function<Artist,Integer> func) throws FestivalConnectionException {
         Set<Act> glastoData = efestivalSender.getFestivalData(festival, year);
-        Map<String, Artist> lastFmMap = artistMapGenerator.generateLastFmMap(glastoData,artists).getArtistMap();
+        Map<String, Artist> lastFmMap = artistMapGenerator.generateLastFmMap(glastoData, artists).getArtistMap();
 
         return glastoData.stream().filter(g -> lastFmMap.containsKey(g.getName().toLowerCase()))
                 .map(g -> new Act(g,lastFmMap.get(g.getName().toLowerCase()).getPlaycount(),lastFmMap.get(g.getName().toLowerCase()).getRankValue()))
@@ -76,11 +80,5 @@ public class RumourIntersectionFinder {
                         func.apply(lastFmMap.get(y.getName().toLowerCase()))))
                 .collect(toList());
 
-    }
-
-    public List<Act> findSpotifyRecommendedIntersection(String authCode, String festival, String year, String redirectUrl) {
-        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl), SPOTIFYARTISTS, SpotifyArtists.class);
-        Recommendations recArtists = cache.getOrLookup(authCode, () -> recommendedArtistGenerator.fetchRecommendations(artists.getArtists()), RECCOMENDED, Recommendations.class);
-        return computeIntersection(recArtists.getArtist(),festival,year,Artist::getRankValue);
     }
 }

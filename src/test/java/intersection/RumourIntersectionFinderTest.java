@@ -73,7 +73,7 @@ public class RumourIntersectionFinderTest {
         when(cache.getOrLookup(eq(token),any(Supplier.class), eq(CacheKeyPrefix.RECCOMENDED),any(Class.class))).thenReturn(response);
         when(artistMapGenerator.generateLastFmMap(festivalData,response.getRecommendations().getArtist())).thenReturn(getGenerateLastFmMap());
 
-        List<Act> intersection = rumourIntersectionFinder.findRecommendedIntersection(token, festival, year);
+        List<Act> intersection = rumourIntersectionFinder.findLastFmRecommendedIntersectionLegacy(token, festival, year);
 
         assertEquals(intersection, expectedActList());
     }

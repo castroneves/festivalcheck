@@ -49,12 +49,7 @@ public class ArtistMapGeneratorTest {
 
     @Test
     public void partialMatchContainingSpace() {
-        Show show = new Show() {
-            @Override
-            public String getName() {
-                return "Peter Gabriel, Phil Collins and Mike Rutherford";
-            }
-        };
+        Show show = () -> "Peter Gabriel, Phil Collins and Mike Rutherford";
         Artist artist = new Artist("Phil Collins", "2", 10);
         Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist)).getArtistMap();
 
@@ -63,12 +58,7 @@ public class ArtistMapGeneratorTest {
 
     @Test
     public void partialMatchContainingSpaceBeginning() {
-        Show show = new Show() {
-            @Override
-            public String getName() {
-                return "Peter Gabriel, Phil Collins and Mike Rutherford";
-            }
-        };
+        Show show = () -> "Peter Gabriel, Phil Collins and Mike Rutherford";
         Artist artist = new Artist("Peter Gabriel", "2", 10);
         Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist)).getArtistMap();
 
@@ -77,12 +67,7 @@ public class ArtistMapGeneratorTest {
 
     @Test
     public void partialMatchContainingSpaceEnd() {
-        Show show = new Show() {
-            @Override
-            public String getName() {
-                return "Peter Gabriel, Phil Collins and Mike Rutherford";
-            }
-        };
+        Show show = () -> "Peter Gabriel, Phil Collins and Mike Rutherford";
         Artist artist = new Artist("Mike Rutherford", "2", 10);
         Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist)).getArtistMap();
 
@@ -91,12 +76,7 @@ public class ArtistMapGeneratorTest {
 
     @Test
     public void noPartialMatchWithoutSpace() {
-        Show show = new Show() {
-            @Override
-            public String getName() {
-                return "Peter Gabriel, Phil Collins and Mike Rutherford";
-            }
-        };
+        Show show = () -> "Peter Gabriel, Phil Collins and Mike Rutherford";
         Artist artist = new Artist("Rutherford", "2", 10);
         Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist)).getArtistMap();
 
@@ -105,26 +85,11 @@ public class ArtistMapGeneratorTest {
 
     @Test
     public void multiplePartialMatches() {
-        Show show1 = new Show() {
-            @Override
-            public String getName() {
-                return "Frank Turner";
-            }
-        };
-        Show show = new Show() {
-            @Override
-            public String getName() {
-                return "A Radical Round-up Special : Frank Turner With Billy Bragg: \"the Road Beneath My Feet\" -";
-            }
-        };
-
-        Show show2 = new Show() {
-            @Override
-            public String getName() {
-                return "David Cameron, Frank Turner and the Poll Tax";
-            }
-        };
+        Show show1 = () -> "Frank Turner";
+        Show show = () -> "A Radical Round-up Special : Frank Turner With Billy Bragg: \"the Road Beneath My Feet\" -";
+        Show show2 = () -> "David Cameron, Frank Turner and the Poll Tax";
         Artist artist = new Artist("Frank Turner", "2", 10);
+
         Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show1,show, show2)), Arrays.asList(artist)).getArtistMap();
 
         assertTrue(result.containsKey("frank turner"));
@@ -135,13 +100,9 @@ public class ArtistMapGeneratorTest {
 
     @Test
     public void bandNamePartialMatch() {
-        Show show = new Show() {
-            @Override
-            public String getName() {
-                return "Daryl Hall & John Oates";
-            }
-        };
+        Show show = () -> "Daryl Hall & John Oates";
         Artist artist = new Artist("Hall & Oates", "2", 10);
+
         Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist)).getArtistMap();
 
         assertTrue(result.containsKey("daryl hall & john oates"));
@@ -149,13 +110,9 @@ public class ArtistMapGeneratorTest {
 
     @Test
     public void bandNamePartialMatchMixedAmpersand() {
-        Show show = new Show() {
-            @Override
-            public String getName() {
-                return "Daryl Hall & John Oates";
-            }
-        };
+        Show show = () -> "Daryl Hall & John Oates";
         Artist artist = new Artist("Hall and Oates", "2", 10);
+
         Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist)).getArtistMap();
 
         assertTrue(result.containsKey("daryl hall & john oates"));
@@ -163,12 +120,7 @@ public class ArtistMapGeneratorTest {
 
     @Test
     public void tlaBandPartialMatch() {
-        Show show = new Show() {
-            @Override
-            public String getName() {
-                return "Jeff Lynne's ELO";
-            }
-        };
+        Show show = () -> "Jeff Lynne's ELO";
         Artist artist = new Artist("elo", "2", 10);
         Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist)).getArtistMap();
 
@@ -177,13 +129,9 @@ public class ArtistMapGeneratorTest {
 
     @Test
     public void partialMatchesOfWordsDoNotMatch() {
-        Show show = new Show() {
-            @Override
-            public String getName() {
-                return "The beatbox";
-            }
-        };
+        Show show = () -> "The beatbox";
         Artist artist = new Artist("The Beat", "2", 10);
+
         Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist)).getArtistMap();
 
         assertTrue(!result.containsKey("the beatbox"));
@@ -191,13 +139,9 @@ public class ArtistMapGeneratorTest {
 
     @Test
     public void wholeMatchNotFlaggedAsPartial() {
-        Show show = new Show() {
-            @Override
-            public String getName() {
-                return "Mumford & Sons";
-            }
-        };
+        Show show = () -> "Mumford & Sons";
         Artist artist = new Artist("Mumford & Sons", "2", 10);
+
         Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist)).getArtistMap();
 
         assertTrue(result.containsKey("mumford & sons"));

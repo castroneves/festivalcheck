@@ -19,11 +19,7 @@ import static java.util.stream.Collectors.toList;
 public class ScheduleBuilder {
 
     public Schedule createSchedule(List<Event> events) {
-        events.stream().forEach(
-                e -> {
-                    setUpTimeTableData(e);
-                }
-        );
+        events.stream().forEach(this::setUpTimeTableData);
         List<Event> schedule = new ArrayList<>();
         List<Event> clashes = new ArrayList<>();
 
@@ -65,8 +61,8 @@ public class ScheduleBuilder {
         }).collect(toList());
 
         return sorted.stream().collect(groupingBy(
-                e -> e.getDay(), LinkedHashMap::new,
-                toList()
+                        e -> e.getDay(), LinkedHashMap::new,
+                        toList()
                 )
         );
     }

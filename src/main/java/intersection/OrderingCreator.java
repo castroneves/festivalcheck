@@ -12,7 +12,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Created by Adam on 24/09/2015.
  */
-public class SpotifyOrderingCreator {
+public class OrderingCreator {
 
     public List<Artist> artistListByFrequency(List<? extends BasicArtist> collect) {
         Map<String, Integer> frequencyMap = collect.stream().map(x -> x.getName()).collect(Collectors.toConcurrentMap(w -> w, w -> 1, Integer::sum));
