@@ -22,6 +22,8 @@ import static java.util.stream.Collectors.toList;
  */
 public class AsyncPaginationUtils {
     private static final Logger logger = LoggerFactory.getLogger(AsyncPaginationUtils.class);
+    public static final int TIMEOUT_INITIAL_MILLIS = 2000;
+    public static final int TIMEOUT_SUBSEQUENT_MILLIS = 1500;
 
     public static <T extends SpotifyResponse> List<T> paginateAsync(BiFunction<Integer, SpotifyDetails, Future<T>> func, SpotifyDetails details, int pageSize) {
         Optional<T> response = fetchInitialResponse(func, details);
@@ -43,7 +45,7 @@ public class AsyncPaginationUtils {
 
     private static <T extends SpotifyResponse> Optional<T> blockForResult(Future<T> response) {
         try {
-            return Optional.of(response.get(1500, TimeUnit.MILLISECONDS));
+            return Optional.of(response.get(TIMEOUT_SUBSEQUENT_MILLIS, TimeUnit.MILLISECONDS));
         } catch (Exception e) {
             logger.info(e.getMessage());
             return Optional.empty();
@@ -52,7 +54,7 @@ public class AsyncPaginationUtils {
 
     private static <T extends SpotifyResponse> Optional<T> fetchInitialResponse(BiFunction<Integer, SpotifyDetails, Future<T>> func, SpotifyDetails details) {
         try {
-            return Optional.of(func.apply(0, details).get(2, TimeUnit.SECONDS));
+            return Optional.of(func.apply(0, details).get(TIMEOUT_INITIAL_MILLIS, TimeUnit.MILLISECONDS));
         } catch (Exception e) {
             logger.info(e.getMessage());
             return Optional.empty();
