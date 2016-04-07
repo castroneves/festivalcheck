@@ -4,6 +4,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import exception.LastFmExceptionMapper;
 import io.dropwizard.Application;
+import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
+import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import module.GlastoCheckerModule;
@@ -26,7 +28,13 @@ public class GlastoService extends Application<GlastoConfiguration> {
     }
 
     @Override
-    public void initialize(Bootstrap<GlastoConfiguration> configurationBootstrap) {
+    public void initialize(Bootstrap<GlastoConfiguration> bootstrap) {
+        bootstrap.setConfigurationSourceProvider(
+                new SubstitutingSourceProvider(
+                        bootstrap.getConfigurationSourceProvider(),
+                        new EnvironmentVariableSubstitutor()
+                )
+        );
     }
 
     @Override
