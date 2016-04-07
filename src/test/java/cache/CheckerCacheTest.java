@@ -38,7 +38,7 @@ public class CheckerCacheTest {
     public void returnsCachedValue() {
         Jedis jedis = mock(Jedis.class);
         when(jedisFactory.newJedis()).thenReturn(jedis);
-        when(jedis.get(prefix + key)).thenReturn("{\"topartists\":{\"artist\":[{\"name\":\"Peter Gabriel\",\"playcount\":\"10\",\"rank\":{\"rank\":1}},{\"name\":\"Phil Collins\",\"playcount\":\"20\",\"rank\":{\"rank\":2}}]}}");
+        when(jedis.get(prefix + key)).thenReturn("{\"topartists\":{\"artist\":[{\"name\":\"Peter Gabriel\",\"playcount\":\"10\",\"@attr\":{\"rank\":1}},{\"name\":\"Phil Collins\",\"playcount\":\"20\",\"@attr\":{\"rank\":2}}]}}");
 
         Response result = checkerCache.getOrLookup(key, () -> new Response(), prefix, Response.class);
 
@@ -76,10 +76,12 @@ public class CheckerCacheTest {
         Response result = checkerCache.getOrLookup(key, () -> response, prefix, Response.class);
 
         assertSame(result,response);
-        String expectedJson = "{\"topartists\":{\"artist\":[{\"name\":\"Peter Gabriel\",\"playcount\":\"10\",\"rank\":{\"rank\":1}},{\"name\":\"Phil Collins\",\"playcount\":\"20\",\"rank\":{\"rank\":2}}]}}";
+        String expectedJson = "{\"topartists\":{\"artist\":[{\"name\":\"Peter Gabriel\",\"playcount\":\"10\",\"@attr\":{\"rank\":1}},{\"name\":\"Phil Collins\",\"playcount\":\"20\",\"@attr\":{\"rank\":2}}]}}";
         verify(jedis).set(prefix + key, expectedJson);
         verify(jedis).expire(prefix + key, 3000);
     }
+
+
 
     private Response createResponse() {
         Response response = new Response();

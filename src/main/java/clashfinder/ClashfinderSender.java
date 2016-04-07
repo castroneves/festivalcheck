@@ -3,13 +3,11 @@ package clashfinder;
 import clashfinder.domain.ClashFinderData;
 import clashfinder.domain.ClashfinderResponse;
 import com.google.inject.Inject;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
+import org.glassfish.jersey.client.JerseyClientBuilder;
 import service.config.MappingConfig;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,9 +21,7 @@ public class ClashfinderSender {
 
 
     public ClashfinderSender() {
-        ClientConfig cc = new DefaultClientConfig();
-        cc.getClasses().add(JacksonJsonProvider.class);
-        client = Client.create(cc);
+        client = JerseyClientBuilder.newClient();
     }
 
     private static final Map<String,String> clashfinderFestivalMap = new HashMap<>();
@@ -95,9 +91,10 @@ public class ClashfinderSender {
     }
 
     private ClashfinderResponse fetchRawResponse(String festival) {
-        WebResource resource = client.resource(buildUrl(festival));
-        return resource.accept(MediaType.APPLICATION_JSON_TYPE).
-                type(MediaType.APPLICATION_JSON_TYPE).get(ClashfinderResponse.class);
+        WebTarget resource = client.target(buildUrl(festival));
+        return resource.request(MediaType.APPLICATION_JSON_TYPE)
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(ClashfinderResponse.class);
     }
 
     private String buildUrl(String festival) {

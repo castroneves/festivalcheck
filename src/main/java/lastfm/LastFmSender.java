@@ -2,27 +2,25 @@ package lastfm;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.sun.jersey.api.client.AsyncWebResource;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
 import exception.LastFmException;
 import lastfm.domain.Artist;
 import lastfm.domain.AuthSession;
 import lastfm.domain.Response;
 import lastfm.domain.Session;
 import org.apache.commons.codec.binary.Hex;
-import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
+import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import service.config.LastFmConfig;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -45,16 +43,14 @@ public class LastFmSender {
     public LastFmSender(LastFmConfig config) {
         apiKey = config.getApiKey();
         apiSecret = config.getSecret();
-        ClientConfig cc = new DefaultClientConfig();
-        cc.getClasses().add(JacksonJsonProvider.class);
-        client = Client.create(cc);
+        client = JerseyClientBuilder.createClient();
     }
 
     public Response simpleRequest(String username) {
         logger.info("sending request for user " + username);
-        WebResource webResource = getWebResource(username);
-        Response response = webResource.accept(MediaType.APPLICATION_JSON_TYPE).
-                type(MediaType.APPLICATION_JSON_TYPE).get(Response.class);
+        WebTarget WebTarget = getWebTarget(username);
+        Response response = WebTarget.request(MediaType.APPLICATION_JSON_TYPE).accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(Response.class);
         if (response.getError() != null) {
             throw new LastFmException(response.getMessage());
         }
@@ -64,10 +60,10 @@ public class LastFmSender {
 
     public Response recommendedRequest(String token) {
         Session session = getSession(token);
-        WebResource resource = getRecommendedWebResource(token, session.getKey());
+        WebTarget resource = getRecommendedWebTarget(token, session.getKey());
 
-        Response response = resource.accept(MediaType.APPLICATION_JSON_TYPE).
-                type(MediaType.APPLICATION_JSON_TYPE).get(Response.class);
+        Response response = resource.request(MediaType.APPLICATION_JSON_TYPE).accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(Response.class);
         response.setSession(session);
         enrichReccoRank(response.getRecommendations().getArtist());
         return response;
@@ -85,14 +81,14 @@ public class LastFmSender {
     }
 
     private Future<Response> similarArtistRequestAsync(String artistName) {
-        AsyncWebResource resource =  getWebResourceSimilarAsync(artistName);
-        Future<Response> response = resource.accept(MediaType.APPLICATION_JSON_TYPE).
-                type(MediaType.APPLICATION_JSON_TYPE).get(Response.class);
+        WebTarget resource =  getWebTargetSimilarAsync(artistName);
+        Future<Response> response = resource.request(MediaType.APPLICATION_JSON_TYPE).accept(MediaType.APPLICATION_JSON_TYPE).async()
+                .get(Response.class);
         return response;
     }
 
-    private AsyncWebResource getWebResourceSimilarAsync(final String artistName){
-        AsyncWebResource resource = client.asyncResource(baseUrl);
+    private WebTarget getWebTargetSimilarAsync(final String artistName){
+        WebTarget resource = client.target(baseUrl);
         return resource
                 .queryParam("method", "artist.getsimilar")
                 .queryParam("api_key", apiKey)
@@ -107,8 +103,8 @@ public class LastFmSender {
         }
     }
 
-    private WebResource getWebResource(final String username){
-        WebResource resource = client.resource(baseUrl);
+    private WebTarget getWebTarget(final String username){
+        WebTarget resource = client.target(baseUrl);
         return resource
                 .queryParam("method", "user.gettopartists")
                 .queryParam("api_key", apiKey)
@@ -117,8 +113,8 @@ public class LastFmSender {
                 .queryParam("limit", "1000");
     }
 
-    private WebResource getSessionWebResource(final String token) {
-        WebResource resource = client.resource(baseUrl);
+    private WebTarget getSessionWebTarget(final String token) {
+        WebTarget resource = client.target(baseUrl);
         String method = "auth.getSession";
         return resource
                 .queryParam("api_key", apiKey)
@@ -128,8 +124,8 @@ public class LastFmSender {
                 .queryParam("api_sig", md5(generateSig(token, method, null,null)));
     }
 
-    private WebResource getRecommendedWebResource(final String token, final String sk) {
-        WebResource resource = client.resource(baseUrl);
+    private WebTarget getRecommendedWebTarget(final String token, final String sk) {
+        WebTarget resource = client.target(baseUrl);
         String method = "user.getrecommendedartists";
         String limit = "700";
         return resource
@@ -178,14 +174,23 @@ public class LastFmSender {
 
 
     private Session getSession(String token) {
-        WebResource resource = getSessionWebResource(token);
+        WebTarget resource = getSessionWebTarget(token);
 
-        AuthSession authSession = resource.accept(MediaType.APPLICATION_JSON_TYPE).
-                type(MediaType.APPLICATION_JSON_TYPE).get(AuthSession.class);
+        AuthSession authSession = resource.request(MediaType.APPLICATION_JSON_TYPE)
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .get(AuthSession.class);
 
         if (authSession.getError() != null) {
             throw new LastFmException("error " + authSession.getError() + ":" + authSession.getMessage());
         }
         return authSession.getSession();
+    }
+
+    public static void main(String[] args) {
+        LastFmConfig config = new LastFmConfig();
+        config.setApiKey("0ba3650498bb88d7328c97b461fc3636");
+        LastFmSender sender = new LastFmSender(config);
+        List<Artist> castroneves121 = sender.fetchSimilarArtists(Arrays.asList("blue october","peter gabriel"), 200);
+        System.out.println(castroneves121);
     }
 }

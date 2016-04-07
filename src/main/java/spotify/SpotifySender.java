@@ -2,19 +2,17 @@ package spotify;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.sun.jersey.api.client.AsyncWebResource;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
-import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
+import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import service.config.SpotifyConfig;
 import spotify.domain.*;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,22 +41,21 @@ public class SpotifySender {
     public SpotifySender(SpotifyConfig config) {
         clientId = config.getClientId();
         secret = config.getSecret();
-        ClientConfig cc = new DefaultClientConfig();
-        cc.getClasses().add(JacksonJsonProvider.class);
-        client = Client.create(cc);
+//        cc.getClasses().add(JacksonJsonProvider.class);
+        client = JerseyClientBuilder.newClient();
     }
 
     public AccessToken getAuthToken(final String authCode, final String redirectUrl) {
-        WebResource resource = client.resource(baseUrl);
-        MultivaluedMap<String,String> request = new MultivaluedMapImpl();
+        WebTarget resource = client.target(baseUrl);
+        MultivaluedMap<String,String> request = new MultivaluedHashMap<>();
         request.add("grant_type", "authorization_code");
         //TODO Remove occasional suffixed garbage before sending
         request.add("code", authCode);
         request.add("redirect_uri", redirectUrl);
         request.add("client_id", clientId);
         request.add("client_secret", secret);
-        return resource.accept(MediaType.APPLICATION_JSON_TYPE).
-                type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(AccessToken.class, request);
+        return resource.request(MediaType.APPLICATION_FORM_URLENCODED_TYPE).accept(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.form(request), AccessToken.class);
     }
 
 
@@ -69,10 +66,10 @@ public class SpotifySender {
 
 
     private Future<SpotifyTracksResponse> savedTracksRequest(int retrieved, SpotifyDetails details) {
-        AsyncWebResource resource = client.asyncResource(tracksUrl)
+        WebTarget resource = client.target(tracksUrl)
         .queryParam("limit", "50")
         .queryParam("offset", String.valueOf(retrieved));
-        return resource.header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE)
+        return resource.request().header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE).async()
                 .get(SpotifyTracksResponse.class);
     }
 
@@ -94,8 +91,8 @@ public class SpotifySender {
 
 
     private UserProfile getUserId(final String accessCode) {
-        WebResource resource = client.resource("https://api.spotify.com/v1/me");
-        return resource.header("Authorization", "Bearer " + accessCode).accept(MediaType.APPLICATION_JSON_TYPE)
+        WebTarget resource = client.target("https://api.spotify.com/v1/me");
+        return resource.request().header("Authorization", "Bearer " + accessCode).accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(UserProfile.class);
     }
 
@@ -114,10 +111,10 @@ public class SpotifySender {
     }
 
     private SpotifyPlaylistResponse getPlaylistResponse(int offset, SpotifyDetails details) {
-        WebResource resource = client.resource("https://api.spotify.com/v1/users/" + details.getUserId() + "/playlists")
+        WebTarget resource = client.target("https://api.spotify.com/v1/users/" + details.getUserId() + "/playlists")
                 .queryParam("limit", "50")
                 .queryParam("offset", String.valueOf(offset));
-        return resource.header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE)
+        return resource.request().header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE)
                 .get(SpotifyPlaylistResponse.class);
     }
 
@@ -132,12 +129,11 @@ public class SpotifySender {
     }
 
     private Future<SpotifyPlaylistTracksResponse> getSpotifyPlaylistTracksResponse(int retrieved, SpotifyDetails details) {
-
-            AsyncWebResource resource =
-                    client.asyncResource("https://api.spotify.com/v1/users/" + details.getUserId() + "/playlists/" + details.getPlaylistId() + "/tracks")
+            WebTarget resource =
+                    client.target("https://api.spotify.com/v1/users/" + details.getUserId() + "/playlists/" + details.getPlaylistId() + "/tracks")
                             .queryParam("limit", "100")
                             .queryParam("offset", String.valueOf(retrieved));
-            return resource.header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE)
+            return resource.request().header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE).async()
                     .get(SpotifyPlaylistTracksResponse.class);
 
     }

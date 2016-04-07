@@ -1,7 +1,6 @@
 package lastfm.domain;
 
-import lastfm.domain.Artist;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
 

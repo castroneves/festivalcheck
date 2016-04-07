@@ -3,13 +3,12 @@ package efestivals;
  * Created by Adam on 23/04/2015.
  */
 import com.google.inject.Inject;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
 import exception.FestivalConnectionException;
 import efestivals.domain.Act;
+import org.glassfish.jersey.client.JerseyClientBuilder;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,8 +25,7 @@ public class GlastoRequestSender {
     private GlastoResponseParser parser;
 
     public GlastoRequestSender() {
-        ClientConfig cc = new DefaultClientConfig();
-        client = Client.create(cc);
+        client = JerseyClientBuilder.createClient();
     }
 
     public Set<Act> getFestivalData(String festival, String year) throws FestivalConnectionException {
@@ -42,8 +40,8 @@ public class GlastoRequestSender {
             festival = "v/" + venue;
         }
         try {
-            WebResource resource = client.resource(urlPrefix + festival + "/" + year + urlSuffix);
-            return resource.type(MediaType.TEXT_HTML).get(String.class);
+            WebTarget resource = client.target(urlPrefix + festival + "/" + year + urlSuffix);
+            return resource.request(MediaType.TEXT_HTML).get(String.class);
         } catch (Exception e) {
             throw new FestivalConnectionException();
         }
