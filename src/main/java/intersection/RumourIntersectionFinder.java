@@ -38,7 +38,7 @@ public class RumourIntersectionFinder {
     @Inject
     private RecommendedArtistGenerator recommendedArtistGenerator;
 
-    public RumourResponse findIntersection(String username, String festival,String year) throws FestivalConnectionException {
+    public RumourResponse findIntersection(String username, String festival, String year) throws FestivalConnectionException {
         Response lastFmData = cache.getOrLookup(username, () -> lastFmSender.simpleRequest(username), LISTENED, Response.class);
         List<Artist> artists = lastFmData.getTopartists().getArtist();
         List<Act> acts = computeIntersection(artists, festival, year, Artist::getRankValue);
