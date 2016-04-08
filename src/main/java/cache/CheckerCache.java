@@ -17,7 +17,6 @@ import java.util.function.Supplier;
 public class CheckerCache {
     private static final Logger logger = LoggerFactory.getLogger(CheckerCache.class);
 
-
     @Inject
     private JedisFactory jedisFactory;
 
