@@ -49,6 +49,7 @@ public class ClashfinderSender {
         clashfinderFestivalMap.put("leeds2012","leeds12");
         clashfinderFestivalMap.put("leeds2011","leedsfest2011");
         clashfinderFestivalMap.put("leeds2010","leeds10");
+        clashfinderFestivalMap.put("lat2016","lat16");
         clashfinderFestivalMap.put("lat2015","lat2015");
         clashfinderFestivalMap.put("lat2014","lat2014");
         clashfinderFestivalMap.put("lat2013","lat2013");
