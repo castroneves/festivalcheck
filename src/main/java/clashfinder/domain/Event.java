@@ -169,7 +169,9 @@ public class Event implements Show {
         if (stage != null ? !stage.equals(event.stage) : event.stage != null) return false;
         if (day != null ? !day.equals(event.day) : event.day != null) return false;
         if (startTime != null ? !startTime.equals(event.startTime) : event.startTime != null) return false;
-        return !(endTime != null ? !endTime.equals(event.endTime) : event.endTime != null);
+        if (endTime != null ? !endTime.equals(event.endTime) : event.endTime != null) return false;
+        if (start != null ? !start.equals(event.start) : event.start != null) return false;
+        return end != null ? end.equals(event.end) : event.end == null;
 
     }
 
@@ -180,6 +182,8 @@ public class Event implements Show {
         result = 31 * result + (day != null ? day.hashCode() : 0);
         result = 31 * result + (startTime != null ? startTime.hashCode() : 0);
         result = 31 * result + (endTime != null ? endTime.hashCode() : 0);
+        result = 31 * result + (start != null ? start.hashCode() : 0);
+        result = 31 * result + (end != null ? end.hashCode() : 0);
         return result;
     }
 
