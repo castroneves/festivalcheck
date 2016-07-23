@@ -39,7 +39,7 @@ public class ScheduleResource {
     public Schedule getScheduleForUsername(@PathParam("username") String username, @PathParam("festival") String festival, @PathParam("year") String year) {
         return cache.getOrLookup(username + festival + year, () -> {
             List<Event> intersection = scheduleIntersectionFinder.findSIntersection(username, festival, year);
-            return scheduleBuilder.createSchedule(intersection);
+            return scheduleBuilder.createSchedule(intersection, festival, year);
         }, CacheKeyPrefix.SCHEDULE, Schedule.class);
     }
 
@@ -49,7 +49,7 @@ public class ScheduleResource {
     @Metered
     public Schedule getReccomendedSchedule(@PathParam("username") String username, @PathParam("festival") String festival, @PathParam("year") String year) {
         List<Event> intersection = scheduleIntersectionFinder.findReccoScheduleIntersection(username, festival, year);
-        return scheduleBuilder.createSchedule(intersection);
+        return scheduleBuilder.createSchedule(intersection, festival, year);
     }
 
     @GET
@@ -59,7 +59,7 @@ public class ScheduleResource {
     public Schedule getHybridSchedule(@PathParam("username") String username, @PathParam("festival") String festival, @PathParam("year") String year, @PathParam("strategy") String strategy) {
         PreferenceStrategy preferenceStrategy = getPreferenceStrategy(strategy);
         List<Event> intersection = scheduleIntersectionFinder.findHybridScheduleIntersection(username,festival,year, preferenceStrategy);
-        return scheduleBuilder.createSchedule(intersection);
+        return scheduleBuilder.createSchedule(intersection, festival, year);
     }
 
     @GET
@@ -69,7 +69,7 @@ public class ScheduleResource {
     public Schedule getScheduleSpotify(@PathParam("authcode") String code, @PathParam("festival") String festival, @PathParam("year") String year, @PathParam("redirectUrl") String redirectUrl) {
         String cleanedCode = code.endsWith("#_=_") ? code.replaceAll("#_=_", "") : code;
         List<Event> intersection = scheduleIntersectionFinder.findSpotifyScheduleIntersection(cleanedCode, festival, year, redirectUrl);
-        return scheduleBuilder.createSchedule(intersection);
+        return scheduleBuilder.createSchedule(intersection, festival, year);
     }
 
     @GET
@@ -79,7 +79,7 @@ public class ScheduleResource {
     public Schedule getRecommendedScheduleSpotify(@PathParam("authcode") String code, @PathParam("festival") String festival, @PathParam("year") String year, @PathParam("redirectUrl") String redirectUrl) {
         String cleanedCode = code.endsWith("#_=_") ? code.replaceAll("#_=_", "") : code;
         List<Event> intersection = scheduleIntersectionFinder.findSpotifyRecommendedScheduleIntersection(cleanedCode, festival, year, redirectUrl);
-        return scheduleBuilder.createSchedule(intersection);
+        return scheduleBuilder.createSchedule(intersection, festival, year);
     }
 
     @GET
@@ -89,7 +89,7 @@ public class ScheduleResource {
     public Schedule getHybridSpotifySchedule(@PathParam("authcode") String authCode, @PathParam("festival") String festival, @PathParam("year") String year, @PathParam("redirectUrl") String redirectUrl, @PathParam("strategy") String strategy) {
         PreferenceStrategy preferenceStrategy = getPreferenceStrategy(strategy);
         List<Event> intersection = scheduleIntersectionFinder.findHybridSpotifyScheduleIntersection(authCode,festival,year, redirectUrl, preferenceStrategy);
-        return scheduleBuilder.createSchedule(intersection);
+        return scheduleBuilder.createSchedule(intersection, festival, year);
     }
 
     private PreferenceStrategy getPreferenceStrategy(String strategy) {

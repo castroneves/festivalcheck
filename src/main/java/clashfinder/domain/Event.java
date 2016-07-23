@@ -2,6 +2,7 @@ package clashfinder.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.joda.ser.DateTimeSerializer;
@@ -18,6 +19,8 @@ import org.joda.time.DateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Event implements Show {
     private String name;
+    @JsonProperty("short")
+    private String shortName;
     private String stage;
     private String day;
     private String startTime;
@@ -40,6 +43,7 @@ public class Event implements Show {
 
     public Event(Event e, int scrobs) {
         this.name = e.getName();
+        this.shortName = e.getShortName();
         this.stage = e.getStage();
         this.start = e.getStart();
         this.end = e.getEnd();
@@ -156,6 +160,14 @@ public class Event implements Show {
 
     public void setMatchString(String matchString) {
         this.matchString = matchString;
+    }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
     }
 
     @Override

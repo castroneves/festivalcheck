@@ -16,11 +16,14 @@ public class Schedule {
     private List<Event> schedule;
     private List<Event> clashes;
 
+    private String clashfinderUrl;
+
     public Schedule() {}
 
-    public Schedule(Map<String, List<Event>> sched, Map<String, List<Event>> clash) {
+    public Schedule(Map<String, List<Event>> sched, Map<String, List<Event>> clash, String clashfinderUrl) {
         this.sched = sched;
         this.clash = clash;
+        this.clashfinderUrl = clashfinderUrl;
     }
 
     public List<Event> getSchedule() {
@@ -53,5 +56,13 @@ public class Schedule {
 
     public void setClash(Map<String, List<Event>> clash) {
         this.clash = clash;
+    }
+
+    public String getClashfinderUrl() {
+        return clashfinderUrl;
+    }
+
+    public void setClashfinderUrl(String clashfinderUrl) {
+        this.clashfinderUrl = clashfinderUrl;
     }
 }

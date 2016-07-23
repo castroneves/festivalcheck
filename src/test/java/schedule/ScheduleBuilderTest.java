@@ -4,6 +4,10 @@ import clashfinder.domain.Event;
 import clashfinder.domain.Schedule;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
@@ -11,15 +15,32 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.when;
 import static org.testng.Assert.*;
 
 public class ScheduleBuilderTest {
 
-    private ScheduleBuilder scheduleBuilder = new ScheduleBuilder();
-    DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
+    private final String festival = "festival";
+    private final String year = "2016";
+    private final String url = "/clashfinder/url";
+    @Mock
+    private ClashfinderUrlBuilder clashfinderUrlBuilder;
+
+    @InjectMocks
+    private ScheduleBuilder scheduleBuilder;
+
+    private static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
+
+    @BeforeMethod
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+    }
 
     @Test
     public void everyEventInScheduleWithNoClashes() {
+        when(clashfinderUrlBuilder.buildUrl(anyList(), anyList(), eq(festival), eq(year))).thenReturn(url);
+
         Event e1 = new Event();
         e1.setName("Genesis");
         e1.setStage("Pyramid");
@@ -51,7 +72,7 @@ public class ScheduleBuilderTest {
         e3.setStart(formatter.parseDateTime("2015-06-27 12:00"));
         e3.setEnd(formatter.parseDateTime("2015-06-27 13:00"));
 
-        Schedule schedule = scheduleBuilder.createSchedule(Arrays.asList(e1, e2, e4, e5, e3));
+        Schedule schedule = scheduleBuilder.createSchedule(Arrays.asList(e1, e2, e4, e5, e3), festival, year);
 
         assertEquals(schedule.getClash().size(), 0);
         assertTrue(schedule.getSched() instanceof LinkedHashMap);
@@ -71,10 +92,12 @@ public class ScheduleBuilderTest {
         assertEquals(genesis.getEndTime(), "14:15");
         assertEquals(genesis.getTtStart(), "2.0000");
         assertEquals(genesis.getTtDuration(), "1.2500");
+        assertEquals(schedule.getClashfinderUrl(), url);
     }
 
     @Test
     public void overlappingEventsMarkedAsClashOrderingPreserved() {
+        when(clashfinderUrlBuilder.buildUrl(anyList(), anyList(), eq(festival), eq(year))).thenReturn(url);
         Event e1 = new Event();
         e1.setName("Genesis");
         e1.setStage("Pyramid");
@@ -99,7 +122,7 @@ public class ScheduleBuilderTest {
         e5.setStart(formatter.parseDateTime("2015-06-26 12:00"));
         e5.setEnd(formatter.parseDateTime("2015-06-26 13:00"));
 
-        Schedule schedule = scheduleBuilder.createSchedule(Arrays.asList(e1, e2, e4, e5));
+        Schedule schedule = scheduleBuilder.createSchedule(Arrays.asList(e1, e2, e4, e5), festival, year);
 
         assertEquals(schedule.getClash().size(), 1);
         assertEquals(schedule.getSched().size(), 1);
@@ -109,6 +132,7 @@ public class ScheduleBuilderTest {
 
         List<Event> fridayClash = schedule.getClash().get("Friday");
         assertEquals(fridayClash, Arrays.asList(e2,e4));
+        assertEquals(schedule.getClashfinderUrl(), url);
     }
 
 

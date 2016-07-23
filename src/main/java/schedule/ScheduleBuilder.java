@@ -6,6 +6,7 @@ import org.joda.time.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.format.TextStyle;
 import java.util.*;
@@ -18,7 +19,10 @@ import static java.util.stream.Collectors.toList;
  */
 public class ScheduleBuilder {
 
-    public Schedule createSchedule(List<Event> events) {
+    @Inject
+    private ClashfinderUrlBuilder clashfinderUrlBuilder;
+
+    public Schedule createSchedule(List<Event> events, String festival, String year) {
         events.stream().forEach(this::setUpTimeTableData);
         List<Event> schedule = new ArrayList<>();
         List<Event> clashes = new ArrayList<>();
@@ -35,7 +39,9 @@ public class ScheduleBuilder {
                 }
         );
 
-        return new Schedule(sortAndGroupData(schedule), sortAndGroupData(clashes));
+        String url = clashfinderUrlBuilder.buildUrl(schedule, clashes, festival, year);
+
+        return new Schedule(sortAndGroupData(schedule), sortAndGroupData(clashes), url);
     }
 
     private void setUpTimeTableData(Event e) {
