@@ -83,12 +83,16 @@ public class ClashfinderSender {
     }
 
     public ClashFinderData fetchData(String festival, String year) {
-        String actualYear = year==null ? "2015" : year;
-        String suffix = clashfinderFestivalMap.get(festival + actualYear);
-        String actualSuffix = suffix == null ? festival + actualYear :suffix;
+        String actualSuffix = fetchClashfinderSuffix(festival, year);
         ClashfinderResponse response = fetchRawResponse(actualSuffix);
         response.getLocations().stream().forEach(l -> l.getEvents().stream().forEach(e -> e.setStage(l.getName())));
         return new ClashFinderData(response.getLocations().stream().flatMap(l -> l.getEvents().stream()).collect(toSet()));
+    }
+
+    public String fetchClashfinderSuffix(String festival, String year) {
+        String actualYear = year==null ? "2015" : year;
+        String suffix = clashfinderFestivalMap.get(festival + actualYear);
+        return suffix == null ? festival + actualYear :suffix;
     }
 
     private ClashfinderResponse fetchRawResponse(String festival) {
@@ -101,4 +105,5 @@ public class ClashfinderSender {
     private String buildUrl(String festival) {
         return baseUrl + festival + ".json";
     }
+
 }
