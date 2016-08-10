@@ -135,5 +135,20 @@ public class ScheduleBuilderTest {
         assertEquals(schedule.getClashfinderUrl(), url);
     }
 
+    @Test
+    public void eventsAfterMidnightAreAssignedPreviousDay() {
+        when(clashfinderUrlBuilder.buildUrl(anyList(), anyList(), eq(festival), eq(year))).thenReturn(url);
+        Event e1 = new Event();
+        e1.setName("Genesis");
+        e1.setStage("Pyramid");
+        e1.setStart(formatter.parseDateTime("2015-06-27 01:00"));
+        e1.setEnd(formatter.parseDateTime("2015-06-27 03:15"));
+
+        Schedule schedule = scheduleBuilder.createSchedule(Arrays.asList(e1), festival, year);
+
+        List<Event> events = schedule.getSched().get("Friday");
+        assertEquals(events, Arrays.asList(e1));
+    }
+
 
 }
