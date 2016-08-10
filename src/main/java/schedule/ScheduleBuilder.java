@@ -75,7 +75,7 @@ public class ScheduleBuilder {
 
     private void cleanData(List<Event> events) {
         events.stream().forEach(e -> {
-            int dayOfWeek = e.getStart().getHourOfDay() < 6 ? e.getStart().getDayOfWeek() - 1 : e.getStart().getDayOfWeek();
+            int dayOfWeek = e.getStart().getHourOfDay() < 6 ? e.getStart().minusDays(1).getDayOfWeek() : e.getStart().getDayOfWeek();
             String day = java.time.DayOfWeek.of(dayOfWeek).getDisplayName(TextStyle.FULL, Locale.ENGLISH);
             e.setDay(day);
             DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm");
