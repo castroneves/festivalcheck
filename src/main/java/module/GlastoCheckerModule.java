@@ -26,8 +26,8 @@ public class GlastoCheckerModule extends AbstractModule {
         bind(SpotifyConfig.class).toInstance(config.getSpotify());
         bind(JedisConfig.class).toInstance(config.getJedis());
 
-        List<MappingTuple> mappingConfig = config.getMappingConfig();
-        Map<String, String> collect = mappingConfig.stream().collect(toMap(a -> a.getInput(), b -> b.getTo()));
+//        List<MappingTuple> mappingConfig = config.getMappingConfig();
+//        Map<String, String> collect = mappingConfig.stream().collect(toMap(a -> a.getInput(), b -> b.getTo()));
 
         bind(MappingConfig.class).toInstance(new MappingConfig(config.getMappingConfig()));
     }
