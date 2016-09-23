@@ -44,6 +44,7 @@ Get artists linked with festival that are recommended based on Last.Fm user's li
   <dd>A valid Last.Fm username</dd>
 </dl> 
 
+***
 
 #### Spotify
 Get artists linked with festival that are recommended based on Spotify user's owned playlists and saved tracks
