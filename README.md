@@ -55,11 +55,11 @@ Get artists linked with festival that are recommended based on Spotify user's ow
   <dt>festival</dt>
   <dd>The festival key dictated by efestivals, e.g. for Glastonbury, use glastonbury. For V Festival, prefix with 'vvv'</dd>
 
-  <dt>code</dt>
-  <dd>Spotify Authorization Code</dd>
-  
   <dt>year</dt>
   <dd>Year of festival data. 2015 if not specified</dd>
+
+  <dt>code</dt>
+  <dd>Spotify Authorization Code</dd>
   
   <dt>redirectUrl</dt>
   <dd>Redirect URL used in acquiring Authorization Code</dd>
@@ -113,47 +113,43 @@ Get artists linked with festival that are recommended based on Spotify user's ow
 
 Generate personalised schedule based on Last.Fm listening history
 
-    /s/{festival}/{username}
+    /s/{festival}/{year}/{username}
 ###### Path Params    
 <dl>
   <dt>festival</dt>
   <dd>The festival key dictated by clashfinder, e.g. for Glastonbury, use g. For V Festival, prefix with 'vvv'</dd>
 
+  <dt>year</dt>
+  <dd>Year of festival data. 2015 if not specified</dd>
+
   <dt>username</dt>
   <dd>A valid Last.Fm username</dd>
 </dl>
 
-###### Query Params
-<dl>
-  <dt>year</dt>
-  <dd>Year of festival data. 2015 if not specified</dd>
-</dl>
 
 ***
 
 Generate personalised schedule from recommended artists based on Last.Fm user's listening history
 
-    /s/rec/{festival}/{username}
+    /s/rec/{festival}/{year}/{username}
 ###### Path Params     
 <dl>
   <dt>festival</dt>
   <dd>The festival key dictated by clashfinder, e.g. for Glastonbury, use g. For V Festival, prefix with 'vvv'</dd>
 
+  <dt>year</dt>
+  <dd>Year of festival data. 2015 if not specified</dd>
+
   <dt>username</dt>
   <dd>A valid Last.Fm username</dd>
 </dl> 
 
-###### Query Params
-<dl>
-  <dt>year</dt>
-  <dd>Year of festival data. 2015 if not specified</dd>
-</dl>
 
 ***
 
 Generate hybrid personalised schedule from Last.Fm user's listening history and recommended artists
 
-    /s/h/{strategy}/{festival}/{username}
+    /s/h/{strategy}/{festival}/{year}/{username}
 ###### Path Params     
 <dl>
   <dt>strategy</dt>
@@ -162,25 +158,27 @@ Generate hybrid personalised schedule from Last.Fm user's listening history and 
   <dt>festival</dt>
   <dd>The festival key dictated by clashfinder, e.g. for Glastonbury, use g. For V Festival, prefix with 'vvv'</dd>
 
+  <dt>year</dt>
+  <dd>Year of festival data. 2015 if not specified</dd>
+
   <dt>username</dt>
   <dd>A valid Last.Fm username</dd>
 </dl> 
 
-###### Query Params
-<dl>
-  <dt>year</dt>
-  <dd>Year of festival data. 2015 if not specified</dd>
-</dl>
+***
 
 #### Spotify
 
 Generate personalised schedule based on Spotify user's owned playlists and saved tracks
 
-    /s/spotify/{festival}/{authcode}/{redirectUrl}
+    /s/spotify/{festival}/{year}/{authcode}/{redirectUrl}
 ###### Path Params    
 <dl>
   <dt>festival</dt>
   <dd>The festival key dictated by clashfinder, e.g. for Glastonbury, use g. For V Festival, prefix with 'vvv'</dd>
+
+  <dt>year</dt>
+  <dd>Year of festival data. 2015 if not specified</dd>
 
   <dt>authcode</dt>
   <dd>Spotify Authorization Code</dd>
@@ -189,21 +187,19 @@ Generate personalised schedule based on Spotify user's owned playlists and saved
   <dd>Redirect URL used in acquiring Authorization Code</dd>
 </dl>
 
-###### Query Params
-<dl>
-  <dt>year</dt>
-  <dd>Year of festival data. 2015 if not specified</dd>
-</dl>
 
 ***
 
 Generate personalised schedule from recommended artists based on Spotify user's owned playlists and saved tracks
 
-    /s/spotify/rec/{festival}/{authcode}/{redirectUrl}
+    /s/spotify/rec/{festival}/{year}/{authcode}/{redirectUrl}
 ###### Path Params    
 <dl>
   <dt>festival</dt>
   <dd>The festival key dictated by clashfinder, e.g. for Glastonbury, use g. For V Festival, prefix with 'vvv'</dd>
+
+  <dt>year</dt>
+  <dd>Year of festival data. 2015 if not specified</dd>
 
   <dt>authcode</dt>
   <dd>Spotify Authorization Code</dd>
@@ -212,17 +208,12 @@ Generate personalised schedule from recommended artists based on Spotify user's 
   <dd>Redirect URL used in acquiring Authorization Code</dd>
 </dl>
 
-###### Query Params
-<dl>
-  <dt>year</dt>
-  <dd>Year of festival data. 2015 if not specified</dd>
-</dl>
 
 ***
 
 Generate hybrid personalised schedule from Spotify user's owned playlists, saved tracks and recommended artists 
 
-    /s/h/spotify/{strategy}/{festival}/{authcode}/{redirectUrl}
+    /s/h/spotify/{strategy}/{festival}/{year}/{authcode}/{redirectUrl}
 ###### Path Params    
 <dl>
   <dt>strategy</dt>
@@ -231,6 +222,9 @@ Generate hybrid personalised schedule from Spotify user's owned playlists, saved
   <dt>festival</dt>
   <dd>The festival key dictated by clashfinder, e.g. for Glastonbury, use g. For V Festival, prefix with 'vvv'</dd>
 
+  <dt>year</dt>
+  <dd>Year of festival data. 2015 if not specified</dd>
+
   <dt>authcode</dt>
   <dd>Spotify Authorization Code</dd>
   
@@ -238,11 +232,6 @@ Generate hybrid personalised schedule from Spotify user's owned playlists, saved
   <dd>Redirect URL used in acquiring Authorization Code</dd>
 </dl>
 
-###### Query Params
-<dl>
-  <dt>year</dt>
-  <dd>Year of festival data. 2015 if not specified</dd>
-</dl>
 
 ***
 #### Sample Response
