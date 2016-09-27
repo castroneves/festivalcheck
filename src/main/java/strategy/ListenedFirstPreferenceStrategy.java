@@ -18,10 +18,12 @@ public class ListenedFirstPreferenceStrategy implements PreferenceStrategy {
     public List<Event> findOrderedInterection(Set<Event> clashfinderData, Map<String, Artist> listenedArtists, Map<String, Artist> reccoArtists) {
         List<Event> listened = clashfinderData.stream().filter(g -> listenedArtists.containsKey(g.getName().toLowerCase()))
                 .map(e -> new Event(e, Integer.parseInt(listenedArtists.get(e.getName().toLowerCase()).getPlaycount())))
+                .map(e -> new Event(e, listenedArtists.get(e.getName().toLowerCase()).getMatch()))
                 .sorted((x, y) -> Integer.compare(y.getScrobs(), x.getScrobs()))
                 .collect(toList());
         List<Event> recco = clashfinderData.stream().filter(g -> reccoArtists.containsKey(g.getName().toLowerCase()))
                 .map(e -> new Event(e, 0, reccoArtists.get(e.getName().toLowerCase()).getRankValue()))
+                .map(e -> new Event(e, reccoArtists.get(e.getName().toLowerCase()).getMatch()))
                 .sorted((x, y) -> Integer.compare(x.getReccorank(), y.getReccorank()))
                 .collect(toList());
 
