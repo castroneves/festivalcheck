@@ -5,10 +5,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.joda.deser.DateTimeDeserializer;
 import com.fasterxml.jackson.datatype.joda.ser.DateTimeSerializer;
 import domain.Show;
-import service.serialise.DateTimeDeserialiser;
 import org.joda.time.DateTime;
+import service.serialise.DateTimeDeserialiser;
+import service.serialise.DateTimeSerialiser;
 
 
 /**
@@ -70,7 +72,7 @@ public class Event implements Show {
     }
 
 
-    @JsonSerialize(using = DateTimeSerializer.class)
+    @JsonSerialize(using = DateTimeSerialiser.class)
     public DateTime getStart() {
         return start;
     }
@@ -80,7 +82,7 @@ public class Event implements Show {
         this.start = start;
     }
 
-    @JsonSerialize(using = DateTimeSerializer.class)
+    @JsonSerialize(using = DateTimeSerialiser.class)
     public DateTime getEnd() {
         return end;
     }
