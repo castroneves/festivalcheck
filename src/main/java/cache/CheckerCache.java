@@ -33,7 +33,7 @@ public class CheckerCache {
             }
             return fallback(redisKey, func, jedis);
         } catch (Exception e) {
-            logger.error("Unable to connect to cache");
+            logger.error("Unable to connect to cache - {} -- {}", e.getClass(), e.getMessage());
             return func.get();
         }
     }
