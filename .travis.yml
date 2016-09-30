@@ -18,7 +18,9 @@ addons:
       - oracle-java8-installer
 
 after_success:
-  - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - docker build -t castroneves/wellysplosher:$TRAVIS_BUILD_NUMBER -t castroneves/wellysplosher:latest .
-  - docker push castroneves/wellysplosher:$TRAVIS_BUILD_NUMBER
-  - docker push castroneves/wellysplosher:latest
+  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
+  docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+  docker build -t castroneves/wellysplosher:$TRAVIS_BUILD_NUMBER -t castroneves/wellysplosher:latest .;
+  docker push castroneves/wellysplosher:$TRAVIS_BUILD_NUMBER;
+  docker push castroneves/wellysplosher:latest;
+  fi
