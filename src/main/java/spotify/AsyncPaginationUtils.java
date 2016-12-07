@@ -11,8 +11,11 @@ import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.*;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -25,16 +28,22 @@ public class AsyncPaginationUtils {
 
     public static <T extends SpotifyResponse> List<T> paginateAsync(BiFunction<Integer, SpotifyDetails, Future<T>> func, SpotifyDetails details, int pageSize) {
         Optional<T> response = fetchInitialResponse(func, details);
-        SpotifyResponse initialResponse = response.isPresent() ?  response.get() : new EmptySpotifyResponse();
+        SpotifyResponse initialResponse = response.isPresent() ? response.get() : new EmptySpotifyResponse();
         int total = initialResponse.getTotal();
         int offset = initialResponse.getItems().size();
 
         List<FuncTuple<T>> funcList = new ArrayList<>();
-        while(offset < total) {
+        while (offset < total) {
             funcList.add(new FuncTuple<>(func, offset));
             offset += pageSize;
         }
-        return searchUntilSuccess(funcList, details);
+        List<T> result = searchUntilSuccess(funcList, details);
+
+        return Stream.concat(result.stream(),
+                asList(response).stream()
+                        .filter(Optional::isPresent)
+                        .map(Optional::get))
+                .collect(toList());
     }
 
     private static <T extends SpotifyResponse> Optional<T> blockForResult(Future<T> response) {
@@ -78,7 +87,9 @@ public class AsyncPaginationUtils {
                     .map(BlockingResponse::getFunc)
                     .collect(toList());
             candidates = failures;
-            logger.info("Results: {} Failures: {}", result.size(), failures.size());
+            if (result.size() > 0 || failures.size() > 0) {
+                logger.info("Results: {} Failures: {}", result.size(), failures.size());
+            }
         } while (failures.size() > 0);
         return result;
     }
