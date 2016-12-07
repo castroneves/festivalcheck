@@ -2,9 +2,7 @@ package spotify;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spotify.domain.EmptySpotifyResponse;
-import spotify.domain.SpotifyDetails;
-import spotify.domain.SpotifyResponse;
+import spotify.domain.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,16 +29,12 @@ public class AsyncPaginationUtils {
         int total = initialResponse.getTotal();
         int offset = initialResponse.getItems().size();
 
-        List<Future<T>> responseList = new ArrayList<>();
+        List<FuncTuple<T>> funcList = new ArrayList<>();
         while(offset < total) {
-            responseList.add(func.apply(offset, details));
+            funcList.add(new FuncTuple<>(func, offset));
             offset += pageSize;
         }
-        List<Optional<T>> result = responseList.stream().map(x -> blockForResult(x)).collect(toList());
-        return Stream.concat(result.stream(), Arrays.asList(response).stream())
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(toList());
+        return searchUntilSuccess(funcList, details);
     }
 
     private static <T extends SpotifyResponse> Optional<T> blockForResult(Future<T> response) {
@@ -58,6 +52,45 @@ public class AsyncPaginationUtils {
         } catch (Exception e) {
             logger.info(e.getMessage());
             return Optional.empty();
+        }
+    }
+
+    public static <T extends SpotifyResponse> List<T> searchUntilSuccess(List<FuncTuple<T>> funcs, SpotifyDetails details) {
+        List<FuncTuple<T>> candidates = new ArrayList<>(funcs);
+        List<T> result = new ArrayList<>();
+        List<FuncTuple<T>> failures;
+        do {
+            List<SearchResponseTuple<T>> futures = candidates.stream()
+                    .map(f -> new SearchResponseTuple<>(f.getFunc().apply(f.getOffset(), details), f))
+                    .collect(toList());
+
+            List<BlockingResponse<T>> initial = futures.stream()
+                    .map(f -> blockForResult(f))
+                    .collect(toList());
+
+            result.addAll(initial.stream()
+                    .filter(o -> o.getResponse().isPresent())
+                    .map(r -> r.getResponse().get())
+                    .collect(toList()));
+
+            failures = initial.stream()
+                    .filter(o -> !o.getResponse().isPresent())
+                    .map(BlockingResponse::getFunc)
+                    .collect(toList());
+            candidates = failures;
+            logger.info("Results: {} Failures: {}", result.size(), failures.size());
+        } while (failures.size() > 0);
+        return result;
+    }
+
+    private static <T> BlockingResponse<T> blockForResult(SearchResponseTuple<T> responseTuple) {
+        try {
+            Optional<T> result = Optional.of(responseTuple.getFuture().get(TIMEOUT_SUBSEQUENT_MILLIS, TimeUnit.MILLISECONDS));
+//                logger.info("Returning track {} with errors {}", result.get(),errors);
+
+            return new BlockingResponse(result, responseTuple.getFunc());
+        } catch (Exception e) {
+            return new BlockingResponse(Optional.empty(), responseTuple.getFunc());
         }
     }
 }
