@@ -2,6 +2,7 @@ package service;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import exception.FestivalNotFoundExceptionMapper;
 import exception.LastFmExceptionMapper;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -57,6 +58,7 @@ public class GlastoService extends Application<GlastoConfiguration> {
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
         environment.jersey().register(new LastFmExceptionMapper());
+        environment.jersey().register(new FestivalNotFoundExceptionMapper());
         environment.jersey().register(scheduleResource);
         environment.jersey().register(lineupResource);
     }
