@@ -3,9 +3,11 @@ package clashfinder;
 import clashfinder.domain.ClashFinderData;
 import clashfinder.domain.ClashfinderResponse;
 import com.google.inject.Inject;
+import exception.FestivalNotFoundException;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 import service.config.MappingConfig;
 
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
@@ -68,12 +70,14 @@ public class ClashfinderSender {
         clashfinderFestivalMap.put("reading2012","r2012");
         clashfinderFestivalMap.put("reading2011","reading11");
         clashfinderFestivalMap.put("reading2010","rf2010");
+        clashfinderFestivalMap.put("vvvstafford2016","vfestivalweston2016");
         clashfinderFestivalMap.put("vvvstafford2015","vfestivallweston2015");
         clashfinderFestivalMap.put("vvvstafford2014","vnorth2014");
         clashfinderFestivalMap.put("vvvstafford2013","vs2013");
         clashfinderFestivalMap.put("vvvstafford2012","vs2012");
         clashfinderFestivalMap.put("vvvstafford2011","vs2011");
         clashfinderFestivalMap.put("vvvstafford2010","vfestival2010");
+        clashfinderFestivalMap.put("vvvchelmsford2016","vfestival2016hylandspark");
         clashfinderFestivalMap.put("vvvchelmsford2015","vfestivalhylands2015");
         clashfinderFestivalMap.put("vvvchelmsford2014","vfest2014chelmsford");
         clashfinderFestivalMap.put("vvvchelmsford2013","vc2013");
@@ -97,9 +101,14 @@ public class ClashfinderSender {
 
     private ClashfinderResponse fetchRawResponse(String festival) {
         WebTarget resource = client.target(buildUrl(festival));
-        return resource.request(MediaType.APPLICATION_JSON_TYPE)
-                .accept(MediaType.APPLICATION_JSON_TYPE)
-                .get(ClashfinderResponse.class);
+
+        try {
+            return resource.request(MediaType.APPLICATION_JSON_TYPE)
+                    .accept(MediaType.APPLICATION_JSON_TYPE)
+                    .get(ClashfinderResponse.class);
+        } catch (NotFoundException e) {
+            throw new FestivalNotFoundException(festival);
+        }
     }
 
     private String buildUrl(String festival) {
