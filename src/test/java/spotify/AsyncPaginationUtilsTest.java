@@ -73,19 +73,5 @@ public class AsyncPaginationUtilsTest {
         assertEquals(0, result.size());
     }
 
-    @Test
-    public void timedoutGetsExcludedFromResults() throws Exception {
-        BiFunction<Integer, SpotifyDetails, Future<SpotifyPlaylistResponse>> func = (x,y) -> future;
-        SpotifyPlaylistResponse initialResponse = new SpotifyPlaylistResponse();
-        initialResponse.setTotal(200);
-        List<SpotifyPlaylist> initialList = new ArrayList<>(Collections.nCopies(90, new SpotifyPlaylist()));
-        initialResponse.setItems(initialList);
-        when(future.get(2000, TimeUnit.MILLISECONDS)).thenReturn(initialResponse);
-        when(future.get(1500, TimeUnit.MILLISECONDS)).thenReturn(new SpotifyPlaylistResponse(),null, new SpotifyPlaylistResponse());
-
-        List<SpotifyPlaylistResponse> result = AsyncPaginationUtils.paginateAsync(func, new SpotifyDetails("ac"), 90);
-
-        assertEquals(2, result.size());
-    }
 
 }
