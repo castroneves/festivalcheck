@@ -18,8 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
+import static spotify.AsyncPaginationUtils.paginateAsync;
 
 
 /**
@@ -41,7 +43,6 @@ public class SpotifySender {
     public SpotifySender(SpotifyConfig config) {
         clientId = config.getClientId();
         secret = config.getSecret();
-//        cc.getClasses().add(JacksonJsonProvider.class);
         client = JerseyClientBuilder.newClient();
     }
 
@@ -49,7 +50,6 @@ public class SpotifySender {
         WebTarget resource = client.target(baseUrl);
         MultivaluedMap<String,String> request = new MultivaluedHashMap<>();
         request.add("grant_type", "authorization_code");
-        //TODO Remove occasional suffixed garbage before sending
         request.add("code", authCode);
         request.add("redirect_uri", redirectUrl);
         request.add("client_id", clientId);
@@ -61,7 +61,7 @@ public class SpotifySender {
 
     // Use limit and offset to paginate
     public List<SpotifyTracksResponse> getSavedTracks(final String accessCode) {
-        return AsyncPaginationUtils.paginateAsync(this::savedTracksRequest, new SpotifyDetails(accessCode),50);
+        return paginateAsync(this::savedTracksRequest, new SpotifyDetails(accessCode),50);
     }
 
 
@@ -72,23 +72,6 @@ public class SpotifySender {
         return resource.request().header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE).async()
                 .get(SpotifyTracksResponse.class);
     }
-
-    private <T extends SpotifyResponse> List<T> paginate(BiFunction<Integer, SpotifyDetails, T> func, SpotifyDetails details) {
-        List<T> responseList = new ArrayList<>();
-        int total = 0;
-        int retrieved = 0;
-        do {
-            // TODO Async requests like LastFm similar artists
-            T response = func.apply(retrieved, details);
-            total = response.getTotal();
-            retrieved += response.getItems().size();
-            responseList.add(response);
-        } while(retrieved < total);
-        return responseList;
-    }
-
-
-
 
     private UserProfile getUserId(final String accessCode) {
         WebTarget resource = client.target("https://api.spotify.com/v1/me");
@@ -120,12 +103,11 @@ public class SpotifySender {
 
     private List<SpotifyPlaylistTracksResponse> getTracksFromPlaylists(final String accessCode, final String userId,
                                                                        final List<SpotifyPlaylist> playlists) {
-        List<SpotifyPlaylistTracksResponse> responses = new ArrayList<>();
-        for (SpotifyPlaylist playlist : playlists) {
-            List<SpotifyPlaylistTracksResponse> res = AsyncPaginationUtils.paginateAsync(this::getSpotifyPlaylistTracksResponse, new SpotifyDetails(accessCode, playlist.getId(), userId),100);
-            responses.addAll(res);
-        }
-        return responses;
+        return playlists.stream()
+                .flatMap(p -> paginateAsync(this::getSpotifyPlaylistTracksResponse,
+                        new SpotifyDetails(accessCode, p.getId(), userId), 100)
+                        .stream())
+                .collect(toList());
     }
 
     private Future<SpotifyPlaylistTracksResponse> getSpotifyPlaylistTracksResponse(int retrieved, SpotifyDetails details) {
@@ -137,12 +119,4 @@ public class SpotifySender {
                     .get(SpotifyPlaylistTracksResponse.class);
 
     }
-
-    private SpotifyPlaylistTracksResponse emptySpotifyPlaylistTracksResponse() {
-        SpotifyPlaylistTracksResponse response = new SpotifyPlaylistTracksResponse();
-        response.setItems(new ArrayList<>());
-        response.setTotal(0);
-        return response;
-    }
-
 }
