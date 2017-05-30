@@ -8,10 +8,7 @@ import domain.ArtistMap;
 import domain.Show;
 import lastfm.domain.Artist;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -36,7 +33,7 @@ public class ArtistMapGenerator {
     }
 
     public ArtistMap generateLastFmMap(Set<? extends Show> festivalData, List<Artist> artists) {
-        List<Artist> artistList = new ArrayList<>(artists);
+        Set<Artist> artistList = new HashSet<>(artists);
         Map<String, Artist> lastFmMap = artists.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity()));
 
         List<Artist> knownAliases = fetchKnownAliases(artists);
@@ -47,7 +44,7 @@ public class ArtistMapGenerator {
         artistList.addAll(variantArtists);
         lastFmMap.putAll(generateArtistVariantMap(variantArtists));
 
-        Map<String, Artist> additionalMap = generatePartialMatchMap(artistList, festivalData);
+        Map<String, Artist> additionalMap = generatePartialMatchMap(new ArrayList<>(artistList), festivalData);
         additionalMap.putAll(lastFmMap);
         return new ArtistMap(additionalMap);
     }
