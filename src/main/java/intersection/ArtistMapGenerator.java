@@ -34,7 +34,7 @@ public class ArtistMapGenerator {
 
     public ArtistMap generateLastFmMap(Set<? extends Show> festivalData, List<Artist> artists) {
         Set<Artist> artistList = new HashSet<>(artists);
-        Map<String, Artist> lastFmMap = artists.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity()));
+        Map<String, Artist> lastFmMap = artists.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity(),  (x,y) -> x));
 
         List<Artist> knownAliases = fetchKnownAliases(artists);
         artistList.addAll(knownAliases);
@@ -66,11 +66,11 @@ public class ArtistMapGenerator {
         Set<Artist> shortArtists = partialMatchArtists.stream()
                 .map(a -> new Artist(a.getName().toLowerCase(), a.getPlaycount(), a.getRankValue(), a.getMatch()))
                 .collect(Collectors.toSet());
-        return shortArtists.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity()));
+        return shortArtists.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity(), (x,y) -> x));
     }
 
     private Map<String, Artist> generateArtistVariantMap(List<Artist> variantArtists) {
-        return variantArtists.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity()));
+        return variantArtists.stream().collect(toMap(a -> a.getName().toLowerCase(), Function.identity(), (x,y) -> x));
     }
 
     private List<Artist> fetchPartialMatches(List<Artist> artists, Set<? extends Show> festivalData) {
