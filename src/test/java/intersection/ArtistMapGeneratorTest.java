@@ -147,4 +147,15 @@ public class ArtistMapGeneratorTest {
         assertTrue(result.containsKey("mumford & sons"));
         assertNull(result.get("mumford & sons").getMatch());
     }
+
+    @Test
+    public void mapMerging(){
+        Show show = () -> "Mumford & Sons";
+        Artist artist = new Artist("Mumford & Sons", "2", 10);
+        Artist artist1 = new Artist("mumford & sons", "2", 10);
+
+        Map<String, Artist> result = generator.generateLastFmMap(new HashSet<>(Arrays.asList(show)), Arrays.asList(artist, artist1)).getArtistMap();
+
+        assertTrue(result.containsKey("mumford & sons"));
+    }
 }
