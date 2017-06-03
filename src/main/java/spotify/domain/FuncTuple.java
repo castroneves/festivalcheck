@@ -7,7 +7,7 @@ import java.util.function.BiFunction;
  * Created by castroneves on 07/12/2016.
  */
 public class FuncTuple<T> {
-    private BiFunction<Integer, SpotifyDetails, Future<T>> func;
+    private BiFunction<Integer, SpotifyDetails,  Future<T>> func;
     private int offset;
 
     public FuncTuple(BiFunction<Integer, SpotifyDetails, Future<T>> func, int offset) {

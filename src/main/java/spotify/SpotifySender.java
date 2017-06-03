@@ -14,6 +14,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -48,7 +49,7 @@ public class SpotifySender {
 
     public AccessToken getAuthToken(final String authCode, final String redirectUrl) {
         WebTarget resource = client.target(baseUrl);
-        MultivaluedMap<String,String> request = new MultivaluedHashMap<>();
+        MultivaluedMap<String, String> request = new MultivaluedHashMap<>();
         request.add("grant_type", "authorization_code");
         request.add("code", authCode);
         request.add("redirect_uri", redirectUrl);
@@ -61,16 +62,19 @@ public class SpotifySender {
 
     // Use limit and offset to paginate
     public List<SpotifyTracksResponse> getSavedTracks(final String accessCode) {
-        return paginateAsync(this::savedTracksRequest, new SpotifyDetails(accessCode),50);
+        return paginateAsync(this::savedTracksRequest,SpotifyTracksResponse.class, new SpotifyDetails(accessCode), 50);
     }
 
 
-    private Future<SpotifyTracksResponse> savedTracksRequest(int retrieved, SpotifyDetails details) {
+    private Future<Response> savedTracksRequest(int retrieved, SpotifyDetails details) {
         WebTarget resource = client.target(tracksUrl)
-        .queryParam("limit", "50")
-        .queryParam("offset", String.valueOf(retrieved));
+                .queryParam("limit", "50")
+                .queryParam("offset", String.valueOf(retrieved));
+//        return resource.request().header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE).async()
+//                .get(SpotifyTracksResponse.class);
+
         return resource.request().header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE).async()
-                .get(SpotifyTracksResponse.class);
+                .get();
     }
 
     private UserProfile getUserId(final String accessCode) {
@@ -84,7 +88,7 @@ public class SpotifySender {
         UserProfile userId = getUserId(accessCode);
         List<SpotifyPlaylist> playlists = getPlaylists(accessCode, userId.getId());
         logger.info("Playlists for : " + userId.getId() + " :: " + playlists.stream().map(x -> x.getId()).collect(toList()));
-        return getTracksFromPlaylists(accessCode,userId.getId(),playlists);
+        return getTracksFromPlaylists(accessCode, userId.getId(), playlists);
     }
 
 
@@ -105,18 +109,20 @@ public class SpotifySender {
                                                                        final List<SpotifyPlaylist> playlists) {
         return playlists.stream()
                 .flatMap(p -> paginateAsync(this::getSpotifyPlaylistTracksResponse,
+                        SpotifyPlaylistTracksResponse.class,
                         new SpotifyDetails(accessCode, p.getId(), userId), 100)
                         .stream())
                 .collect(toList());
     }
 
-    private Future<SpotifyPlaylistTracksResponse> getSpotifyPlaylistTracksResponse(int retrieved, SpotifyDetails details) {
-            WebTarget resource =
-                    client.target("https://api.spotify.com/v1/users/" + details.getUserId() + "/playlists/" + details.getPlaylistId() + "/tracks")
-                            .queryParam("limit", "100")
-                            .queryParam("offset", String.valueOf(retrieved));
-            return resource.request().header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE).async()
-                    .get(SpotifyPlaylistTracksResponse.class);
+    private Future<Response> getSpotifyPlaylistTracksResponse(int retrieved, SpotifyDetails details) {
+        WebTarget resource =
+                client.target("https://api.spotify.com/v1/users/" + details.getUserId() + "/playlists/" + details.getPlaylistId() + "/tracks")
+                        .queryParam("limit", "100")
+                        .queryParam("offset", String.valueOf(retrieved));
+        return resource.request().header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE).async().get();
+//        return resource.request().header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE).async()
+//                    .get(SpotifyPlaylistTracksResponse.class);
 
     }
 }
