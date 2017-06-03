@@ -48,8 +48,7 @@ public class AsyncPaginationUtilsTest {
         List<SpotifyPlaylist> initialList = new ArrayList<>(Collections.nCopies(50, new SpotifyPlaylist()));
         initialResponse.setItems(initialList);
 
-        when(future.get(2000, TimeUnit.MILLISECONDS)).thenReturn(response1);
-        when(future.get(1500, TimeUnit.MILLISECONDS)).thenReturn(response2);
+        when(future.get(1500, TimeUnit.MILLISECONDS)).thenReturn(response1, response2);
 
         when(response1.readEntity(any(Class.class))).thenReturn(initialResponse);
         when(response2.readEntity(any(Class.class))).thenReturn(new SpotifyPlaylistResponse());
@@ -66,8 +65,7 @@ public class AsyncPaginationUtilsTest {
         initialResponse.setTotal(200);
         List<SpotifyPlaylist> initialList = new ArrayList<>(Collections.nCopies(90, new SpotifyPlaylist()));
         initialResponse.setItems(initialList);
-        when(future.get(2000, TimeUnit.MILLISECONDS)).thenReturn(response1);
-        when(future.get(1500, TimeUnit.MILLISECONDS)).thenReturn(response2);
+        when(future.get(1500, TimeUnit.MILLISECONDS)).thenReturn(response1, response2);
 
         when(response1.readEntity(any(Class.class))).thenReturn(initialResponse);
         when(response2.readEntity(any(Class.class))).thenReturn(new SpotifyPlaylistResponse());
@@ -80,8 +78,7 @@ public class AsyncPaginationUtilsTest {
     @Test
     public void returnsEmptyWhenNullInitialResponse() throws Exception {
         BiFunction<Integer, SpotifyDetails, Future<Response>> func = (x, y) -> future;
-        when(future.get(2000, TimeUnit.MILLISECONDS)).thenReturn(response1);
-        when(future.get(1500, TimeUnit.MILLISECONDS)).thenReturn(response2);
+        when(future.get(1500, TimeUnit.MILLISECONDS)).thenReturn(response1, response2);
 
         when(response1.readEntity(any(Class.class))).thenReturn(null);
         when(response2.readEntity(any(Class.class))).thenReturn(new SpotifyPlaylistResponse());
