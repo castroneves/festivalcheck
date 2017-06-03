@@ -52,13 +52,13 @@ public class RumourIntersectionFinder {
         return computeIntersection(recArtists.getArtist(), festival, year, Artist::getRankValue);
     }
 
-    public List<Act> findSpotifyIntersection(String authCode, String festival, String year, String redirectUrl) throws FestivalConnectionException {
-        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl), SPOTIFYARTISTS, SpotifyArtists.class);
+    public List<Act> findSpotifyIntersection(String authCode, String festival, String year, String redirectUrl, boolean externalPlaylistsIncluded) throws FestivalConnectionException {
+        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl, externalPlaylistsIncluded), SPOTIFYARTISTS, SpotifyArtists.class);
         return computeIntersection(artists.getArtists(),festival,year,x -> -1 * x.getPlaycountInt());
     }
 
-    public List<Act> findSpotifyRecommendedIntersection(String authCode, String festival, String year, String redirectUrl) {
-        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl), SPOTIFYARTISTS, SpotifyArtists.class);
+    public List<Act> findSpotifyRecommendedIntersection(String authCode, String festival, String year, String redirectUrl, boolean externalPlaylistsIncluded) {
+        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl, externalPlaylistsIncluded), SPOTIFYARTISTS, SpotifyArtists.class);
         Recommendations recArtists = cache.getOrLookup(authCode, () -> recommendedArtistGenerator.fetchRecommendations(artists.getArtists()), RECCOMENDED, Recommendations.class);
         return computeIntersection(recArtists.getArtist(), festival, year, Artist::getRankValue);
     }

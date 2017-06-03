@@ -24,13 +24,13 @@ public class SpotifyDataGrabber {
     @Inject
     private OrderingCreator orderingCreator;
 
-    public SpotifyArtists fetchSpotifyArtists(String authCode, String redirectUrl) {
+    public SpotifyArtists fetchSpotifyArtists(String authCode, String redirectUrl, boolean externalPlaylistsIncluded) {
         AccessToken token = cache.getOrLookup(authCode, () -> spotifySender.getAuthToken(authCode, redirectUrl), SPOTIFYACCESSTOKEN, AccessToken.class);
 
         List<SpotifyTracksResponse> savedTracks = spotifySender.getSavedTracks(token.getAccessToken());
         List<SpotifyArtist> artists = savedTracks.stream().flatMap(x -> x.getItems().stream()).flatMap(x -> x.getTrack().getArtists().stream()).collect(toList());
 
-        List<SpotifyPlaylistTracksResponse> playListTracks = spotifySender.getPlayListTracks(token.getAccessToken());
+        List<SpotifyPlaylistTracksResponse> playListTracks = spotifySender.getPlayListTracks(token.getAccessToken(), externalPlaylistsIncluded);
         List<SpotifyArtist> playlistArtists = playListTracks.stream().flatMap(x -> x.getItems().stream()).flatMap(x -> x.getTrack().getArtists().stream()).collect(toList());
 
         List<SpotifyArtist> combined = Stream.concat(artists.stream(),playlistArtists.stream()).collect(toList());
