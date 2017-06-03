@@ -73,8 +73,8 @@ public class ScheduleIntersectionFinder {
         return strategy.findOrderedInterection(clashFinderData.getEvents(), listenedArtists.getArtistMap(), reccoArtists.getArtistMap());
     }
 
-    public List<Event> findSpotifyScheduleIntersection(String authCode, String festival, String year, String redirectUrl) {
-        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl), SPOTIFYARTISTS, SpotifyArtists.class);
+    public List<Event> findSpotifyScheduleIntersection(String authCode, String festival, String year, String redirectUrl, boolean externalPlaylistsIncluded) {
+        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl, externalPlaylistsIncluded), SPOTIFYARTISTS, SpotifyArtists.class);
         ClashFinderData clashFinderData =
                 cache.getOrLookup(festival + year, () -> clashFinderSender.fetchData(festival, year), CLASHFINDER, ClashFinderData.class);
         ArtistMap artistMap = cache.getOrLookup(authCode, () -> artistMapGenerator.generateLastFmMap(clashFinderData.getEvents(), artists.getArtists()), ARTISTMAP, ArtistMap.class);
@@ -82,20 +82,20 @@ public class ScheduleIntersectionFinder {
         return matchingEventsByPlays(clashFinderData.getEvents(), artistMap.getArtistMap());
     }
 
-    public List<Event> findSpotifyRecommendedScheduleIntersection(String authCode, String festival, String year, String redirectUrl) {
+    public List<Event> findSpotifyRecommendedScheduleIntersection(String authCode, String festival, String year, String redirectUrl, boolean externalPlaylistsIncluded) {
         ClashFinderData clashFinderData =
                 cache.getOrLookup(festival + year, () -> clashFinderSender.fetchData(festival, year), CLASHFINDER, ClashFinderData.class);
-        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl), SPOTIFYARTISTS, SpotifyArtists.class);
+        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl, externalPlaylistsIncluded), SPOTIFYARTISTS, SpotifyArtists.class);
         Recommendations recArtists = cache.getOrLookup(authCode, () -> recommendedArtistGenerator.fetchRecommendations(artists.getArtists()), RECCOMENDED, Recommendations.class);
         ArtistMap artistMap = cache.getOrLookup(authCode + festival + year, () -> artistMapGenerator.generateLastFmMap(clashFinderData.getEvents(), recArtists.getArtist()), ARTISTMAPREC, ArtistMap.class);
 
         return matchingEventsByRank(clashFinderData.getEvents(), artistMap.getArtistMap());
     }
 
-    public List<Event> findHybridSpotifyScheduleIntersection(String authCode, String festival, String year, String redirectUrl, PreferenceStrategy strategy) {
+    public List<Event> findHybridSpotifyScheduleIntersection(String authCode, String festival, String year, String redirectUrl, PreferenceStrategy strategy, boolean externalPlaylistsIncluded) {
         ClashFinderData clashFinderData =
                 cache.getOrLookup(festival + year, () -> clashFinderSender.fetchData(festival, year), CLASHFINDER, ClashFinderData.class);
-        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl), SPOTIFYARTISTS, SpotifyArtists.class);
+        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl, externalPlaylistsIncluded), SPOTIFYARTISTS, SpotifyArtists.class);
         Recommendations recArtists = cache.getOrLookup(authCode, () -> recommendedArtistGenerator.fetchRecommendations(artists.getArtists()), RECCOMENDED, Recommendations.class);
         ArtistMap reccoArtists =
                 cache.getOrLookup(authCode + festival + year, () -> artistMapGenerator.generateLastFmMap(clashFinderData.getEvents(), recArtists.getArtist()), ARTISTMAPREC, ArtistMap.class);

@@ -6,7 +6,7 @@ package spotify.domain;
 public class SpotifyDetails {
 
     private String accessCode;
-    private String playlistId;
+    private SpotifyPlaylist playlist;
     private String userId;
 
 
@@ -21,9 +21,9 @@ public class SpotifyDetails {
         this.userId = userId;
     }
 
-    public SpotifyDetails(String accessCode, String playlistId, String userId) {
+    public SpotifyDetails(String accessCode, SpotifyPlaylist playlist, String userId) {
         this.accessCode = accessCode;
-        this.playlistId = playlistId;
+        this.playlist = playlist;
         this.userId = userId;
     }
 
@@ -31,8 +31,8 @@ public class SpotifyDetails {
         return accessCode;
     }
 
-    public String getPlaylistId() {
-        return playlistId;
+    public SpotifyPlaylist getPlaylist() {
+        return playlist;
     }
 
     public String getUserId() {
