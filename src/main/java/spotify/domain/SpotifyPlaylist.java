@@ -2,15 +2,17 @@ package spotify.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-/**
- * Created by Adam on 13/10/2015.
- */
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SpotifyPlaylist {
 
     private String id;
+    private SpotifyOwner owner;
+    private String uri;
+
+    @JsonProperty("external_urls")
+    private ExternalUrls externalUrls;
 
     public String getId() {
         return id;
@@ -20,5 +22,27 @@ public class SpotifyPlaylist {
         this.id = id;
     }
 
-    // Add owner
+    public SpotifyOwner getOwner() {
+        return owner;
+    }
+
+    public void setOwner(SpotifyOwner owner) {
+        this.owner = owner;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
+    public ExternalUrls getExternalUrls() {
+        return externalUrls;
+    }
+
+    public void setExternalUrls(ExternalUrls externalUrls) {
+        this.externalUrls = externalUrls;
+    }
 }

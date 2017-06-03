@@ -57,14 +57,14 @@ public class SpotifyDataGrabberTest {
         when(spotifySender.getSavedTracks(authCode)).thenReturn(Arrays.asList(savedTracks));
         List<SpotifyArtist> artists = savedTracks.getItems().stream().flatMap(x -> x.getTrack().getArtists().stream()).collect(toList());
 
-        when(spotifySender.getPlayListTracks(authCode)).thenReturn(playListTracks);
+        when(spotifySender.getPlayListTracks(authCode, false)).thenReturn(playListTracks);
         List<SpotifyArtist> playlistArtists = playListTracks.stream().flatMap(x -> x.getItems().stream()).flatMap(x -> x.getTrack().getArtists().stream()).collect(toList());
 
         List<SpotifyArtist> combined = Stream.concat(artists.stream(), playlistArtists.stream()).collect(toList());
 
         when(orderingCreator.artistListByFrequency(combined)).thenReturn(artistList);
 
-        SpotifyArtists result = spotifyDataGrabber.fetchSpotifyArtists(authCode, "redirectUrl");
+        SpotifyArtists result = spotifyDataGrabber.fetchSpotifyArtists(authCode, "redirectUrl", false);
 
         assertSame(result.getArtists(),artistList);
 

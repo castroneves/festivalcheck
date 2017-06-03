@@ -14,11 +14,8 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
-import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static spotify.AsyncPaginationUtils.paginateAsync;
@@ -80,11 +77,11 @@ public class SpotifySender {
     }
 
 
-    public List<SpotifyPlaylistTracksResponse> getPlayListTracks(String accessCode) {
+    public List<SpotifyPlaylistTracksResponse> getPlayListTracks(String accessCode, boolean externalPlaylistsIncluded) {
         UserProfile userId = getUserId(accessCode);
         List<SpotifyPlaylist> playlists = getPlaylists(accessCode, userId.getId());
         logger.info("Playlists for : " + userId.getId() + " :: " + playlists.stream().map(x -> x.getId()).collect(toList()));
-        return getTracksFromPlaylists(accessCode,userId.getId(),playlists);
+        return getTracksFromPlaylists(accessCode,userId.getId(),playlists, externalPlaylistsIncluded);
     }
 
 
@@ -102,19 +99,28 @@ public class SpotifySender {
     }
 
     private List<SpotifyPlaylistTracksResponse> getTracksFromPlaylists(final String accessCode, final String userId,
-                                                                       final List<SpotifyPlaylist> playlists) {
+                                                                       final List<SpotifyPlaylist> playlists, boolean externalPlaylistsIncluded) {
         return playlists.stream()
+                .filter(p -> shouldUsePlaylist(p, userId, externalPlaylistsIncluded))
                 .flatMap(p -> paginateAsync(this::getSpotifyPlaylistTracksResponse,
-                        new SpotifyDetails(accessCode, p.getId(), userId), 100)
+                        new SpotifyDetails(accessCode, p, userId), 100)
                         .stream())
                 .collect(toList());
     }
 
+    private boolean shouldUsePlaylist(SpotifyPlaylist p, String userId, boolean externalPlaylistsIncluded) {
+        if (externalPlaylistsIncluded) {
+            return true;
+        }
+        return p.getOwner().getId().equals(userId);
+    }
+
     private Future<SpotifyPlaylistTracksResponse> getSpotifyPlaylistTracksResponse(int retrieved, SpotifyDetails details) {
             WebTarget resource =
-                    client.target("https://api.spotify.com/v1/users/" + details.getUserId() + "/playlists/" + details.getPlaylistId() + "/tracks")
+                    client.target("https://api.spotify.com/v1/users/" + details.getPlaylist().getOwner().getId() + "/playlists/" + details.getPlaylist().getId() + "/tracks")
                             .queryParam("limit", "100")
                             .queryParam("offset", String.valueOf(retrieved));
+
             return resource.request().header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE).async()
                     .get(SpotifyPlaylistTracksResponse.class);
 
