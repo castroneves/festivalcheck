@@ -45,18 +45,18 @@ public class LineupResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/spotify/{festival}/{year}/{code}/{redirectUrl}")
     @Metered
-    public List<Act> getActsForSpotify(@PathParam("code") String code, @PathParam("festival") String festival, @PathParam("year") String year, @PathParam("redirectUrl") String redirectUrl) {
+    public List<Act> getActsForSpotify(@PathParam("code") String code, @PathParam("festival") String festival, @PathParam("year") String year, @PathParam("redirectUrl") String redirectUrl, @DefaultValue("false") @QueryParam("externalPlaylists") boolean externalPlaylistsIncluded) {
         String cleanedCode = code.endsWith("#_=_") ? code.replaceAll("#_=_", "") : code;
-        return rumourIntersectionFinder.findSpotifyIntersection(cleanedCode, festival, year, redirectUrl);
+        return rumourIntersectionFinder.findSpotifyIntersection(cleanedCode, festival, year, redirectUrl, externalPlaylistsIncluded);
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/spotify/rec/{festival}/{year}/{code}/{redirectUrl}")
     @Metered
-    public List<Act> getRecommendedActsForSpotify(@PathParam("code") String code, @PathParam("festival") String festival, @PathParam("year") String year, @PathParam("redirectUrl") String redirectUrl) {
+    public List<Act> getRecommendedActsForSpotify(@PathParam("code") String code, @PathParam("festival") String festival, @PathParam("year") String year, @PathParam("redirectUrl") String redirectUrl, @DefaultValue("false") @QueryParam("externalPlaylists") boolean externalPlaylistsIncluded) {
         String cleanedCode = code.endsWith("#_=_") ? code.replaceAll("#_=_", "") : code;
-        return rumourIntersectionFinder.findSpotifyRecommendedIntersection(cleanedCode, festival, year, redirectUrl);
+        return rumourIntersectionFinder.findSpotifyRecommendedIntersection(cleanedCode, festival, year, redirectUrl, externalPlaylistsIncluded);
     }
 
 }

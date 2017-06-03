@@ -66,9 +66,10 @@ public class ScheduleResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/spotify/{festival}/{year}/{authcode}/{redirectUrl}")
     @Metered
-    public Schedule getScheduleSpotify(@PathParam("authcode") String code, @PathParam("festival") String festival, @PathParam("year") String year, @PathParam("redirectUrl") String redirectUrl) {
+    public Schedule getScheduleSpotify(@PathParam("authcode") String code, @PathParam("festival") String festival, @PathParam("year") String year, @PathParam("redirectUrl") String redirectUrl, @DefaultValue("false") @QueryParam("externalPlaylists") boolean externalPlaylistsIncluded) {
+        System.out.println(externalPlaylistsIncluded);
         String cleanedCode = code.endsWith("#_=_") ? code.replaceAll("#_=_", "") : code;
-        List<Event> intersection = scheduleIntersectionFinder.findSpotifyScheduleIntersection(cleanedCode, festival, year, redirectUrl);
+        List<Event> intersection = scheduleIntersectionFinder.findSpotifyScheduleIntersection(cleanedCode, festival, year, redirectUrl, externalPlaylistsIncluded);
         return scheduleBuilder.createSchedule(intersection, festival, year);
     }
 
@@ -76,9 +77,9 @@ public class ScheduleResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/spotify/rec/{festival}/{year}/{authcode}/{redirectUrl}")
     @Metered
-    public Schedule getRecommendedScheduleSpotify(@PathParam("authcode") String code, @PathParam("festival") String festival, @PathParam("year") String year, @PathParam("redirectUrl") String redirectUrl) {
+    public Schedule getRecommendedScheduleSpotify(@PathParam("authcode") String code, @PathParam("festival") String festival, @PathParam("year") String year, @PathParam("redirectUrl") String redirectUrl, @DefaultValue("false") @QueryParam("externalPlaylists") boolean externalPlaylistsIncluded) {
         String cleanedCode = code.endsWith("#_=_") ? code.replaceAll("#_=_", "") : code;
-        List<Event> intersection = scheduleIntersectionFinder.findSpotifyRecommendedScheduleIntersection(cleanedCode, festival, year, redirectUrl);
+        List<Event> intersection = scheduleIntersectionFinder.findSpotifyRecommendedScheduleIntersection(cleanedCode, festival, year, redirectUrl, externalPlaylistsIncluded);
         return scheduleBuilder.createSchedule(intersection, festival, year);
     }
 
@@ -86,9 +87,9 @@ public class ScheduleResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/h/spotify/{strategy}/{festival}/{year}/{authcode}/{redirectUrl}")
     @Metered
-    public Schedule getHybridSpotifySchedule(@PathParam("authcode") String authCode, @PathParam("festival") String festival, @PathParam("year") String year, @PathParam("redirectUrl") String redirectUrl, @PathParam("strategy") String strategy) {
+    public Schedule getHybridSpotifySchedule(@PathParam("authcode") String authCode, @PathParam("festival") String festival, @PathParam("year") String year, @PathParam("redirectUrl") String redirectUrl, @PathParam("strategy") String strategy, @DefaultValue("false") @QueryParam("externalPlaylists") boolean externalPlaylistsIncluded) {
         PreferenceStrategy preferenceStrategy = getPreferenceStrategy(strategy);
-        List<Event> intersection = scheduleIntersectionFinder.findHybridSpotifyScheduleIntersection(authCode,festival,year, redirectUrl, preferenceStrategy);
+        List<Event> intersection = scheduleIntersectionFinder.findHybridSpotifyScheduleIntersection(authCode,festival,year, redirectUrl, preferenceStrategy, externalPlaylistsIncluded);
         return scheduleBuilder.createSchedule(intersection, festival, year);
     }
 
