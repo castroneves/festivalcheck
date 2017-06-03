@@ -12,7 +12,8 @@ public enum CacheKeyPrefix {
     SPOTIFYACCESSTOKEN(""),
     ARTISTMAP("artistmap_"),
     ARTISTMAPREC("artistmaprec_"),
-    SPOTIFYARTISTS("spotifyartists_");
+    SPOTIFYARTISTSOWN("spotifyartistsown_"),
+    SPOTIFYARTISTSALL("spotifyartistsall_");
 
     private final String prefix;
 

@@ -1,5 +1,6 @@
 package intersection;
 
+import cache.CacheKeyPrefix;
 import cache.CheckerCache;
 import com.google.inject.Inject;
 import domain.RumourResponse;
@@ -53,12 +54,14 @@ public class RumourIntersectionFinder {
     }
 
     public List<Act> findSpotifyIntersection(String authCode, String festival, String year, String redirectUrl, boolean externalPlaylistsIncluded) throws FestivalConnectionException {
-        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl, externalPlaylistsIncluded), SPOTIFYARTISTS, SpotifyArtists.class);
+        CacheKeyPrefix cacheKey = cacheKey(externalPlaylistsIncluded);
+        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl, externalPlaylistsIncluded), cacheKey, SpotifyArtists.class);
         return computeIntersection(artists.getArtists(),festival,year,x -> -1 * x.getPlaycountInt());
     }
 
     public List<Act> findSpotifyRecommendedIntersection(String authCode, String festival, String year, String redirectUrl, boolean externalPlaylistsIncluded) {
-        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl, externalPlaylistsIncluded), SPOTIFYARTISTS, SpotifyArtists.class);
+        CacheKeyPrefix cacheKey = cacheKey(externalPlaylistsIncluded);
+        SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl, externalPlaylistsIncluded), cacheKey, SpotifyArtists.class);
         Recommendations recArtists = cache.getOrLookup(authCode, () -> recommendedArtistGenerator.fetchRecommendations(artists.getArtists()), RECCOMENDED, Recommendations.class);
         return computeIntersection(recArtists.getArtist(), festival, year, Artist::getRankValue);
     }
@@ -80,5 +83,8 @@ public class RumourIntersectionFinder {
                         func.apply(lastFmMap.get(y.getName().toLowerCase()))))
                 .collect(toList());
 
+    }
+    private CacheKeyPrefix cacheKey(boolean externalPlaylistsIncluded) {
+        return externalPlaylistsIncluded ? SPOTIFYARTISTSALL : SPOTIFYARTISTSOWN;
     }
 }

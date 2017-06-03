@@ -70,8 +70,6 @@ public class SpotifySender {
         WebTarget resource = client.target(tracksUrl)
                 .queryParam("limit", "50")
                 .queryParam("offset", String.valueOf(retrieved));
-//        return resource.request().header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE).async()
-//                .get(SpotifyTracksResponse.class);
 
         return resource.request().header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE).async()
                 .get();
@@ -111,19 +109,18 @@ public class SpotifySender {
                 .filter(p -> shouldUsePlaylist(p, userId, externalPlaylistsIncluded))
                 .flatMap(p -> paginateAsync(this::getSpotifyPlaylistTracksResponse,
                         SpotifyPlaylistTracksResponse.class,
-                        new SpotifyDetails(accessCode, p.getId(), userId), 100)
+                        new SpotifyDetails(accessCode, p, userId), 100)
                         .stream())
                 .collect(toList());
     }
 
     private Future<Response> getSpotifyPlaylistTracksResponse(int retrieved, SpotifyDetails details) {
         WebTarget resource =
-                client.target("https://api.spotify.com/v1/users/" + details.getUserId() + "/playlists/" + details.getPlaylistId() + "/tracks")
+                client.target("https://api.spotify.com/v1/users/" + details.getPlaylist().getOwner().getId() + "/playlists/" + details.getPlaylist().getId() + "/tracks")
                         .queryParam("limit", "100")
                         .queryParam("offset", String.valueOf(retrieved));
         return resource.request().header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE).async().get();
-//        return resource.request().header("Authorization", "Bearer " + details.getAccessCode()).accept(MediaType.APPLICATION_JSON_TYPE).async()
-//                    .get(SpotifyPlaylistTracksResponse.class);
+    }
 
     private boolean shouldUsePlaylist(SpotifyPlaylist p, String userId, boolean externalPlaylistsIncluded) {
         if (externalPlaylistsIncluded) {

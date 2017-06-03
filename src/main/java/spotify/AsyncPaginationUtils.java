@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spotify.domain.*;
 
+import javax.swing.text.html.Option;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,13 +60,8 @@ public class AsyncPaginationUtils {
     }
 
     private static <T extends Response, S extends SpotifyResponse> Optional<S> fetchInitialResponse(BiFunction<Integer, SpotifyDetails, Future<T>> func, Class<S> clazz, SpotifyDetails details) {
-        try {
-            T response = func.apply(0, details).get(TIMEOUT_INITIAL_MILLIS, TimeUnit.MILLISECONDS);
-            return Optional.of(response.readEntity(clazz));
-        } catch (Exception e) {
-            logger.info(e.getMessage());
-            return Optional.empty();
-        }
+        List<S> results = searchUntilSuccess(Arrays.asList(new FuncTuple<>(func, 0)), clazz, details);
+        return results.stream().findFirst();
     }
 
     public static <T extends Response, S extends SpotifyResponse> List<S> searchUntilSuccess(List<FuncTuple<T>> funcs, Class<S> clazz, SpotifyDetails details) {
@@ -92,7 +88,7 @@ public class AsyncPaginationUtils {
                     .map(BlockingResponse::getFunc)
                     .collect(toList());
             candidates = failures;
-            if (result.size() > 0 || failures.size() > 0) {
+            if (result.size() > 1 || failures.size() > 0) {
                 logger.info("Results: {} Failures: {}", result.size(), failures.size());
             }
         } while (failures.size() > 0);
@@ -105,7 +101,6 @@ public class AsyncPaginationUtils {
             T response = responseTuple.getFuture().get(TIMEOUT_SUBSEQUENT_MILLIS, TimeUnit.MILLISECONDS);
             statusCode = response.getStatus();
             Optional<S> result = Optional.of(response.readEntity(clazz));
-//                logger.info("Returning track {} with errors {}", result.get(),errors);
 
             return new BlockingResponse(result, statusCode, responseTuple.getFunc());
         } catch (Exception e) {
