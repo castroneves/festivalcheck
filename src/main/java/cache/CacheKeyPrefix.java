@@ -10,8 +10,10 @@ public enum CacheKeyPrefix {
     SCHEDULE("schedule_"),
     CLASHFINDER("clashfinder_"),
     SPOTIFYACCESSTOKEN(""),
-    ARTISTMAP("artistmap_"),
-    ARTISTMAPREC("artistmaprec_"),
+    ARTISTMAPOWN("artistmapown_"),
+    ARTISTMAPEXTERNAL("artistmapext_"),
+    ARTISTMAPRECOWN("artistmaprecown_"),
+    ARTISTMAPRECEXTERNAL("artistmaprecext_"),
     SPOTIFYARTISTSOWN("spotifyartistsown_"),
     SPOTIFYARTISTSALL("spotifyartistsall_");
 
