@@ -5,7 +5,8 @@ package cache;
  */
 public enum CacheKeyPrefix {
     LISTENED("lastfm_"),
-    RECCOMENDED("recco_"),
+    RECCOMENDEDOWN("reccoown_"),
+    RECCOMENDEDALL("reccoall_"),
     RUMOUR("rumour_"),
     SCHEDULE("schedule_"),
     CLASHFINDER("clashfinder_"),

@@ -49,7 +49,7 @@ public class RumourIntersectionFinder {
     public List<Act> findRecommendedIntersection(String username, String festival, String year) {
         Response lastFmData = cache.getOrLookup(username, () -> lastFmSender.simpleRequest(username), LISTENED, Response.class);
         List<Artist> artists = lastFmData.getTopartists().getArtist();
-        Recommendations recArtists = cache.getOrLookup(username, () -> recommendedArtistGenerator.fetchRecommendations(artists), RECCOMENDED, Recommendations.class);
+        Recommendations recArtists = cache.getOrLookup(username, () -> recommendedArtistGenerator.fetchRecommendations(artists), RECCOMENDEDOWN, Recommendations.class);
         return computeIntersection(recArtists.getArtist(), festival, year, Artist::getRankValue);
     }
 
@@ -61,13 +61,14 @@ public class RumourIntersectionFinder {
 
     public List<Act> findSpotifyRecommendedIntersection(String authCode, String festival, String year, String redirectUrl, boolean externalPlaylistsIncluded) {
         CacheKeyPrefix cacheKey = cacheKey(externalPlaylistsIncluded);
+        CacheKeyPrefix cacheKeyRec = cacheKeyRec(externalPlaylistsIncluded);
         SpotifyArtists artists = cache.getOrLookup(authCode, () -> spotifyDataGrabber.fetchSpotifyArtists(authCode, redirectUrl, externalPlaylistsIncluded), cacheKey, SpotifyArtists.class);
-        Recommendations recArtists = cache.getOrLookup(authCode, () -> recommendedArtistGenerator.fetchRecommendations(artists.getArtists()), RECCOMENDED, Recommendations.class);
+        Recommendations recArtists = cache.getOrLookup(authCode, () -> recommendedArtistGenerator.fetchRecommendations(artists.getArtists()), cacheKeyRec, Recommendations.class);
         return computeIntersection(recArtists.getArtist(), festival, year, Artist::getRankValue);
     }
 
     public List<Act> findLastFmRecommendedIntersectionLegacy(String token, String festival, String year) throws FestivalConnectionException {
-        Response lastFmResponse = cache.getOrLookup(token, () -> lastFmSender.recommendedRequest(token), RECCOMENDED, Response.class);
+        Response lastFmResponse = cache.getOrLookup(token, () -> lastFmSender.recommendedRequest(token), RECCOMENDEDOWN, Response.class);
         List<Artist> artists = lastFmResponse.getRecommendations().getArtist();
         return computeIntersection(artists, festival, year, Artist::getRankValue);
     }
@@ -86,5 +87,9 @@ public class RumourIntersectionFinder {
     }
     private CacheKeyPrefix cacheKey(boolean externalPlaylistsIncluded) {
         return externalPlaylistsIncluded ? SPOTIFYARTISTSALL : SPOTIFYARTISTSOWN;
+    }
+
+    private CacheKeyPrefix cacheKeyRec(boolean externalPlaylistsIncluded) {
+        return externalPlaylistsIncluded ? RECCOMENDEDALL : RECCOMENDEDOWN;
     }
 }

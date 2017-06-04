@@ -26,7 +26,7 @@ public class CheckerCache {
     public <T> T getOrLookup(String key, Supplier<T> func, CacheKeyPrefix prefix, Class<T> clazz) {
         try (Jedis jedis = jedisFactory.newJedis()) {
             String redisKey = prefix + key;
-            logger.info("Time to live : " + key + " " + jedis.ttl(redisKey));
+            logger.info("Time to live : "  + prefix + " " + key + " " + jedis.ttl(redisKey));
             String json = jedis.get(redisKey);
             if (json != null && json != "") {
                 return mapper.readValue(json, clazz);
