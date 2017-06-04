@@ -70,7 +70,7 @@ public class RumourIntersectionFinderTest {
         Set<Act> festivalData = generateFestivalData();
         when(efestivalSender.getFestivalData(festival,year)).thenReturn(festivalData);
         Response response = generateRecommendedLastFmData();
-        when(cache.getOrLookup(eq(token),any(Supplier.class), eq(CacheKeyPrefix.RECCOMENDED),any(Class.class))).thenReturn(response);
+        when(cache.getOrLookup(eq(token),any(Supplier.class), eq(CacheKeyPrefix.RECCOMENDEDOWN),any(Class.class))).thenReturn(response);
         when(artistMapGenerator.generateLastFmMap(festivalData,response.getRecommendations().getArtist())).thenReturn(getGenerateLastFmMap());
 
         List<Act> intersection = rumourIntersectionFinder.findLastFmRecommendedIntersectionLegacy(token, festival, year);

@@ -2,10 +2,10 @@
   server:
     applicationConnectors:
     - type: http
-      port: 80
+      port: 8082
     adminConnectors:
     - type: http
-      port: 8091
+      port: 8092
 
   logging:
       level: INFO
@@ -20,17 +20,18 @@
         - type: console
 
   jedis:
-    host:
-    port:
-    password:
+      host: localhost
+      port: 6379
+      password:
 
   lastFm:
-    apiKey:
-    secret:
+    apiKey: 0ba3650498bb88d7328c97b461fc3636
+    secret: 15d49ba610f2c6ec4e884dacec4e4021
 
-   spotify:
-      clientId:
-      secret:
+  spotify:
+    clientId: 4f9ea44544be4b789e54bfd9c23ebdc9
+    secret: cedd084f7dd3440782cd3c3aa1a6ec5f
+
 
   mappings:
     - input: g2015
