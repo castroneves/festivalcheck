@@ -20,17 +20,17 @@
         - type: console
 
   jedis:
-      host: 
+      host:
       port:
       password:
 
   lastFm:
-    apiKey: 
-    secret: 
+    apiKey:
+    secret:
 
   spotify:
-    clientId: 
-    secret: 
+    clientId:
+    secret:
 
 
   mappings:
