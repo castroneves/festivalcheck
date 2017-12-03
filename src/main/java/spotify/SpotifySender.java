@@ -15,11 +15,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
-import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static spotify.AsyncPaginationUtils.paginateAsync;

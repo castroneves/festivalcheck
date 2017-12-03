@@ -10,7 +10,7 @@ import java.util.List;
  * Created by Adam on 08/09/2015.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SpotifyTracksResponse implements SpotifyResponse {
+public class SpotifyTracksResponse implements SpotifyResponse, PagableResult {
 
     private List<SpotifyTracksItem> items;
     private Integer total;
@@ -25,6 +25,11 @@ public class SpotifyTracksResponse implements SpotifyResponse {
 
     public Integer getTotal() {
         return total;
+    }
+
+    @Override
+    public Integer getResults() {
+        return items.size();
     }
 
     public void setTotal(Integer total) {

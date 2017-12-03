@@ -88,5 +88,11 @@ public class AsyncPaginationUtilsTest {
         assertEquals(0, result.size());
     }
 
+    // unparsable response, 5xx, 4xx
+
+    // Initial 429
+
+    // subsequent 429
+
 
 }

@@ -5,11 +5,11 @@ import java.util.concurrent.Future;
 /**
  * Created by castroneves on 28/11/2016.
  */
-public class SearchResponseTuple<T> {
+public class SearchResponseTuple<T, R, S> {
     private Future<T> future;
-    private FuncTuple<T> func;
+    private FuncTuple<T, R, S> func;
 
-    public SearchResponseTuple(Future<T> future, FuncTuple<T> func) {
+    public SearchResponseTuple(Future<T> future, FuncTuple<T, R, S> func) {
         this.future = future;
         this.func = func;
     }
@@ -18,7 +18,7 @@ public class SearchResponseTuple<T> {
         return future;
     }
 
-    public FuncTuple<T> getFunc() {
+    public FuncTuple<T, R, S> getFunc() {
         return func;
     }
 }

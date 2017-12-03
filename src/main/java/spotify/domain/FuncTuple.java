@@ -6,20 +6,20 @@ import java.util.function.BiFunction;
 /**
  * Created by castroneves on 07/12/2016.
  */
-public class FuncTuple<T> {
-    private BiFunction<Integer, SpotifyDetails,  Future<T>> func;
-    private int offset;
+public class FuncTuple<T, R, S> {
+    private BiFunction<S, R,  Future<T>> func;
+    private S offset;
 
-    public FuncTuple(BiFunction<Integer, SpotifyDetails, Future<T>> func, int offset) {
+    public FuncTuple(BiFunction<S, R, Future<T>> func, S offset) {
         this.func = func;
         this.offset = offset;
     }
 
-    public BiFunction<Integer, SpotifyDetails, Future<T>> getFunc() {
+    public BiFunction<S, R, Future<T>> getFunc() {
         return func;
     }
 
-    public int getOffset() {
+    public S getOffset() {
         return offset;
     }
 }

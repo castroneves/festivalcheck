@@ -11,7 +11,7 @@ import java.util.List;
  */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SpotifyPlaylistTracksResponse implements SpotifyResponse {
+public class SpotifyPlaylistTracksResponse implements SpotifyResponse, PagableResult {
 
     private List<SpotifyTracksItem> items;
     private Integer total;
@@ -19,6 +19,11 @@ public class SpotifyPlaylistTracksResponse implements SpotifyResponse {
     @Override
     public Integer getTotal() {
         return total;
+    }
+
+    @Override
+    public Integer getResults() {
+        return items.size();
     }
 
     public List<SpotifyTracksItem> getItems() {
