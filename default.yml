@@ -1,40 +1,33 @@
 ---
-  server:
-    applicationConnectors:
+server:
+  applicationConnectors:
     - type: http
-      port: 8082
-    adminConnectors:
+      port: 8080
+  adminConnectors:
     - type: http
-      port: 8092
+      port: 8091
 
-  logging:
-      level: INFO
-      appenders:
-        - type: file
-          currentLogFilename: wellysplosher.log
-          threshold: ALL
-          archive: true
-          archivedLogFilenamePattern: wellysplosher-%d.log
-          archivedFileCount: 5
-          timeZone: UTC
-        - type: console
+logging:
+  level: INFO
+  appenders:
+    - type: file
+      currentLogFilename: wellysplosher.log
+      threshold: ALL
+      archive: true
+      archivedLogFilenamePattern: wellysplosher-%d.log
+      archivedFileCount: 5
+      timeZone: UTC
+    - type: console
 
-  jedis:
-      host:
-      port:
-      password:
+jedis:
+  host: localhost
+  port: 6379
+  password:
 
-  lastFm:
-    apiKey:
-    secret:
+lastFm:
+  apiKey: 0ba3650498bb88d7328c97b461fc3636
+  secret: 15d49ba610f2c6ec4e884dacec4e4021
 
-  spotify:
-    clientId:
-    secret:
-
-
-  mappings:
-    - input: g2015
-      to: g2015
-    - input: g2013
-      to: glast2013
+spotify:
+  clientId: 4f9ea44544be4b789e54bfd9c23ebdc9
+  secret: cfb4f730af0d47f3a49a2bde85763922

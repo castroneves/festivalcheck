@@ -4,10 +4,11 @@ import clashfinder.domain.ClashFinderData;
 import clashfinder.domain.ClashfinderResponse;
 import com.google.inject.Inject;
 import exception.FestivalNotFoundException;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 import service.config.MappingConfig;
 
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
@@ -18,12 +19,14 @@ import static java.util.stream.Collectors.toSet;
 
 public class ClashfinderSender {
 
-    private static final String baseUrl = "http://clashfinder.com/data/event/";
+    private static final String baseUrl = "https://clashfinder.com/data/event/";
     private final Client client;
 
 
     public ClashfinderSender() {
-        client = JerseyClientBuilder.newClient();
+        ClientConfig cc = new ClientConfig().property(ClientProperties.FOLLOW_REDIRECTS, true);
+
+        client = JerseyClientBuilder.newClient(cc);
     }
 
     private static final Map<String,String> clashfinderFestivalMap = new HashMap<>();
@@ -104,12 +107,13 @@ public class ClashfinderSender {
 
     private ClashfinderResponse fetchRawResponse(String festival) {
         WebTarget resource = client.target(buildUrl(festival));
+        resource.property(ClientProperties.FOLLOW_REDIRECTS, Boolean.TRUE);
 
         try {
             return resource.request(MediaType.APPLICATION_JSON_TYPE)
                     .accept(MediaType.APPLICATION_JSON_TYPE)
                     .get(ClashfinderResponse.class);
-        } catch (NotFoundException e) {
+        } catch (Exception e) {
             throw new FestivalNotFoundException(festival);
         }
     }
