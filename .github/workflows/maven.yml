@@ -32,5 +32,5 @@ jobs:
     - name: sanity
       env:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
