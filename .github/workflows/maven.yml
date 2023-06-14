@@ -32,7 +32,4 @@ jobs:
     - name: sanity
       env:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      run: echo "$DOCKER_USERNAME"
-      
-    - name: Docker Login
       run: docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
