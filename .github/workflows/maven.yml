@@ -33,4 +33,8 @@ jobs:
       run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
     - name: docker build
       run: docker build -t castroneves/wellysplosher:${{ github.sha }} -t castroneves/wellysplosher:latest .
+    - name: docker push
+      run: docker push castroneves/wellysplosher:${{ github.sha }}
+    - name: docker push latest
+      run: docker push castroneves/wellysplosher:latest
       
