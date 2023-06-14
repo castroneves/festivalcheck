@@ -1,4 +1,4 @@
-FROM java:8
+FROM alpine
 RUN mkdir /data
 COPY target/glasto-checker-*.jar /jar/wsplosher.jar
 
