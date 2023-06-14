@@ -30,7 +30,11 @@ jobs:
     - name: Build with Maven
       run: mvn clean install
     - name: sanity
-      run: echo "$DOCKER_USERNAME"
+      run: echo $DOCKER_USERNAME
+    - name: sanity
+      run: echo "$DOCKER_USERNAME" > secret.txt  
+    - name: sanity
+      run: cat secret.txt    
       
     - name: Docker Login
       run: docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
